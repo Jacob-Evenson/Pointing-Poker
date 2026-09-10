@@ -1,5 +1,8 @@
 # Standup 
 ## Date:
+## Time:
+## Sprint:
+## Facilitator:
 ## Present:
 
 ### Name:
