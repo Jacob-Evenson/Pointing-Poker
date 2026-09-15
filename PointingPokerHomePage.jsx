@@ -8,7 +8,7 @@ const PointingPokerHomePage = () => {
   const [liveStats, setLiveStats] = useState({sessions: 0, players: 0})
 
   useEffect(() =>{
-    document.title = "Pointing Poker, Team Collaboration simplified"
+    document.title = "Pointing Poker"
     //TO DO LIST
     /*
     Set up our live stats here 
