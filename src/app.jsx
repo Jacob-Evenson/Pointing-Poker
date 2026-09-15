@@ -3,13 +3,24 @@ import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import './App.css'
+import PointingPokerHomePage from '../PointingPokerHomePage.jsx'
 
 function App() {
   const [count, setCount] = useState(0)
 
+  const points = [
+    { value: 0, title: '0', description: 'No effort' },
+    { value: 1, title: '1', description: 'Tiny task' },
+    { value: 2, title: '2', description: 'Very small task' },
+    { value: 3, title: '3', description: 'Small task' },
+    { value: 5, title: '5', description: 'Moderate task' },
+    { value: 8, title: '8', description: 'Large task' },
+    { value: 13, title: '13', description: 'Very large task' },
+    { value: '?', title: '?', description: 'Need more information' }
+  ];
   return (
     <>
-      <section id="center">
+      {/* <section id="center">
         <div className="hero">
           <img src={heroImg} className="base" width="170" height="179" alt="" />
           <img src={reactLogo} className="framework" alt="React logo" />
@@ -114,7 +125,8 @@ function App() {
       </section>
 
       <div className="ticks"></div>
-      <section id="spacer"></section>
+      <section id="spacer"></section> */}
+      <PointingPokerHomePage points={points} />
     </>
   )
 }
