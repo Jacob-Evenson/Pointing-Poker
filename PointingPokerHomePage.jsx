@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import '../src/PointingPokerHomePage.css'
+import "./PointingPokerHomePage.css";
 
 
 const PointingPokerHomePage = () => {
