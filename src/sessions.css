@@ -1,0 +1,73 @@
+
+.session-container {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: #f4f7f2;
+  border: 1px solid #9caf88;
+  border-radius: 8px;
+  font-family: inherit;
+}
+
+.session-container section {
+  font-size: 1.1rem;
+  color: #3f5233;
+  margin-bottom: 0.5rem;
+}
+
+.session-container label {
+  display: block;
+  font-weight: 600;
+  color: #3f5233;
+  margin-top: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.session-container textarea {
+  width: 100%;
+  border: 1px solid #9caf88;
+  border-radius: 4px;
+  padding: 0.5rem;
+  font-size: 1rem;
+  resize: vertical;
+  background-color: #ffffff;
+  color: #2b2b2b;
+}
+
+.session-container textarea:focus-visible {
+  outline: 3px solid #5c7a4e;
+  outline-offset: 2px;
+}
+
+.session-container button {
+  background-color: #6b8e5a;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1.25rem;
+  margin-top: 1rem;
+  margin-right: 0.75rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.session-container button:hover {
+  background-color: #5c7a4e;
+}
+
+.session-container button:focus-visible {
+  outline: 3px solid #3f5233;
+  outline-offset: 2px;
+}
+
+.session-container ol {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.session-container ol li {
+  padding: 0.5rem;
+  border-bottom: 1px solid #d8e0d0;
+  color: #2b2b2b;
+}

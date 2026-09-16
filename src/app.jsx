@@ -1,11 +1,15 @@
 import React from 'react'
 import PointingPokerHomePage from '../PointingPokerHomePage.jsx';
-import "../PointingPokerHomePage.css";
+import Sessions from '../sessions/sessions.jsx';
+import { Route, Routes } from 'react-router-dom';
 
-const app = () => {
+const App = () => {
   return (
-    <PointingPokerHomePage />
+    <Routes>
+     <Route path="/" element={<PointingPokerHomePage/>}/>
+     <Route path="/Sessions" element={<Sessions/>}/>
+    </Routes>
   )
 }
 
-export default app
+export default App
