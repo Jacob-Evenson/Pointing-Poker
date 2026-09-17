@@ -1,3 +1,4 @@
+import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import SelectedPoint from '../src/components/SelectedPoint.jsx'
@@ -18,7 +19,7 @@ describe('SelectedPoint', () => {
   it('displays a question-mark selected point', () => {
     render(<SelectedPoint point={{ value: '?' }} voted />)
 
-    expect(screen.getByText('You selected ? points.')).toBeInTheDocument()
+    expect(screen.getByText('You selected Needs more information.')).toBeInTheDocument()
   })
 
   it('does not crash when a vote has no selected point', () => {

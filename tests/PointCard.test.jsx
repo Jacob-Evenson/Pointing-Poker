@@ -1,3 +1,4 @@
+import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import PointCard from '../src/components/PointCard'
@@ -40,5 +41,14 @@ describe('PointCard', () => {
     await screen.getByRole('button').click()
 
     expect(onSelect).toHaveBeenCalledWith(zeroPoint)
+  })
+
+  it('uses a non-numeric label for question-mark cards', () => {
+    const unknownPoint = { value: '?', title: '?', description: 'Need more information' }
+
+    render(<PointCard point={unknownPoint} onSelect={vi.fn()} />)
+
+    expect(screen.getByText('Needs more information')).toBeInTheDocument()
+    expect(screen.queryByText('? points')).not.toBeInTheDocument()
   })
 })

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import "./PointingPokerHomePage.css";
-import PointCard from './src/components/PointCard.jsx';
-import SelectedPoint from './src/components/SelectedPoint.jsx';
-import ParticipantList from './src/components/ParticipantList.jsx';
-import { points } from './src/data/points.js';
+import PointCard from './components/PointCard.jsx';
+import SelectedPoint from './components/SelectedPoint.jsx';
+import ParticipantList from './components/ParticipantList.jsx';
+import { points } from './data/points.js';
 
 const PointingPokerHomePage = () => {
   //Place holder for our live stats for showing sessions 
