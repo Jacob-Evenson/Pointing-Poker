@@ -4,7 +4,7 @@ const VoteStats = ({ votes }) => {
     const stats = getVoteStats(votes);
 
     if (stats.low === null) {
-        return <p>No votes yet</p>;
+        return <p>No votes yet.</p>;
     }
 
     return (
