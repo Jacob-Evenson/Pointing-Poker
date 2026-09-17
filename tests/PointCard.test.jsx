@@ -27,4 +27,18 @@ describe('PointCard', () => {
     expect(onSelect).toHaveBeenCalledOnce()
     expect(onSelect).toHaveBeenCalledWith(point)
   })
+
+  it('renders and selects a zero-point card', async () => {
+    const zeroPoint = { value: 0, title: '0', description: 'No effort' }
+    const onSelect = vi.fn()
+
+    render(<PointCard point={zeroPoint} onSelect={onSelect} />)
+
+    expect(screen.getByRole('heading', { name: '0' })).toBeInTheDocument()
+    expect(screen.getByText('0 points')).toBeInTheDocument()
+
+    await screen.getByRole('button').click()
+
+    expect(onSelect).toHaveBeenCalledWith(zeroPoint)
+  })
 })
