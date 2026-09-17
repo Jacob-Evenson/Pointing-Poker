@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import "./PointingPokerHomePage.css";
-import PointCard from './components/PointCard.jsx';
-import SelectedPoint from './components/SelectedPoint.jsx';
-import ParticipantList from './components/ParticipantList.jsx';
-import PointingPokerRounds from './components/PointingPokerRounds.jsx';
-import { points } from './data/points.js';
+import PointCard from './src/components/PointCard.jsx';
+import SelectedPoint from './src/components/SelectedPoint.jsx';
+import ParticipantList from './src/components/ParticipantList.jsx';
+import PointingPokerRounds from './src/components/PointingPokerRounds.jsx';
+import { points } from './src/data/points.js';
 
 const PointingPokerHomePage = () => {
   //Place holder for our live stats for showing sessions 
@@ -19,7 +19,6 @@ const PointingPokerHomePage = () => {
   ])
 
   const allVoted = participants.length > 0 && participants.every((participant) => participant.voted)
-  const currentParticipant = participants.find((participant) => participant.id === 1)
 
   // handles the selection of a point card and updates the user state accordingly
   const handlePointSelect = (point) => {
@@ -82,7 +81,7 @@ const PointingPokerHomePage = () => {
               />
             ))}
           </div>
-          <SelectedPoint point={selectedPoint} voted={Boolean(currentParticipant?.voted)} />
+          <SelectedPoint point={selectedPoint} voted={participants[0].voted} />
           <ParticipantList
             participants={participants}
             allVoted={allVoted}
