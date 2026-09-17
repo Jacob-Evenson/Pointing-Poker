@@ -1,6 +1,7 @@
+import React from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import PointingPokerHomePage from '../PointingPokerHomePage.jsx'
+import PointingPokerHomePage from '../src/PointingPokerHomePage.jsx'
 
 describe('PointingPokerHomePage voting', () => {
   it('renders all point cards and starts without a vote', () => {
@@ -79,8 +80,8 @@ describe('PointingPokerHomePage voting', () => {
   it('supports the question-mark estimate', () => {
     render(<PointingPokerHomePage />)
 
-    fireEvent.click(screen.getByRole('button', { name: /\? Need more information \? points/ }))
+    fireEvent.click(screen.getByRole('button', { name: /\? Need more information Needs more information/ }))
 
-    expect(screen.getByText('You selected ? points.')).toBeInTheDocument()
+    expect(screen.getByText('You selected Needs more information.')).toBeInTheDocument()
   })
 })
