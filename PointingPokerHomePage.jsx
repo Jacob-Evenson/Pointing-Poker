@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import "./PointingPokerHomePage.css";
+import "./src/components/Header.jsx"
+import Header from './src/components/Header';
 
 
 const PointingPokerHomePage = () => {
@@ -20,16 +22,7 @@ const PointingPokerHomePage = () => {
     <>
     {/*Do we want the skip link? That will take you right to the main content? */}
     <a className="skip-link" href="#main-content">Skip to main content</a>
-
-    <header className="site-header">
-      <div className="wrap">
-        <span className="Pointing Poker">Pointing Poker</span>
-        <nav aria-label="primary">
-          <a href="#features">Features</a>
-          <a href="#live">Live Activity</a>
-        </nav>y
-      </div>
-    </header>
+    <Header/>
 
     <main id="main-content">
       <section className="Pointing Poker wrap">

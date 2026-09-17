@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import SessionsTimer from './SessionsTimer';
-import '../src/'
+import Header from '../src/components/Header';
+import '../src/sessions.css'
 
 const Sessions = () => {
 
@@ -22,30 +23,35 @@ const Sessions = () => {
 
   return (
     <>
-      <section>Session ID: {sessionID}</section>
-      <div>{displayName}</div>
+      <Header />
+      <div className='session-page' />
+      <section className='session-id'>Session ID: {sessionID}</section>
+      <div className='display-name'>{displayName}</div>
 
       {/* TO DO List for session page
       1st clear votes button and show votes button
        1. Add voting buttons 0, 1/2, 1, 2, 3, 5, 8, 13, 20, 40, 100, and ?
        2. Add time counter  */}
 
-      <div className='sessions-container'>
-        <div>Player</div> 
-        <div>Points</div>
-
-        <SessionsTimer/> {/* Will need to be adjusted to stop when that last player votes */}
-
-       <label htmlFor='storyDescription'>Story Description</label>
-       <textarea
-       id="storyDescription"
-       placeholder='Enter Story Description'
-       rows="10"
-       />
-
-        <button>Clear Votes</button>
+      <div className='session-container'>
+        <div className='table-header'>
+          <div>Player</div>
+          <div>Points</div>
+        </div>
+        <div className='timer-row'>
+          <SessionsTimer /> {/* Will need to be adjusted to stop when that last player votes */}
+        </div>
+        <label htmlFor='storyDescription'>Story Description</label>
+        <textarea
+          id="storyDescription"
+          placeholder='Enter Story Description'
+          rows="10"
+        />
+        <div className='button-row'>
+        <button>Clear Votes</button>   
         <button>Reveal Votes</button> {/*Can be changed to show votes. */}
-        <ol>
+        </div>
+        <ol className='player-list'>
           {players.map(player => (
             <li key={player.id}>{player.name}</li>
           ))}
