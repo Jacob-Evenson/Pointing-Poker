@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import PointCard from '../src/components/PointCard'
 
@@ -23,7 +23,7 @@ describe('PointCard', () => {
 
     render(<PointCard point={point} onSelect={onSelect} />)
 
-    await screen.getByRole('button').click()
+    fireEvent.click(screen.getByRole('button'))
 
     expect(onSelect).toHaveBeenCalledOnce()
     expect(onSelect).toHaveBeenCalledWith(point)
@@ -38,7 +38,7 @@ describe('PointCard', () => {
     expect(screen.getByRole('heading', { name: '0' })).toBeInTheDocument()
     expect(screen.getByText('0 points')).toBeInTheDocument()
 
-    await screen.getByRole('button').click()
+    fireEvent.click(screen.getByRole('button'))
 
     expect(onSelect).toHaveBeenCalledWith(zeroPoint)
   })
