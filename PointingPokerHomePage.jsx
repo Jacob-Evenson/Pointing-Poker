@@ -2,22 +2,31 @@ import React, { useEffect, useState } from 'react'
 import "./PointingPokerHomePage.css";
 import PointCard from './src/components/PointCard.jsx';
 import SelectedPoint from './src/components/SelectedPoint.jsx';
+import ParticipantList from './src/components/ParticipantList.jsx';
 import { points } from './src/data/points.js';
 
 const PointingPokerHomePage = () => {
   //Place holder for our live stats for showing sessions 
   //Hook up to API? If we have time
-  const [liveStats, setLiveStats] = useState({ sessions: 0, players: 0 })
+  const [liveStats] = useState({ sessions: 0, players: 0 })
   const [selectedPoint, setSelectedPoint] = useState(null)
-  const [user, setUser] = useState({ name: 'Player', bid: null, voted: false })
+  const [anonymousReveal, setAnonymousReveal] = useState(false)
+  const [participants, setParticipants] = useState([
+    { id: 1, name: 'Player', bid: null, voted: false },
+    { id: 2, name: 'Alex', bid: 5, voted: true },
+    { id: 3, name: 'Jordan', bid: 8, voted: true },
+  ])
 
+  const allVoted = participants.length > 0 && participants.every((participant) => participant.voted)
+
+  // handles the selection of a point card and updates the user state accordingly
   const handlePointSelect = (point) => {
     setSelectedPoint(point)
-    setUser((currentUser) => ({
-      ...currentUser,
-      bid: point.value,
-      voted: true
-    }))
+    setParticipants((currentParticipants) => currentParticipants.map((participant) => (
+      participant.id === 1
+        ? { ...participant, bid: point.value, voted: true }
+        : participant
+    )))
   }
 
 
@@ -55,7 +64,7 @@ const PointingPokerHomePage = () => {
               Teams can collaborate, vote on ideas and in real time with out the ads and no clutter.
               With a modern style
             </p>
-            {/*className ap stands for Active Players also can be changed early on if we dont like the active players */}
+            {/*className ap stands for Active Players also can be changed early on if we don't like the active players */}
             <a className="ap" href="#live">Active Players</a>
           </div>
         </section>
@@ -71,7 +80,13 @@ const PointingPokerHomePage = () => {
               />
             ))}
           </div>
-          <SelectedPoint point={selectedPoint} voted={user.voted} />
+          <SelectedPoint point={selectedPoint} voted={participants[0].voted} />
+          <ParticipantList
+            participants={participants}
+            allVoted={allVoted}
+            anonymousReveal={anonymousReveal}
+            onAnonymousReveal={setAnonymousReveal}
+          />
         </section>
 
         <section id="features" className="features wrap">
