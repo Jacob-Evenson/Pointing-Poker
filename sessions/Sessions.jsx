@@ -53,7 +53,7 @@ const Sessions = () => {
         </div>
         <ol className='player-list'>
           {players.map(player => (
-            <li key={player.id}>{player.name}</li>
+            <li key={player.id}>{player.name}{player.points}</li>
           ))}
         </ol>
       </div>
