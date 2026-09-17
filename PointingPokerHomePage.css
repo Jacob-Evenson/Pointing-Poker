@@ -222,6 +222,125 @@ section.Pointing.Poker.wrap {
   margin: 0;
 }
 
+.participant-panel {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--white);
+  border: 1px solid var(--sage-200);
+  border-radius: 8px;
+}
+
+.participant-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.participant-panel h2,
+.participant-panel h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.participant-panel-header p {
+  margin: .25rem 0 0;
+  color: var(--sage-700);
+  font-size: .85rem;
+}
+
+.anonymous-toggle {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  color: var(--sage-700);
+  font-size: .85rem;
+  white-space: nowrap;
+}
+
+.anonymous-toggle input {
+  accent-color: var(--clay-700);
+}
+
+.participant-list,
+.anonymous-results ul {
+  display: grid;
+  gap: .5rem;
+  padding: 0;
+  margin: 1rem 0 0;
+  list-style: none;
+}
+
+.participant {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .65rem .75rem;
+  background: var(--sage-050);
+  border: 1px solid var(--sage-200);
+  border-radius: 4px;
+}
+
+.participant strong,
+.participant-status {
+  display: block;
+}
+
+.participant strong {
+  font-size: .9rem;
+}
+
+.participant-status {
+  margin-top: .15rem;
+  color: var(--clay-700);
+  font-size: .75rem;
+}
+
+.participant-status.voted {
+  color: var(--sage-700);
+}
+
+.participant-vote {
+  min-width: 4.5rem;
+  color: var(--sage-900);
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+.anonymous-results {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--sage-200);
+}
+
+.anonymous-results ul {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: .5rem;
+}
+
+.anonymous-results li {
+  min-width: 2.5rem;
+  padding: .4rem .65rem;
+  color: var(--white);
+  background: var(--sage-700);
+  border-radius: 4px;
+  font-weight: 700;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .participant-panel-header {
+    flex-direction: column;
+  }
+
+  .anonymous-toggle {
+    white-space: normal;
+  }
+}
+
 .features {
   padding-block: 1.25rem;
 }
