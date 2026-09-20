@@ -1,6 +1,6 @@
 # Standup 02
 ## Date: 9/17/26
-## Time:
+## Time: 9:00
 ## Sprint: 01
 ## Facilitator: Amelia Gianoli
 ## Present: Amelia, Nathaniel. Eliy, Jacob
