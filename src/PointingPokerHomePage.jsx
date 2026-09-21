@@ -3,7 +3,6 @@ import "./PointingPokerHomePage.css";
 import PointCard from './components/PointCard.jsx';
 import SelectedPoint from './components/SelectedPoint.jsx';
 import ParticipantList from './components/ParticipantList.jsx';
-import PointingPokerRounds from './components/PointingPokerRounds.jsx';
 import { points } from './data/points.js';
 
 const PointingPokerHomePage = () => {
@@ -45,9 +44,23 @@ const PointingPokerHomePage = () => {
   return (
     <>
       {/*Do we want the skip link? That will take you right to the main content? */}
-      <a className="skip-link" href="#main-content">Skip to main content</a>
 
-      <header className="site-header">
+      <a className="skip-link" href="#main-content">Skip to main content</a>
+      <header className="game-header">
+        <div className="game-shell game-header-content">
+          <a className="brand" href="#main-content" aria-label="Pointing Poker home">
+            <span className="brand-mark" aria-hidden="true">PP</span>
+            <span>Pointing Poker</span>
+          </a>
+          <span className="header-status">
+            <nav>
+              <a href="">Features</a>
+              <a href="">Live Activity</a>
+            </nav>
+          </span>
+        </div>
+      </header>
+      {/* <header className="site-header">
         <div className="wrap">
           <span className="Pointing Poker">Pointing Poker</span>
           <nav aria-label="primary">
@@ -55,10 +68,29 @@ const PointingPokerHomePage = () => {
             <a href="#live">Live Activity</a>
           </nav>
         </div>
-      </header>
+      </header> */}
+
+      <main>
+        <section className='Session-name'>
+          <div className="Session-name">
+            <label htmlFor="session-join">Join Session</label>
+            <input id='Session-Name' type='text' />
+            <button>Join Session</button>
+          </div>
+
+          <div className="session-join">
+            <button>Create Session</button>
+          </div>
+          <p>
+            Pointing Poker is a simple yet effective tool used by teams to collaborate and vote on tasks based on the relative effort, complexity,
+            and uncertainty to complete a product item. Teams assign story points the lower the points the easier and higher the more effort it will take,
+            based on the average of all votes cast. {/*Can Adjust info if needed I put in a basic description of pointing poker */}
+          </p>
+        </section>
+      </main>
 
       <main id="main-content">
-        <section className="Pointing Poker wrap">
+        <section className="Pointing-Poker-wrap">
           <div className="Pointing-Poker">
             <h1>Plan team sprints without the guesswork of Collaboration</h1>
             <p>
@@ -71,7 +103,7 @@ const PointingPokerHomePage = () => {
           </div>
         </section>
 
-        <section className="voting-section wrap" aria-labelledby="voting-heading">
+        {/* <section className="voting-section wrap" aria-labelledby="voting-heading">
           <h2 id="voting-heading">Choose your estimate</h2>
           <div className="point-card-grid">
             {points.map((point) => (
@@ -89,12 +121,7 @@ const PointingPokerHomePage = () => {
             anonymousReveal={anonymousReveal}
             onAnonymousReveal={setAnonymousReveal}
           />
-        </section>
-
-        <section className="rounds-section wrap" aria-labelledby="rounds-heading">
-          <h2 id="rounds-heading">Story rounds</h2>
-          <PointingPokerRounds />
-        </section>
+        </section> */}
 
         <section id="features" className="features wrap">
           <h2>Why Teams Choose to use Pointing Poker style tools for Collaboration</h2>
@@ -119,11 +146,11 @@ const PointingPokerHomePage = () => {
           <dl className="stat-row" aria-live="polite">
             <div className="stat">
               <dt>Active Collaboration sessions</dt>
-              <dd>{liveStats.sessions}</dd>
+              {/* <dd>{liveStats.sessions}</dd> */}
             </div>
             <div className="stat">
               <dt>Players online</dt>
-              <dd>{liveStats.players}</dd>
+              {/* <dd>{liveStats.players}</dd> */}
             </div>
           </dl>
         </section>
