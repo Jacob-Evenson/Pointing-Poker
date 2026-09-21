@@ -1,12 +1,12 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
-import PointingPokerHomePage from './PointingPokerHomePage.jsx'
+import GamePage from './GamePage.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <PointingPokerHomePage />
+      <GamePage />
     </BrowserRouter>
   </StrictMode>,
 )

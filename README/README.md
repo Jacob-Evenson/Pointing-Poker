@@ -16,6 +16,14 @@ FRONTEND	React
 BACKEND	node  
 DATABASE	mySQL  
 
+## User Flow:
+1. lands on home page
+2. selects join or create
+  - intermediary: enter name and join; guest/host: if host- enter story cards
+3. game page
+  - show votes; host sets a final value that brings up the next card
+
+
 ## Implementation Documentation
 
 ### PointCard
