@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import PointingPokerRounds from './PointingPokerRounds';
+import PointingPokerRounds from '../src/components/PointingPokerRounds';
 
 describe('PointingPokerRounds', () => {
   it('starts on round 1 and allows the user to mark a round complete', async () => {

@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import PointingPokerHomePage from '../src/PointingPokerHomePage.jsx'
 
@@ -8,8 +8,19 @@ describe('PointingPokerHomePage voting', () => {
     render(<PointingPokerHomePage />)
 
     expect(screen.getByRole('region', { name: 'Choose your estimate' })).toBeInTheDocument()
-    expect(screen.getAllByRole('button')).toHaveLength(8)
+    expect(within(screen.getByRole('region', { name: 'Choose your estimate' })).getAllByRole('button')).toHaveLength(8)
     expect(screen.getByText('Choose a card to submit your estimate.')).toBeInTheDocument()
+  })
+
+  it('renders the story rounds section with its initial stories', () => {
+    render(<PointingPokerHomePage />)
+
+    expect(screen.getByRole('region', { name: 'Story rounds' })).toBeInTheDocument()
+    expect(screen.getByText('Pointing Poker - Story Cards')).toBeInTheDocument()
+    expect(screen.getByText('Round 1 of 3')).toBeInTheDocument()
+    expect(screen.getByText('This round is still in progress.')).toBeInTheDocument()
+    expect(screen.getByText('User Login')).toBeInTheDocument()
+    expect(screen.getByText('Password Reset')).toBeInTheDocument()
   })
 
   it('stores the selected value and marks the user as voted', () => {
@@ -74,7 +85,7 @@ describe('PointingPokerHomePage voting', () => {
 
     expect(screen.getByText('You selected 8 points.')).toBeInTheDocument()
     expect(screen.queryByText('You selected 3 points.')).not.toBeInTheDocument()
-    expect(screen.getAllByRole('button')).toHaveLength(8)
+    expect(within(screen.getByRole('region', { name: 'Choose your estimate' })).getAllByRole('button')).toHaveLength(8)
   })
 
   it('supports the question-mark estimate', () => {
