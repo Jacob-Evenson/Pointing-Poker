@@ -8,27 +8,27 @@ import { points } from './data/points.js';
 const PointingPokerHomePage = () => {
   //Place holder for our live stats for showing sessions 
   //Hook up to API? If we have time
-  const [liveStats] = useState({ sessions: 0, players: 0 })
-  const [selectedPoint, setSelectedPoint] = useState(null)
-  const [anonymousReveal, setAnonymousReveal] = useState(false)
-  const [participants, setParticipants] = useState([
-    { id: 1, name: 'Player', bid: null, voted: false },
-    { id: 2, name: 'Alex', bid: 5, voted: true },
-    { id: 3, name: 'Jordan', bid: 8, voted: true },
-  ])
+  // const [liveStats] = useState({ sessions: 0, players: 0 })
+  // const [selectedPoint, setSelectedPoint] = useState(null)
+  // const [anonymousReveal, setAnonymousReveal] = useState(false)
+  // const [participants, setParticipants] = useState([
+  //   { id: 1, name: 'Player', bid: null, voted: false },
+  //   { id: 2, name: 'Alex', bid: 5, voted: true },
+  //   { id: 3, name: 'Jordan', bid: 8, voted: true },
+  // ])
 
-  const allVoted = participants.length > 0 && participants.every((participant) => participant.voted)
-  const currentParticipant = participants.find((participant) => participant.id === 1)
+  // const allVoted = participants.length > 0 && participants.every((participant) => participant.voted)
+  // const currentParticipant = participants.find((participant) => participant.id === 1)
 
-  // handles the selection of a point card and updates the user state accordingly
-  const handlePointSelect = (point) => {
-    setSelectedPoint(point)
-    setParticipants((currentParticipants) => currentParticipants.map((participant) => (
-      participant.id === 1
-        ? { ...participant, bid: point.value, voted: true }
-        : participant
-    )))
-  }
+  // // handles the selection of a point card and updates the user state accordingly
+  // const handlePointSelect = (point) => {
+  //   setSelectedPoint(point)
+  //   setParticipants((currentParticipants) => currentParticipants.map((participant) => (
+  //     participant.id === 1
+  //       ? { ...participant, bid: point.value, voted: true }
+  //       : participant
+  //   )))
+  // }
 
 
 
