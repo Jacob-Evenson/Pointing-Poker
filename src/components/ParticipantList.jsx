@@ -1,6 +1,6 @@
 import React from 'react'
 
-const ParticipantList = ({ participants, allVoted, anonymousReveal, onAnonymousReveal }) => {
+const ParticipantList = ({ participants, allVoted, revealed, anonymousReveal, onAnonymousReveal }) => {
   const revealedParticipants = participants.filter((participant) => participant.voted)
 
   return (
@@ -32,13 +32,13 @@ const ParticipantList = ({ participants, allVoted, anonymousReveal, onAnonymousR
               </span>
             </div>
             <span className="participant-vote">
-              {allVoted ? (anonymousReveal ? 'Revealed' : participant.bid) : 'Hidden'}
+              {revealed ? (anonymousReveal ? 'Revealed' : participant.bid) : 'Hidden'}
             </span>
           </li>
         ))}
       </ul>
 
-      {allVoted && anonymousReveal && (
+      {revealed && anonymousReveal && (
         <div className="anonymous-results">
           <h3>Revealed results</h3>
           <ul aria-label="Anonymous revealed votes">
