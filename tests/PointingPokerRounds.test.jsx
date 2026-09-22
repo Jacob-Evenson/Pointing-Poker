@@ -3,61 +3,65 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import PointingPokerRounds from '../src/components/PointingPokerRounds';
 
-describe('PointingPokerRounds', () => {
-  it('starts on round 1 and allows the user to mark a round complete', async () => {
-    const user = userEvent.setup();
+describe("PointingPokerRounds", () => {
+  it("shows one story with editable title and description fields", () => {
     render(<PointingPokerRounds />);
 
-    expect(screen.getByText('Round 1 of 3')).toBeInTheDocument();
-    expect(screen.getByText('This round is still in progress.')).toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: /mark round as complete/i }));
-
-    expect(screen.getByText('This round is complete. You can move to the next round.')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /next round/i })).not.toBeDisabled();
+    expect(screen.getByText("Story 1 of 1")).toBeInTheDocument();
+    expect(screen.getByLabelText("Story Title")).toHaveValue("");
+    expect(screen.getByLabelText("Story Description")).toHaveValue("");
   });
 
-  it('moves from round 1 to round 2 and then to round 3', async () => {
+  it("updates the current story while the user types", async () => {
     const user = userEvent.setup();
     render(<PointingPokerRounds />);
 
-    await user.click(screen.getByRole('button', { name: /mark round as complete/i }));
-    await user.click(screen.getByRole('button', { name: /next round/i }));
+    const titleInput = screen.getByLabelText("Story Title");
+    const descriptionInput = screen.getByLabelText("Story Description");
 
-    expect(screen.getByText('Round 2 of 3')).toBeInTheDocument();
+    await user.clear(titleInput);
+    await user.type(titleInput, "Updated Login");
+    await user.clear(descriptionInput);
+    await user.type(descriptionInput, "Updated story description.");
 
-    await user.click(screen.getByRole('button', { name: /mark round as complete/i }));
-    await user.click(screen.getByRole('button', { name: /next round/i }));
-
-    expect(screen.getByText('Round 3 of 3')).toBeInTheDocument();
+    expect(titleInput).toHaveValue("Updated Login");
+    expect(descriptionInput).toHaveValue("Updated story description.");
   });
 
-  it('does not move past round 3 and shows the all-complete message after final round', async () => {
+  it("moves between existing stories without losing edits", async () => {
     const user = userEvent.setup();
     render(<PointingPokerRounds />);
 
-    for (let i = 0; i < 3; i += 1) {
-      await user.click(screen.getByRole('button', { name: /mark round as complete/i }));
-      if (i < 2) {
-        await user.click(screen.getByRole('button', { name: /next round/i }));
-      }
-    }
+    const titleInput = screen.getByLabelText("Story Title");
+    await user.clear(titleInput);
+    await user.type(titleInput, "Changed Login");
+    await user.click(screen.getByRole("button", { name: "Next Story" }));
 
-    expect(screen.getByText('All rounds are complete!')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /next round/i })).not.toBeInTheDocument();
+    expect(screen.getByText("Story 2 of 2")).toBeInTheDocument();
+    expect(screen.getByLabelText("Story Title")).toHaveValue("");
+
+    await user.click(screen.getByRole("button", { name: "Previous Story" }));
+
+    expect(screen.getByText("Story 1 of 2")).toBeInTheDocument();
+    expect(screen.getByLabelText("Story Title")).toHaveValue("Changed Login");
   });
 
-  it('resets the stories and round state back to the initial values', async () => {
+  it("creates a blank story when Next Story is pressed on the newest story", async () => {
     const user = userEvent.setup();
     render(<PointingPokerRounds />);
 
-    await user.click(screen.getByRole('button', { name: /mark round as complete/i }));
-    await user.click(screen.getByRole('button', { name: /next round/i }));
-    await user.click(screen.getByRole('button', { name: /reset story cards/i }));
+    await user.click(screen.getByRole("button", { name: "Next Story" }));
+    await user.click(screen.getByRole("button", { name: "Next Story" }));
+    await user.click(screen.getByRole("button", { name: "Next Story" }));
 
-    expect(screen.getByText('Round 1 of 3')).toBeInTheDocument();
-    expect(screen.getByText('This round is still in progress.')).toBeInTheDocument();
-    expect(screen.getByText('User Login')).toBeInTheDocument();
-    expect(screen.getByText('Password Reset')).toBeInTheDocument();
+    expect(screen.getByText("Story 4 of 4")).toBeInTheDocument();
+    expect(screen.getByLabelText("Story Title")).toHaveValue("");
+    expect(screen.getByLabelText("Story Description")).toHaveValue("");
+  });
+
+  it("disables Previous Story on the first story", () => {
+    render(<PointingPokerRounds />);
+
+    expect(screen.getByRole("button", { name: "Previous Story" })).toBeDisabled();
   });
 });
