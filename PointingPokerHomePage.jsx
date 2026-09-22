@@ -57,7 +57,7 @@ const PointingPokerHomePage = () => {
       </header>
 
       <main id="main-content">
-        <section className="Pointing Poker wrap">
+        <section className="Pointing-Poker-wrap">
           <div className="Pointing-Poker">
             <h1>Plan team sprints without the guesswork of Collaboration</h1>
             <p>
@@ -70,7 +70,7 @@ const PointingPokerHomePage = () => {
           </div>
         </section>
 
-        <section className="voting-section wrap" aria-labelledby="voting-heading">
+        {/* <section className="voting-section wrap" aria-labelledby="voting-heading">
           <h2 id="voting-heading">Choose your estimate</h2>
           <div className="point-card-grid">
             {points.map((point) => (
@@ -93,7 +93,7 @@ const PointingPokerHomePage = () => {
         <section className="rounds-section wrap" aria-labelledby="rounds-heading">
           <h2 id="rounds-heading">Story rounds</h2>
           <PointingPokerRounds />
-        </section>
+        </section> */}
 
         <section id="features" className="features wrap">
           <h2>Why Teams Choose to use Pointing Poker style tools for Collaboration</h2>
@@ -113,7 +113,7 @@ const PointingPokerHomePage = () => {
             </article>
           </div>
         </section>
-        <section id="live">
+        <section id="live" className='Live-Stats-Wrap'>
           <h2>Teams collaborating live right now</h2>
           <dl className="stat-row" aria-live="polite">
             <div className="stat">
