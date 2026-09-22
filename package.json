@@ -7,13 +7,14 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest",
+    "test:run": "vitest run",
+    "preview": "vite preview"
   },
   "dependencies": {
     "react": "^19.3.0",
     "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.3",
+    "react-router-dom": "^7.18.4",
     "supertest": "^7.2.2"
   },
   "devDependencies": {

@@ -23,18 +23,22 @@
 ### Blocks:
 - home page not up and running so unable to integrate cards/visualize what I was working on
 ---
-### Name:
+### Name: Eliy (via Teams)
 ### Yesterday:
-
+- timer working, including pause and reset
+- avg/low/high functional
 ### Today:
 
 ### Blocks:
 
 ---
-### Name:
+### Name: Jacob (via Teams)
 ### Yesterday:
+- finished story cards
+- rounds and reset system
 
 ### Today:
-
+- tests for story cards and rounds
+- hooking voting system up to cards
 ### Blocks:
 
