@@ -11,6 +11,7 @@ import { points } from './data/points.js'
 const GamePage = () => {
   const [selectedPoint, setSelectedPoint] = useState(null)
   const [anonymousReveal, setAnonymousReveal] = useState(false)
+  const [revealed, setRevealed] = useState(false)
   const [participants, setParticipants] = useState([
     { id: 1, name: 'Player', bid: null, voted: false },
     { id: 2, name: 'Alex', bid: 5, voted: true },
@@ -101,11 +102,20 @@ const GamePage = () => {
           <div className="results-heading">
             <p className="section-kicker">Live estimates</p>
             <h2 id="results-heading">Team results</h2>
+            <button
+              type="button"
+              className="reveal-votes-button"
+              onClick={() => setRevealed(true)}
+              disabled={!allVoted}
+            >
+              Show Votes
+            </button>
           </div>
           <div className="results-grid">
             <ParticipantList
               participants={participants}
               allVoted={allVoted}
+              revealed={revealed}
               anonymousReveal={anonymousReveal}
               onAnonymousReveal={setAnonymousReveal}
             />
