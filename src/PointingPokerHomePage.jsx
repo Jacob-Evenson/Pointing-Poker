@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import "./PointingPokerHomePage.css";
-import PointCard from './components/PointCard.jsx';
-import SelectedPoint from './components/SelectedPoint.jsx';
-import ParticipantList from './components/ParticipantList.jsx';
-import { points } from './data/points.js';
+
 
 const PointingPokerHomePage = () => {
   //Place holder for our live stats for showing sessions 
@@ -55,25 +52,16 @@ const PointingPokerHomePage = () => {
           <span className="header-status">
             <nav>
               <a href="">Features</a>
-              <a href="">Live Activity</a>
+              {/* <a href="">Live Activity</a> */}
             </nav>
           </span>
         </div>
       </header>
-      {/* <header className="site-header">
-        <div className="wrap">
-          <span className="Pointing Poker">Pointing Poker</span>
-          <nav aria-label="primary">
-            <a href="#features">Features</a>
-            <a href="#live">Live Activity</a>
-          </nav>
-        </div>
-      </header> */}
-
+      
       <main>
-        <section className='Session-name'>
-          <div className="Session-name">
-            <label htmlFor="session-join">Join Session</label>
+        <section className='Session-section'>
+          <div className="Session-actions">
+            <label htmlFor="Session-Name">Join Session</label>
             <input id='Session-Name' type='text' />
             <button>Join Session</button>
           </div>
@@ -81,47 +69,29 @@ const PointingPokerHomePage = () => {
           <div className="session-join">
             <button>Create Session</button>
           </div>
-          <p>
+          {/* <p>
             Pointing Poker is a simple yet effective tool used by teams to collaborate and vote on tasks based on the relative effort, complexity,
             and uncertainty to complete a product item. Teams assign story points the lower the points the easier and higher the more effort it will take,
-            based on the average of all votes cast. {/*Can Adjust info if needed I put in a basic description of pointing poker */}
-          </p>
+            based on the average of all votes cast. Can Adjust info if needed I put in a basic description of pointing poker
+          </p> */}
         </section>
       </main>
 
       <main id="main-content">
         <section className="Pointing-Poker-wrap">
           <div className="Pointing-Poker">
-            <h1>Plan team sprints without the guesswork of Collaboration</h1>
+            {/* <h1>Plan team sprints without the guesswork of Collaboration</h1>
             <p>
               Pointing Poker is a free tool built by the Western Tech College IT Project Management.
               Teams can collaborate, vote on ideas and in real time with out the ads and no clutter.
               With a modern style
-            </p>
+            </p> */}
             {/*className ap stands for Active Players also can be changed early on if we don't like the active players */}
-            <a className="ap" href="#live">Active Players</a>
+            {/* <a className="ap" href="#live">Active Players</a> */}
           </div>
         </section>
 
-        {/* <section className="voting-section wrap" aria-labelledby="voting-heading">
-          <h2 id="voting-heading">Choose your estimate</h2>
-          <div className="point-card-grid">
-            {points.map((point) => (
-              <PointCard
-                key={point.value}
-                point={point}
-                onSelect={handlePointSelect}
-              />
-            ))}
-          </div>
-          <SelectedPoint point={selectedPoint} voted={Boolean(currentParticipant?.voted)} />
-          <ParticipantList
-            participants={participants}
-            allVoted={allVoted}
-            anonymousReveal={anonymousReveal}
-            onAnonymousReveal={setAnonymousReveal}
-          />
-        </section> */}
+       
 
         <section id="features" className="features wrap">
           <h2>Why Teams Choose to use Pointing Poker style tools for Collaboration</h2>
@@ -140,19 +110,6 @@ const PointingPokerHomePage = () => {
               </p>
             </article>
           </div>
-        </section>
-        <section id="live">
-          <h2>Teams collaborating live right now</h2>
-          <dl className="stat-row" aria-live="polite">
-            <div className="stat">
-              <dt>Active Collaboration sessions</dt>
-              {/* <dd>{liveStats.sessions}</dd> */}
-            </div>
-            <div className="stat">
-              <dt>Players online</dt>
-              {/* <dd>{liveStats.players}</dd> */}
-            </div>
-          </dl>
         </section>
       </main>
       <footer className="site-footer wrap">
