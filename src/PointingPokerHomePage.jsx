@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import './PointingPokerHomePage.css'
+import React, { useEffect, useState } from 'react'
+import "./PointingPokerHomePage.css";
+
 
 const PointingPokerHomePage = () => {
   //Place holder for our live stats for showing sessions 
@@ -27,19 +27,7 @@ const PointingPokerHomePage = () => {
   //   )))
   // }
 
-  const navigate = useNavigate()
 
-  const handleJoinSession = () => {
-    navigate('/IntermediaryPage', {
-      state: { mode: 'join' },
-    })
-  }
-
-  const handleCreateSession = () => {
-    navigate('/IntermediaryPage', {
-      state: { mode: 'create' },
-    })
-  }
 
   useEffect(() => {
     document.title = "Pointing Poker, Team Collaboration simplified"
@@ -74,17 +62,12 @@ const PointingPokerHomePage = () => {
         <section className='Session-section'>
           <div className="Session-actions">
             <label htmlFor="Session-Name">Join Session</label>
-            <input id="Session-Name" type="text" />
-
-            <button type="button" onClick={handleJoinSession}>
-              Join Session
-            </button>
+            <input id='Session-Name' type='text' />
+            <button>Join Session</button>
           </div>
 
           <div className="session-join">
-            <button type="button" onClick={handleCreateSession}>
-              Create Session
-            </button>
+            <button>Create Session</button>
           </div>
           {/* <p>
             Pointing Poker is a simple yet effective tool used by teams to collaborate and vote on tasks based on the relative effort, complexity,

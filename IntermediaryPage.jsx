@@ -1,11 +1,7 @@
 import React from 'react'
-import { useLocation } from 'react-router-dom'
 import './IntermediaryPage.css'
 
 const IntermediaryPage = () => {
-  const location = useLocation()
-  const mode = location.state?.mode || 'join'
-
   return (
     <div className="page-wrapper">
       <header className="game-header">
@@ -26,19 +22,9 @@ const IntermediaryPage = () => {
 
       <main className="game-main">
         <div className="game-shell">
-          <h1>
-            {mode === 'create' ? 'Create a Session' : 'Join a Session'}
-          </h1>
-
-          <label htmlFor="Session-Name">
-            {mode === 'create' ? 'Your name:' : 'Session code:'}
-          </label>
-
+          <label htmlFor="Session-Name">Name:</label>
           <input id="Session-Name" type="text" />
-
-          <button type="button">
-            {mode === 'create' ? 'Create Session' : 'Join Session'}
-          </button>
+          <button>Join Session</button>
         </div>
       </main>
 
