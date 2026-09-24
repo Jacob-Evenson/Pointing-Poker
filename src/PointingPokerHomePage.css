@@ -8,9 +8,13 @@
   --sage-200: #d7e4d2;
   --sage-050: #f5f8f3;
   --clay-700: #6b4a28;
+  --clay-800: #543a1f;
   --white: #ffffff;
   --focus-ring: #1a4d8f;
   --border: #c8d8c4;
+
+  --btn-radius: 6px;
+  --btn-shadow: 0 2px 8px rgba(23, 35, 27, .15);
 }
 
 * {
@@ -129,6 +133,41 @@ input:focus-visible {
   margin: 0 auto;
 }
 
+.Session-name button,
+.session-join button,
+.ap {
+  display: inline-block;
+  padding: .75rem 1.5rem;
+  color: var(--white);
+  background: var(--sage-700);
+  border: none;
+  border-radius: var(--btn-radius);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: var(--btn-shadow);
+  transition: background .2s, transform .2s;
+}
+
+.Session-name button:hover,
+.session-join button:hover,
+.ap:hover {
+  background: var(--sage-900);
+  transform: translateY(-1px);
+}
+
+.session-join button,
+.ap {
+  background: var(--clay-700);
+}
+
+.session-join button:hover,
+.ap:hover {
+  background: var(--clay-800);
+}
+
 /* ---------- join / create session ---------- */
 
 .Session-name {
@@ -156,35 +195,6 @@ input:focus-visible {
   border: 1px solid var(--border);
   border-radius: 4px;
   font: inherit;
-}
-
-.Session-name button,
-.session-join button {
-  padding: .75rem 1.5rem;
-  color: var(--white);
-  background: var(--sage-700);
-  border: none;
-  border-radius: 6px;
-  font: inherit;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(23, 35, 27, .15);
-  transition: background .2s, transform .2s;
-}
-
-.Session-name button:hover,
-.session-join button:hover {
-  background: var(--sage-900);
-  transform: translateY(-1px);
-}
-
-.session-join button {
-  background: var(--clay-700);
-}
-
-.session-join button:hover {
-  background: #543a1f;
 }
 
 .Session-name p {
@@ -220,20 +230,6 @@ input:focus-visible {
   font-size: 1rem;
 }
 
-.ap {
-  display: inline-block;
-  padding: .6rem 1.1rem;
-  color: var(--white);
-  background: var(--clay-700);
-  border-radius: 4px;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.ap:hover {
-  background: var(--sage-900);
-}
-
 /* ---------- features ---------- */
 
 .features {
@@ -257,6 +253,12 @@ input:focus-visible {
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: 8px;
+  transition: box-shadow .2s, transform .2s;
+}
+
+.feature-card:hover {
+  box-shadow: var(--btn-shadow);
+  transform: translateY(-2px);
 }
 
 .feature-card h3 {
@@ -307,6 +309,7 @@ input:focus-visible {
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1.75rem;
   font-weight: 700;
+  color: var(--sage-900);
 }
 
 /* ---------- footer ---------- */
@@ -325,6 +328,7 @@ input:focus-visible {
 /* ---------- responsive ---------- */
 
 @media (max-width: 760px) {
+
   .game-shell,
   .wrap,
   #live {

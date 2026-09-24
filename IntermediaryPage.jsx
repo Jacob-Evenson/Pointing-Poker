@@ -1,4 +1,4 @@
-import React from 'react'
+import './IntermediaryPage.css';
 
 const IntermediaryPage = () => {
   return (
@@ -23,7 +23,7 @@ const IntermediaryPage = () => {
 
       <main className='game-main'>
         <div className='game-shell'>
-          <label htmlFor="Name">Name:</label>
+          <label htmlFor="Name">Session Name</label>
           <input id='Session-Name' type='text' />
           <button>Join Session</button>
         </div>

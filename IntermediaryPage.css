@@ -1,5 +1,17 @@
 /* ---------- intermediary page ---------- */
 
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .game-header {
   width: 100%;
   color: var(--white);
@@ -66,4 +78,42 @@
 
 .game-main {
   padding: 3rem 0;
+  flex: 1 0 auto;
+  text-align: center;
+}
+
+.game-main label {
+  display: block;
+  margin-bottom: .5rem;
+}
+
+.game-main input[type='text'] {
+  display: block;
+  margin: 0 auto 1rem;
+  width: min(320px, 90%);
+  padding: .75rem 1rem;
+  font-size: 1.1rem;
+}
+
+.game-main button {
+  padding: .75rem 1.5rem;
+  color: var(--white);
+  background: var(--clay-700);
+  border: none;
+  border-radius: var(--btn-radius, 6px);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--btn-shadow, 0 2px 8px rgba(23, 35, 27, .15));
+  transition: background .2s, transform .2s;
+}
+
+.game-main button:hover {
+  background: var(--clay-800, #543a1f);
+  transform: translateY(-1px);
+}
+
+.site-footer {
+  flex-shrink: 0;
 }
