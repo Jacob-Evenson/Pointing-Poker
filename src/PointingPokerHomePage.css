@@ -7,11 +7,15 @@
   --sage-500: #6b8f71;
   --sage-200: #d7e4d2;
   --sage-050: #f5f8f3;
+
   --clay-700: #6b4a28;
+
   --white: #ffffff;
   --focus-ring: #1a4d8f;
   --border: #c8d8c4;
 }
+
+/* ---------- base ---------- */
 
 * {
   box-sizing: border-box;
@@ -19,8 +23,10 @@
 
 body {
   margin: 0;
+
   color: var(--sage-900);
   background: var(--sage-050);
+
   font-family: 'Inter', system-ui, sans-serif;
   text-align: center;
 }
@@ -38,14 +44,17 @@ p {
   margin-top: 0;
 }
 
-/* ---------- shared layout / header (matches game page) ---------- */
+/* ---------- accessibility ---------- */
 
 .skip-link {
   position: absolute;
   left: -999px;
   top: auto;
+
   z-index: 100;
-  padding: .75rem 1rem;
+
+  padding: 0.75rem 1rem;
+
   color: var(--white);
   background: var(--sage-950);
 }
@@ -62,14 +71,28 @@ input:focus-visible {
   outline-offset: 2px;
 }
 
+/* ---------- shared layout ---------- */
+
 .game-shell {
   width: min(1180px, calc(100% - 3rem));
   margin: 0 auto;
 }
 
+.wrap {
+  width: min(1180px, calc(100% - 3rem));
+  margin: 0 auto;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
 .game-header {
+  width: 100%;
+
   color: var(--white);
   background: var(--sage-950);
+
   border-bottom: 4px solid var(--clay-700);
 }
 
@@ -77,45 +100,58 @@ input:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  min-height: 80px;
+
   gap: 1rem;
-  min-height: 70px;
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: .7rem;
+
+  gap: 0.7rem;
+
   color: var(--white);
+
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1.25rem;
   font-weight: 700;
+
   text-decoration: none;
 }
 
 .brand-mark {
   display: grid;
-  width: 2.25rem;
-  height: 2.25rem;
   place-items: center;
+
+  width: 2.75rem;
+  height: 2.75rem;
+
   color: var(--sage-950);
   background: var(--sage-200);
-  border-radius: 6px;
-  font-size: .75rem;
-  letter-spacing: .04em;
+
+  border-radius: 7px;
+
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
 .header-status {
   color: var(--sage-200);
-  font-size: .85rem;
+
+  font-size: 0.9rem;
 }
 
 .header-status nav {
   display: flex;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 .header-status nav a {
   color: var(--sage-200);
+
   text-decoration: none;
 }
 
@@ -123,110 +159,258 @@ input:focus-visible {
   color: var(--white);
 }
 
-/* generic page-width wrapper, same idea as .game-shell */
-.wrap {
-  width: min(1180px, calc(100% - 3rem));
-  margin: 0 auto;
-}
+/* =========================================================
+   JOIN / CREATE SESSION
+   ========================================================= */
 
-/* ---------- join / create session ---------- */
+/*
+   Main Join/Create container.
+
+   IMPORTANT:
+   margin-top: 16px gives us exactly 16px
+   of space between the header and this section.
+*/
 
 .Session-name {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: .85rem;
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 2.5rem 1.5rem;
-  text-align: center;
-  background: var(--sage-050);
-  border-bottom: 1px solid var(--border);
+
+  gap: 1rem;
+
+  width: min(1000px, calc(100% - 3rem));
+
+  margin: 16px auto 0;
+
+  padding: 24px 20px;
+
+  background: var(--white);
+
+  border: 2px solid var(--border);
+  border-radius: 10px;
+
+  box-shadow: 0 6px 20px rgba(23, 35, 27, 0.1);
 }
+
+/*
+   The first .Session-name in your JSX is nested
+   inside the outer .Session-name.
+
+   This removes the nested container's card styling
+   so it doesn't create a second box.
+*/
+
+.Session-name > .Session-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 0.75rem;
+
+  width: auto;
+
+  margin: 0;
+  padding: 0;
+
+  background: transparent;
+
+  border: none;
+  border-radius: 0;
+
+  box-shadow: none;
+}
+
+/* ---------- Join Session label ---------- */
 
 .Session-name label {
-  color: var(--sage-700);
-  font-size: .85rem;
-  font-weight: 600;
+  color: var(--sage-900);
+
+  font-family: 'Space Grotesk', sans-serif;
+
+  font-size: 1.2rem;
+  font-weight: 700;
+
+  white-space: nowrap;
 }
 
+/* ---------- Session input ---------- */
+
 .Session-name input[type='text'] {
-  padding: .65rem .85rem;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  font: inherit;
+  width: 260px;
+  height: 54px;
+
+  padding: 0 1rem;
+
+  color: var(--sage-900);
+  background: var(--white);
+
+  border: 2px solid var(--border);
+  border-radius: 7px;
+
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
 }
+
+.Session-name input[type='text']:focus {
+  border-color: var(--sage-500);
+
+  box-shadow: 0 0 0 3px rgba(107, 143, 113, 0.15);
+
+  outline: none;
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
 
 .Session-name button,
 .session-join button {
-  padding: .75rem 1.5rem;
-  color: var(--white);
-  background: var(--sage-700);
+  height: 54px;
+
+  padding: 0 1.8rem;
+
   border: none;
-  border-radius: 6px;
-  font: inherit;
-  font-size: 1rem;
+  border-radius: 7px;
+
+  color: var(--white);
+
+  font-family: 'Space Grotesk', sans-serif;
+
+  font-size: 1.05rem;
   font-weight: 700;
+
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(23, 35, 27, .15);
-  transition: background .2s, transform .2s;
+
+  white-space: nowrap;
+
+  box-shadow: 0 3px 8px rgba(23, 35, 27, 0.18);
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.Session-name button:hover,
-.session-join button:hover {
+/* ---------- Join Session ---------- */
+
+.Session-name button {
+  background: var(--sage-700);
+}
+
+.Session-name button:hover {
   background: var(--sage-900);
-  transform: translateY(-1px);
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 5px 12px rgba(23, 35, 27, 0.2);
+}
+
+/* ---------- Create Session ---------- */
+
+.session-join {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0;
 }
 
 .session-join button {
+  min-width: 210px;
+
   background: var(--clay-700);
 }
 
 .session-join button:hover {
   background: #543a1f;
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 5px 12px rgba(107, 74, 40, 0.22);
 }
 
-.Session-name p {
+/* ---------- description inside join section ---------- */
+
+/*
+   The paragraph currently lives inside the outer
+   .Session-name in your JSX.
+
+   We allow it to appear underneath the controls.
+*/
+
+.Session-name > p {
+  display: block;
+
   flex-basis: 100%;
-  max-width: 60ch;
-  margin: .5rem auto 0;
+
+  margin: 1rem 0 0;
+
   color: var(--sage-700);
-  font-size: .9rem;
-  text-align: center;
+
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
-/* ---------- hero ---------- */
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.Pointing-Poker-wrap {
+  width: min(1180px, calc(100% - 3rem));
+
+  margin: 0 auto;
+}
 
 .Pointing-Poker {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 65ch;
+
+  max-width: 720px;
+
   margin: 0 auto;
-  padding-block: 2.5rem;
+
+  padding: 3.5rem 1rem 2.5rem;
 }
 
 .Pointing-Poker h1 {
   max-width: 20ch;
-  margin-bottom: .9rem;
+
+  margin-bottom: 1rem;
+
   font-size: clamp(1.9rem, 4vw, 2.75rem);
+
   line-height: 1.1;
 }
 
 .Pointing-Poker p {
+  max-width: 60ch;
+
   margin-bottom: 1.25rem;
+
   color: var(--sage-700);
+
   font-size: 1rem;
+
+  line-height: 1.7;
 }
+
+/* =========================================================
+   OPTIONAL ACTIVE PLAYERS BUTTON
+   ========================================================= */
 
 .ap {
   display: inline-block;
-  padding: .6rem 1.1rem;
+
+  padding: 0.6rem 1.1rem;
+
   color: var(--white);
   background: var(--clay-700);
+
   border-radius: 4px;
+
   font-weight: 700;
+
   text-decoration: none;
 }
 
@@ -234,122 +418,246 @@ input:focus-visible {
   background: var(--sage-900);
 }
 
-/* ---------- features ---------- */
+/* =========================================================
+   FEATURES
+   ========================================================= */
 
 .features {
-  padding-block: 2.5rem;
+  padding: 2.5rem 0 3rem;
 }
 
 .features h2 {
   max-width: 40ch;
+
   margin: 0 auto 1.5rem;
+
   font-size: 1.5rem;
+
+  line-height: 1.25;
 }
 
 .feature-grid {
   display: grid;
+
   grid-template-columns: repeat(2, minmax(0, 1fr));
+
   gap: 1.25rem;
 }
 
 .feature-card {
-  padding: 1.35rem;
+  padding: 1.5rem;
+
   background: var(--white);
+
   border: 1px solid var(--border);
   border-radius: 8px;
+
+  text-align: left;
+
+  box-shadow: 0 2px 8px rgba(23, 35, 27, 0.05);
 }
 
 .feature-card h3 {
-  margin-bottom: .5rem;
+  margin-bottom: 0.6rem;
+
   color: var(--sage-700);
+
   font-size: 1.1rem;
 }
 
 .feature-card p {
   margin: 0;
-  font-size: .9rem;
+
+  font-size: 0.9rem;
+
+  line-height: 1.6;
 }
 
-/* ---------- live stats ---------- */
+/* =========================================================
+   LIVE STATS
+   ========================================================= */
 
 #live {
   width: min(1180px, calc(100% - 3rem));
+
   margin: 0 auto;
-  padding-block: 2.5rem 3rem;
+
+  padding: 2.5rem 0 3rem;
 }
 
 #live h2 {
   margin-bottom: 1.25rem;
+
   font-size: 1.35rem;
 }
 
 .stat-row {
   display: grid;
+
   grid-template-columns: repeat(2, minmax(0, 1fr));
+
   gap: 1rem;
-  margin: 0;
 }
 
 .stat {
   padding: 1.25rem;
+
   background: var(--sage-050);
+
   border: 1px solid var(--border);
   border-radius: 8px;
 }
 
 .stat dt {
   color: var(--sage-700);
-  font-size: .8rem;
+
+  font-size: 0.8rem;
 }
 
 .stat dd {
-  margin: .35rem 0 0;
+  margin: 0.35rem 0 0;
+
   font-family: 'Space Grotesk', sans-serif;
+
   font-size: 1.75rem;
   font-weight: 700;
 }
 
-/* ---------- footer ---------- */
+/* =========================================================
+   FOOTER
+   ========================================================= */
 
 .site-footer {
   padding: 1.5rem 0;
+
   color: var(--sage-200);
   background: var(--sage-950);
-  font-size: .78rem;
+
+  font-size: 0.78rem;
 }
 
 .site-footer p {
-  margin: .25rem 0;
+  margin: 0.25rem 0;
 }
 
-/* ---------- responsive ---------- */
+/* =========================================================
+   RESPONSIVE - TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .Session-name {
+    gap: 0.75rem;
+
+    padding: 20px 16px;
+  }
+
+  .Session-name label {
+    font-size: 1rem;
+  }
+
+  .Session-name input[type='text'] {
+    width: 200px;
+  }
+
+  .Session-name button,
+  .session-join button {
+    padding: 0 1.25rem;
+
+    font-size: 0.95rem;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+   ========================================================= */
 
 @media (max-width: 760px) {
+
   .game-shell,
   .wrap,
-  #live {
+  #live,
+  .Pointing-Poker-wrap {
     width: min(100% - 2rem, 680px);
   }
+
+  /* Stack feature cards */
 
   .feature-grid,
   .stat-row {
     grid-template-columns: 1fr;
   }
+
+  /* Join/Create section */
+
+  .Session-name {
+    flex-direction: column;
+
+    width: min(100% - 2rem, 680px);
+
+    padding: 20px 16px;
+  }
+
+  .Session-name > .Session-name {
+    flex-direction: column;
+
+    width: 100%;
+  }
+
+  .Session-name input[type='text'] {
+    width: 100%;
+
+    max-width: 350px;
+  }
+
+  .Session-name button {
+    width: 100%;
+
+    max-width: 350px;
+  }
+
+  .session-join {
+    width: 100%;
+  }
+
+  .session-join button {
+    width: 100%;
+
+    max-width: 350px;
+  }
+
+  .Session-name > p {
+    margin-top: 0.5rem;
+  }
 }
 
+/* =========================================================
+   RESPONSIVE - SMALL PHONE
+   ========================================================= */
+
 @media (max-width: 480px) {
+
   .game-header-content {
     align-items: flex-start;
     flex-direction: column;
     justify-content: center;
-    padding-block: .8rem;
+
+    padding-block: 0.8rem;
   }
 
   .header-status {
-    font-size: .75rem;
+    font-size: 0.75rem;
   }
 
   .Session-name {
-    padding: 1rem;
+    padding: 16px 12px;
+  }
+
+  .Pointing-Poker {
+    padding-block: 2.5rem 2rem;
+  }
+
+  .Pointing-Poker h1 {
+    font-size: 1.8rem;
   }
 }
