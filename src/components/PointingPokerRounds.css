@@ -1,0 +1,106 @@
+.story-card {
+  max-width: 560px;
+  padding: 1.15rem;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgb(23 35 27 / 6%);
+}
+
+.story-card label {
+  display: block;
+  margin-bottom: .35rem;
+  color: var(--sage-700);
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.story-card input,
+.story-card textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+  padding: .55rem .65rem;
+  color: var(--sage-900);
+  background: var(--sage-050);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font: inherit;
+}
+
+.story-card input {
+  margin-bottom: 1.1rem;
+  min-height: 50px;
+  vertical-align: top;
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.story-card textarea {
+  min-height: 100px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.story-card input:focus,
+.story-card textarea:focus {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 1px;
+  background: var(--white);
+}
+
+.story-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1rem 0 .75rem;
+  color: var(--sage-700);
+  font-size: .85rem;
+  font-weight: 600;
+}
+
+/* primary action button — matches .ap / .session-join / .story-panel button
+   across the homepage and game page stylesheets */
+.story-navigation button {
+  padding: .65rem 1.25rem;
+  color: var(--white);
+  background: var(--clay-700);
+  border: none;
+  border-radius: var(--btn-radius, 6px);
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--btn-shadow, 0 2px 8px rgba(23, 35, 27, .15));
+  transition: background .2s, transform .2s;
+}
+
+.story-navigation button:hover:not(:disabled) {
+  background: var(--clay-800, #543a1f);
+  transform: translateY(-1px);
+}
+
+.story-navigation button:disabled {
+  color: var(--sage-700);
+  background: var(--sage-200);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pointing-poker-rounds {
+  padding: .2rem 0 0;
+}
+
+.pointing-poker-rounds>h1 {
+  margin-bottom: .75rem;
+  color: var(--sage-900);
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 1.35rem;
+  line-height: 1.15;
+}
