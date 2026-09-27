@@ -1,69 +1,24 @@
-/* ---------- intermediary page ---------- */
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
 .game-header {
-  width: 100%;
-  color: var(--white);
-  background: var(--sage-950);
-  border-bottom: 4px solid var(--clay-700);
+  flex: 0 0 auto;
 }
-
-.game-shell {
-  width: min(1180px, calc(100% - 3rem));
-  margin: 0 auto;
-}
-
-.game-header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  min-height: 70px;
-}
-
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: .7rem;
-  color: var(--white);
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.25rem;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.brand-mark {
-  display: grid;
-  width: 2.25rem;
-  height: 2.25rem;
-  place-items: center;
-  color: var(--sage-950);
-  background: var(--sage-200);
-  border-radius: 6px;
-  font-size: .75rem;
-  letter-spacing: .04em;
-}
-
-.header-status {
-  color: var(--sage-200);
-  font-size: .85rem;
-}
-
-.header-status nav {
-  display: flex;
-  gap: 1.25rem;
-}
-
-.header-status nav a {
-  color: var(--sage-200);
-  text-decoration: none;
-}
-
-.header-status nav a:hover {
-  color: var(--white);
-}
-
-/* ---------- main content ---------- */
 
 .game-main {
-  padding: 3rem 0;
+  flex: 1 0 auto;
+}
+
+.site-footer {
+  flex: 0 0 auto;
 }
