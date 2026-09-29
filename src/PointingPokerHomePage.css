@@ -1,663 +1,242 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap');
 
+/* ---------- design tokens ---------- */
 :root {
   --sage-950: #17231b;
   --sage-900: #1f2a20;
   --sage-700: #3f5b44;
   --sage-500: #6b8f71;
   --sage-200: #d7e4d2;
+  --sage-100: #e8efe4;   /* pale icon tiles */
   --sage-050: #f5f8f3;
-
   --clay-700: #6b4a28;
-
   --white: #ffffff;
   --focus-ring: #1a4d8f;
-  --border: #c8d8c4;
+  --border: #d5dfd1;
 }
 
 /* ---------- base ---------- */
-
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
-
   color: var(--sage-900);
   background: var(--sage-050);
-
   font-family: 'Inter', system-ui, sans-serif;
-  text-align: center;
 }
 
-h1,
-h2,
-h3 {
-  font-family: 'Space Grotesk', 'Inter', sans-serif;
-}
-
-h1,
-h2,
-h3,
-p {
-  margin-top: 0;
-}
+h1, h2, h3 { font-family: 'Space Grotesk', 'Inter', sans-serif; margin-top: 0; }
+p { margin-top: 0; }
 
 /* ---------- accessibility ---------- */
-
 .skip-link {
-  position: absolute;
-  left: -999px;
-  top: auto;
-
-  z-index: 100;
-
-  padding: 0.75rem 1rem;
-
-  color: var(--white);
-  background: var(--sage-950);
+  position: absolute; left: -999px; top: auto; z-index: 100;
+  padding: 0.75rem 1rem; color: var(--white); background: var(--sage-950);
 }
+.skip-link:focus { left: 0; top: 0; }
 
-.skip-link:focus {
-  left: 0;
-  top: 0;
-}
-
-a:focus-visible,
-button:focus-visible,
-input:focus-visible {
+a:focus-visible, button:focus-visible, input:focus-visible {
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
-/* ---------- shared layout ---------- */
-
-.game-shell {
+/* ---------- shared width container ---------- */
+.game-shell, .wrap {
   width: min(1180px, calc(100% - 3rem));
   margin: 0 auto;
 }
 
-.wrap {
-  width: min(1180px, calc(100% - 3rem));
-  margin: 0 auto;
-}
-
-/* =========================================================
-   HEADER
-   ========================================================= */
-
+/* ---------- header ---------- */
 .game-header {
-  width: 100%;
-
   color: var(--white);
   background: var(--sage-950);
-
   border-bottom: 4px solid var(--clay-700);
 }
-
 .game-header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  min-height: 80px;
-
-  gap: 1rem;
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: 72px; gap: 1rem;
 }
-
 .brand {
-  display: inline-flex;
-  align-items: center;
-
-  gap: 0.7rem;
-
-  color: var(--white);
-
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.25rem;
-  font-weight: 700;
-
-  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 0.7rem;
+  color: var(--white); text-decoration: none;
+  font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 700;
 }
-
 .brand-mark {
-  display: grid;
-  place-items: center;
+  display: grid; place-items: center;
+  width: 2.5rem; height: 2.5rem;
+  color: var(--sage-950); background: var(--white);
+  border-radius: 7px; font-size: 0.85rem; font-weight: 700;
+}
+.header-status nav { display: flex; gap: 1.5rem; }
+.header-status nav a { color: var(--white); text-decoration: none; font-size: 0.95rem; }
+.header-status nav a:hover { text-decoration: underline; }
 
-  width: 2.75rem;
-  height: 2.75rem;
-
-  color: var(--sage-950);
+/* ---------- hero ---------- */
+.hero {
+  text-align: center;
+  padding: 2.5rem 1rem 2rem;
+}
+.hero-logo {
+  display: grid; place-items: center;
+  width: 110px; height: 110px; margin: 0 auto 1rem;
   background: var(--sage-200);
-
-  border-radius: 7px;
-
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  border-radius: 18px;
+  color: var(--sage-950);
+  font-family: 'Space Grotesk', sans-serif; font-size: 3.2rem; font-weight: 700;
 }
-
-.header-status {
-  color: var(--sage-200);
-
-  font-size: 0.9rem;
+.hero h1 {
+  margin-bottom: 0.25rem;
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  line-height: 1.1;
 }
-
-.header-status nav {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.header-status nav a {
-  color: var(--sage-200);
-
-  text-decoration: none;
-}
-
-.header-status nav a:hover {
-  color: var(--white);
-}
-
-/* =========================================================
-   JOIN / CREATE SESSION
-   ========================================================= */
-
-/*
-   Main Join/Create container.
-
-   IMPORTANT:
-   margin-top: 16px gives us exactly 16px
-   of space between the header and this section.
-*/
-
-.Session-name {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 1rem;
-
-  width: min(1000px, calc(100% - 3rem));
-
-  margin: 16px auto 0;
-
-  padding: 24px 20px;
-
-  background: var(--white);
-
-  border: 2px solid var(--border);
-  border-radius: 10px;
-
-  box-shadow: 0 6px 20px rgba(23, 35, 27, 0.1);
-}
-
-/*
-   The first .Session-name in your JSX is nested
-   inside the outer .Session-name.
-
-   This removes the nested container's card styling
-   so it doesn't create a second box.
-*/
-
-.Session-name > .Session-name {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 0.75rem;
-
-  width: auto;
-
+.tagline {
   margin: 0;
-  padding: 0;
-
-  background: transparent;
-
-  border: none;
-  border-radius: 0;
-
-  box-shadow: none;
+  color: var(--sage-700);
+  font-size: 1.35rem;
 }
 
-/* ---------- Join Session label ---------- */
-
-.Session-name label {
-  color: var(--sage-900);
-
-  font-family: 'Space Grotesk', sans-serif;
-
-  font-size: 1.2rem;
-  font-weight: 700;
-
-  white-space: nowrap;
+/* ---------- session cards ---------- */
+.Session-section {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* two equal cards */
+  gap: 1.75rem;
+  width: min(1000px, calc(100% - 3rem));
+  margin: 0 auto;
 }
 
-/* ---------- Session input ---------- */
-
-.Session-name input[type='text'] {
-  width: 260px;
-  height: 54px;
-
-  padding: 0 1rem;
-
-  color: var(--sage-900);
+.session-card {
+  display: grid;
+  grid-template-columns: auto 1fr;   /* icon | text */
+  column-gap: 1.25rem;
+  row-gap: 1rem;
+  align-content: start;
+  padding: 1.75rem;
   background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(23, 35, 27, 0.06);
+}
 
-  border: 2px solid var(--border);
+.card-icon {
+  display: grid; place-items: center;
+  width: 4.5rem; height: 4.5rem;
+  background: var(--sage-100);
+  border-radius: 12px;
+  font-size: 1.6rem;
+}
+
+.eyebrow {
+  margin-bottom: 0.25rem;
+  color: var(--clay-700);
+  font-size: 0.75rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.card-text h2, .card-text label {
+  margin: 0 0 0.4rem;
+  font-size: 1.5rem; font-weight: 700;
+}
+.card-text p:last-child {
+  margin: 0; color: var(--sage-700); font-size: 0.95rem; line-height: 1.5;
+}
+
+/* input and buttons span both grid columns */
+.session-card input[type='text'],
+.session-card .btn {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 52px;
   border-radius: 7px;
-
-  font-family: 'Inter', sans-serif;
   font-size: 1rem;
 }
-
-.Session-name input[type='text']:focus {
+.session-card input[type='text'] {
+  padding: 0 1rem;
+  border: 1px solid var(--border);
+  background: var(--white);
+  font-family: 'Inter', sans-serif;
+}
+.session-card input[type='text']:focus {
   border-color: var(--sage-500);
-
-  box-shadow: 0 0 0 3px rgba(107, 143, 113, 0.15);
-
+  box-shadow: 0 0 0 3px rgba(107, 143, 113, 0.2);
   outline: none;
 }
 
-/* =========================================================
-   BUTTONS
-   ========================================================= */
-
-.Session-name button,
-.session-join button {
-  height: 54px;
-
-  padding: 0 1.8rem;
-
-  border: none;
-  border-radius: 7px;
-
+.btn {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.5rem;
+  border: none; cursor: pointer;
   color: var(--white);
-
-  font-family: 'Space Grotesk', sans-serif;
-
-  font-size: 1.05rem;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  white-space: nowrap;
-
-  box-shadow: 0 3px 8px rgba(23, 35, 27, 0.18);
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
+.btn > span { font-size: 1.25rem; }
+.btn::before { content: ''; }           /* keeps label centered with arrow on the right */
+.btn { justify-content: center; position: relative; }
+.btn > span { position: absolute; right: 1.5rem; }
+.btn:hover { transform: translateY(-2px); }
 
-/* ---------- Join Session ---------- */
+.btn-create { background: var(--clay-700); margin-top: auto; }
+.btn-create:hover { background: #543a1f; }
+.btn-join { background: var(--sage-950); }
+.btn-join:hover { background: var(--sage-700); }
 
-.Session-name button {
-  background: var(--sage-700);
-}
+/* Create card has no input, so push its button to the bottom to line up */
+.session-card:first-child .btn { margin-top: auto; }
 
-.Session-name button:hover {
-  background: var(--sage-900);
-
-  transform: translateY(-2px);
-
-  box-shadow: 0 5px 12px rgba(23, 35, 27, 0.2);
-}
-
-/* ---------- Create Session ---------- */
-
-.session-join {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  margin: 0;
-}
-
-.session-join button {
-  min-width: 210px;
-
-  background: var(--clay-700);
-}
-
-.session-join button:hover {
-  background: #543a1f;
-
-  transform: translateY(-2px);
-
-  box-shadow: 0 5px 12px rgba(107, 74, 40, 0.22);
-}
-
-/* ---------- description inside join section ---------- */
-
-/*
-   The paragraph currently lives inside the outer
-   .Session-name in your JSX.
-
-   We allow it to appear underneath the controls.
-*/
-
-.Session-name > p {
-  display: block;
-
-  flex-basis: 100%;
-
-  margin: 1rem 0 0;
-
-  color: var(--sage-700);
-
-  font-size: 0.95rem;
-  line-height: 1.6;
-}
-
-/* =========================================================
-   HERO
-   ========================================================= */
-
-.Pointing-Poker-wrap {
-  width: min(1180px, calc(100% - 3rem));
-
-  margin: 0 auto;
-}
-
-.Pointing-Poker {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  max-width: 720px;
-
-  margin: 0 auto;
-
-  padding: 3.5rem 1rem 2.5rem;
-}
-
-.Pointing-Poker h1 {
-  max-width: 20ch;
-
-  margin-bottom: 1rem;
-
-  font-size: clamp(1.9rem, 4vw, 2.75rem);
-
-  line-height: 1.1;
-}
-
-.Pointing-Poker p {
-  max-width: 60ch;
-
-  margin-bottom: 1.25rem;
-
-  color: var(--sage-700);
-
-  font-size: 1rem;
-
-  line-height: 1.7;
-}
-
-/* =========================================================
-   OPTIONAL ACTIVE PLAYERS BUTTON
-   ========================================================= */
-
-.ap {
-  display: inline-block;
-
-  padding: 0.6rem 1.1rem;
-
-  color: var(--white);
-  background: var(--clay-700);
-
-  border-radius: 4px;
-
-  font-weight: 700;
-
-  text-decoration: none;
-}
-
-.ap:hover {
-  background: var(--sage-900);
-}
-
-/* =========================================================
-   FEATURES
-   ========================================================= */
-
-.features {
-  padding: 2.5rem 0 3rem;
-}
+/* ---------- features ---------- */
+.features { padding: 2.5rem 0 3rem; text-align: center; }
 
 .features h2 {
-  max-width: 40ch;
-
-  margin: 0 auto 1.5rem;
-
-  font-size: 1.5rem;
-
-  line-height: 1.25;
+  display: flex; align-items: center; gap: 1.5rem;   /* label with lines either side */
+  margin: 0 0 1.75rem;
+  color: var(--clay-700);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase;
+}
+.features h2::before, .features h2::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
 }
 
 .feature-grid {
   display: grid;
-
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  gap: 1.25rem;
+  grid-template-columns: repeat(3, 1fr);
 }
-
 .feature-card {
-  padding: 1.5rem;
-
-  background: var(--white);
-
-  border: 1px solid var(--border);
-  border-radius: 8px;
-
+  display: flex; align-items: center; gap: 1rem;
+  padding: 0.5rem 1.75rem;
   text-align: left;
-
-  box-shadow: 0 2px 8px rgba(23, 35, 27, 0.05);
+  background: none; border: none; box-shadow: none;
 }
+.feature-card + .feature-card { border-left: 1px solid var(--border); } /* dividers */
 
-.feature-card h3 {
-  margin-bottom: 0.6rem;
-
-  color: var(--sage-700);
-
-  font-size: 1.1rem;
+.feature-icon {
+  flex-shrink: 0;
+  display: grid; place-items: center;
+  width: 4rem; height: 4rem;
+  background: var(--sage-100);
+  border-radius: 50%;
+  font-size: 1.4rem;
 }
+.feature-card h3 { margin: 0 0 0.25rem; font-size: 1.1rem; color: var(--sage-950); }
+.feature-card p  { margin: 0; color: var(--sage-700); font-size: 0.95rem; line-height: 1.5; }
 
-.feature-card p {
-  margin: 0;
-
-  font-size: 0.9rem;
-
-  line-height: 1.6;
-}
-
-/* =========================================================
-   LIVE STATS
-   ========================================================= */
-
-#live {
-  width: min(1180px, calc(100% - 3rem));
-
-  margin: 0 auto;
-
-  padding: 2.5rem 0 3rem;
-}
-
-#live h2 {
-  margin-bottom: 1.25rem;
-
-  font-size: 1.35rem;
-}
-
-.stat-row {
-  display: grid;
-
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  gap: 1rem;
-}
-
-.stat {
-  padding: 1.25rem;
-
-  background: var(--sage-050);
-
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
-.stat dt {
-  color: var(--sage-700);
-
+/* ---------- footer ---------- */
+.site-footer {
+  width: 100%;
+  padding: 1.75rem 1rem;
+  text-align: center;
+  color: var(--white);
+  background: var(--sage-950);
   font-size: 0.8rem;
 }
+.site-footer p { margin: 0.25rem 0; }
 
-.stat dd {
-  margin: 0.35rem 0 0;
-
-  font-family: 'Space Grotesk', sans-serif;
-
-  font-size: 1.75rem;
-  font-weight: 700;
+/* ---------- responsive ---------- */
+@media (max-width: 800px) {
+  .Session-section, .feature-grid { grid-template-columns: 1fr; }
+  .feature-card + .feature-card { border-left: none; border-top: 1px solid var(--border); padding-top: 1rem; }
+  .feature-card { padding-inline: 0; }
 }
-
-/* =========================================================
-   FOOTER
-   ========================================================= */
-
-.site-footer {
-  padding: 1.5rem 0;
-
-  color: var(--sage-200);
-  background: var(--sage-950);
-
-  font-size: 0.78rem;
-}
-
-.site-footer p {
-  margin: 0.25rem 0;
-}
-
-/* =========================================================
-   RESPONSIVE - TABLET
-   ========================================================= */
-
-@media (max-width: 900px) {
-
-  .Session-name {
-    gap: 0.75rem;
-
-    padding: 20px 16px;
-  }
-
-  .Session-name label {
-    font-size: 1rem;
-  }
-
-  .Session-name input[type='text'] {
-    width: 200px;
-  }
-
-  .Session-name button,
-  .session-join button {
-    padding: 0 1.25rem;
-
-    font-size: 0.95rem;
-  }
-}
-
-/* =========================================================
-   RESPONSIVE - MOBILE
-   ========================================================= */
-
-@media (max-width: 760px) {
-
-  .game-shell,
-  .wrap,
-  #live,
-  .Pointing-Poker-wrap {
-    width: min(100% - 2rem, 680px);
-  }
-
-  /* Stack feature cards */
-
-  .feature-grid,
-  .stat-row {
-    grid-template-columns: 1fr;
-  }
-
-  /* Join/Create section */
-
-  .Session-name {
-    flex-direction: column;
-
-    width: min(100% - 2rem, 680px);
-
-    padding: 20px 16px;
-  }
-
-  .Session-name > .Session-name {
-    flex-direction: column;
-
-    width: 100%;
-  }
-
-  .Session-name input[type='text'] {
-    width: 100%;
-
-    max-width: 350px;
-  }
-
-  .Session-name button {
-    width: 100%;
-
-    max-width: 350px;
-  }
-
-  .session-join {
-    width: 100%;
-  }
-
-  .session-join button {
-    width: 100%;
-
-    max-width: 350px;
-  }
-
-  .Session-name > p {
-    margin-top: 0.5rem;
-  }
-}
-
-/* =========================================================
-   RESPONSIVE - SMALL PHONE
-   ========================================================= */
-
 @media (max-width: 480px) {
-
-  .game-header-content {
-    align-items: flex-start;
-    flex-direction: column;
-    justify-content: center;
-
-    padding-block: 0.8rem;
-  }
-
-  .header-status {
-    font-size: 0.75rem;
-  }
-
-  .Session-name {
-    padding: 16px 12px;
-  }
-
-  .Pointing-Poker {
-    padding-block: 2.5rem 2rem;
-  }
-
-  .Pointing-Poker h1 {
-    font-size: 1.8rem;
-  }
+  .game-header-content { flex-direction: column; align-items: flex-start; padding-block: 0.8rem; }
+  .session-card { padding: 1.25rem; }
 }
