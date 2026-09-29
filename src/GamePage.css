@@ -75,7 +75,7 @@ input:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  min-height: 70px;
+  min-height: 52px;
 }
 
 .brand {
@@ -108,12 +108,12 @@ input:focus-visible {
 
 .game-main {
   display: grid;
-  gap: 1.25rem;
-  padding-block: 1.5rem 2.5rem;
+  gap: .65rem;
+  padding-block: .65rem .8rem;
 }
 
 .game-section {
-  padding: 1.35rem;
+  padding: .75rem;
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -122,7 +122,7 @@ input:focus-visible {
 .top-third {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 1fr);
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 .story-panel,
@@ -136,8 +136,8 @@ input:focus-visible {
 
 .story-panel>h1 {
   max-width: 18ch;
-  margin-bottom: .9rem;
-  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  margin-bottom: .45rem;
+  font-size: 1.7rem;
   line-height: 1.05;
 }
 
@@ -153,8 +153,8 @@ input:focus-visible {
 .session-panel {
   display: grid;
   align-content: start;
-  gap: 1.25rem;
-  padding: 1.25rem;
+  gap: .75rem;
+  padding: .85rem;
   background: var(--sage-050);
   border-left: 4px solid var(--sage-500);
 }
@@ -246,7 +246,7 @@ input:focus-visible {
 .section-heading h2,
 .results-heading h2 {
   margin-bottom: 0;
-  font-size: 1.35rem;
+  font-size: 1.2rem;
 }
 
 .round-note {
@@ -258,16 +258,19 @@ input:focus-visible {
 
 .point-card-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: .75rem;
-  margin-top: 1rem;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: .5rem;
+  max-width: 64rem;
+  margin-top: .65rem;
+  margin-inline: auto;
 }
 
 .point-card {
   display: flex;
-  min-height: 140px;
+  min-height: 0;
   width: 100%;
-  padding: 1rem;
+  aspect-ratio: 4 / 3;
+  padding: .35rem;
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-between;
@@ -291,22 +294,24 @@ input:focus-visible {
 .point-card h3 {
   margin: 0;
   color: var(--sage-700);
-  font-size: 1.8rem;
+  font-size: 1.3rem;
 }
 
 .point-card p {
-  margin: .5rem 0;
-  font-size: .82rem;
+  max-width: 100%;
+  margin: .15rem 0;
+  font-size: .7rem;
 }
 
 .point-card span {
-  font-size: .75rem;
+  max-width: 100%;
+  font-size: .65rem;
   font-weight: 600;
 }
 
 .selected-point {
-  margin-top: 1rem;
-  padding: .9rem 1rem;
+  margin-top: .65rem;
+  padding: .65rem .8rem;
   background: var(--sage-200);
   border-left: 4px solid var(--clay-700);
 }
@@ -322,14 +327,18 @@ input:focus-visible {
 
 .results-grid {
   display: grid;
+  grid-template-columns: 1fr;
+  gap: .75rem;
+  margin-top: .65rem;
+}
+
+.results-grid.results-with-stats {
   grid-template-columns: minmax(0, 1.5fr) minmax(220px, 1fr);
-  gap: 1rem;
-  margin-top: 1rem;
 }
 
 .participant-panel,
 .stats-panel {
-  padding: 1rem;
+  padding: .75rem;
   background: var(--sage-050);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -370,50 +379,104 @@ input:focus-visible {
   accent-color: var(--clay-700);
 }
 
+.vote-visibility-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  color: var(--sage-700);
+  font-size: .85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.vote-visibility-toggle input {
+  position: relative;
+  width: 2.5rem;
+  height: 1.4rem;
+  margin: 0;
+  appearance: none;
+  background: #a7b4a5;
+  border: 1px solid #718071;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.vote-visibility-toggle input::before {
+  position: absolute;
+  top: .15rem;
+  left: .15rem;
+  width: .95rem;
+  height: .95rem;
+  background: var(--white);
+  border-radius: 50%;
+  content: '';
+  transition: transform .2s;
+}
+
+.vote-visibility-toggle input:checked {
+  background: var(--sage-700);
+}
+
+.vote-visibility-toggle input:checked::before {
+  transform: translateX(1.1rem);
+}
+
+.vote-visibility-toggle input:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
 .participant-list,
 .anonymous-results ul {
   display: grid;
-  gap: .5rem;
+  gap: .4rem .5rem;
   padding: 0;
-  margin: 1rem 0 0;
+  margin: .65rem 0 0;
   list-style: none;
+}
+
+.participant-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(3.3rem, auto);
+  max-height: 14.4rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .participant {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: .6rem .7rem;
+  min-width: 0;
+  gap: .4rem;
+  padding: .45rem .55rem;
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: 4px;
 }
 
-.participant strong,
-.participant-status {
+.participant strong {
   display: block;
 }
 
 .participant strong {
   font-size: .85rem;
-}
-
-.participant-status {
-  margin-top: .15rem;
-  color: var(--clay-700);
-  font-size: .72rem;
-}
-
-.participant-status.voted {
-  color: var(--sage-700);
+  overflow-wrap: anywhere;
 }
 
 .participant-vote {
-  min-width: 4rem;
-  font-size: 1rem;
+  max-width: 6rem;
+  color: var(--clay-700);
+  font-size: .75rem;
   font-weight: 700;
   text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.participant-vote.voted {
+  color: var(--sage-700);
+  font-size: 1rem;
 }
 
 .anonymous-results {
@@ -459,7 +522,7 @@ input:focus-visible {
 }
 
 .site-footer {
-  padding: 1.5rem 0;
+  padding: 1rem 0;
   color: var(--sage-200);
   background: var(--sage-950);
   font-size: .78rem;
@@ -475,12 +538,13 @@ input:focus-visible {
   }
 
   .top-third,
-  .results-grid {
+  .results-grid,
+  .results-grid.results-with-stats {
     grid-template-columns: 1fr;
   }
 
   .point-card-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .section-heading,
@@ -499,7 +563,7 @@ input:focus-visible {
     align-items: flex-start;
     flex-direction: column;
     justify-content: center;
-    padding-block: .8rem;
+    padding-block: .4rem;
   }
 
   .header-status {
@@ -507,7 +571,11 @@ input:focus-visible {
   }
 
   .game-section {
-    padding: 1rem;
+    padding: .8rem;
+  }
+
+  .point-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .participant-panel-header {

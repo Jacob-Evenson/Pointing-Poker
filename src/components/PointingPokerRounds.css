@@ -1,6 +1,6 @@
 .story-card {
-  max-width: 560px;
-  padding: 1.15rem;
+  max-width: none;
+  padding: .6rem;
   background: var(--white, #ffffff);
   border: 1px solid var(--border, #c8d8c4);
   border-radius: 8px;
@@ -22,8 +22,8 @@
   display: block;
   width: 100%;
   box-sizing: border-box;
-  margin-bottom: 1rem;
-  padding: .55rem .65rem;
+  margin-bottom: .6rem;
+  padding: .45rem .55rem;
   color: var(--sage-900, #1f2a20);
   background: var(--sage-050, #f5f8f3);
   border: 1px solid var(--border, #c8d8c4);
@@ -32,14 +32,14 @@
 }
 
 .story-card input {
-  margin-bottom: 1.1rem;
+  margin-bottom: .7rem;
   font-family: 'Space Grotesk', 'Inter', sans-serif;
-  font-size: 1.35rem;
+  font-size: 1.1rem;
   font-weight: 700;
 }
 
 .story-card textarea {
-  min-height: 100px;
+  min-height: 3.25rem;
   resize: vertical;
   line-height: 1.45;
 }
@@ -56,7 +56,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin: 1rem 0 .75rem;
+  margin: .4rem 0 .55rem;
   color: var(--sage-700, #3f5b44);
   font-size: .85rem;
   font-weight: 600;
@@ -84,12 +84,4 @@
 
 .pointing-poker-rounds {
   padding: .2rem 0 0;
-}
-
-.pointing-poker-rounds > h1 {
-  margin-bottom: .75rem;
-  color: var(--sage-900, #1f2a20);
-  font-family: 'Space Grotesk', 'Inter', sans-serif;
-  font-size: 1.35rem;
-  line-height: 1.15;
 }

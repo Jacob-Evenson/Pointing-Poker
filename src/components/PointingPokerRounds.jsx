@@ -44,8 +44,6 @@ const PointingPokerRounds = () => {
 
   return (
     <div className="pointing-poker-rounds">
-      <h1>Pointing Poker - Story Cards</h1>
-
       <div className="story-navigation">
         <button onClick={handlePreviousStory} disabled={currentStoryIndex === 0}>
           Previous Story

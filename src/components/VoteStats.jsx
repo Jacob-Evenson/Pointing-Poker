@@ -1,3 +1,4 @@
+import React from 'react'
 import { getVoteStats } from './voteStats.js'
 
 const VoteStats = ({ votes }) => {

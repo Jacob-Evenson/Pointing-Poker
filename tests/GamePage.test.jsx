@@ -16,17 +16,38 @@ describe('GamePage layout', () => {
     expect(sections[2]).toHaveAccessibleName('Team results')
   })
 
-  it('keeps point voting and vote statistics connected', () => {
+  it('can reveal partial votes and statistics before everyone has voted', () => {
     render(<GamePage />)
 
+    const voteSwitch = screen.getByRole('switch', { name: 'Show votes and statistics' })
+    expect(voteSwitch).toBeEnabled()
+    expect(screen.queryByText('Low: 5')).not.toBeInTheDocument()
+    expect(screen.getAllByText('Voted', { selector: '.participant-vote' })).toHaveLength(2)
+    expect(screen.getByText('Not yet Voted')).toBeInTheDocument()
+    expect(screen.getByText('Votes stay private until you reveal them.')).toBeInTheDocument()
+
+    fireEvent.click(voteSwitch)
+
+    expect(screen.getByText('Votes are revealed for players who have voted.')).toBeInTheDocument()
     expect(screen.getByText('Low: 5')).toBeInTheDocument()
     expect(screen.getByText('Average: 6.5')).toBeInTheDocument()
     expect(screen.getByText('High: 8')).toBeInTheDocument()
+    expect(screen.getByText('5', { selector: '.participant-vote' })).toBeInTheDocument()
+    expect(screen.getByText('8', { selector: '.participant-vote' })).toBeInTheDocument()
+    expect(screen.getByText('Not yet Voted')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('switch', { name: 'Hide votes and statistics' }))
+
+    expect(screen.queryByText('Low: 5')).not.toBeInTheDocument()
+    expect(screen.getAllByText('Voted', { selector: '.participant-vote' })).toHaveLength(2)
+    expect(screen.getByText('Not yet Voted')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /5 Moderate task 5 points/ }))
 
     expect(screen.getByText('You selected 5 points.')).toBeInTheDocument()
-    expect(screen.getByText('All votes are revealed.')).toBeInTheDocument()
+    expect(screen.getByText('Everyone has voted. Votes are ready to reveal.')).toBeInTheDocument()
+    expect(screen.getByRole('switch', { name: 'Show votes and statistics' })).toBeEnabled()
+    expect(screen.getAllByText('Voted', { selector: '.participant-vote' })).toHaveLength(3)
   })
 
   it('preserves the branded header and footer content', () => {
