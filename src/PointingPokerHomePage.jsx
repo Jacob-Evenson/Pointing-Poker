@@ -84,8 +84,8 @@ const PointingPokerHomePage = () => {
               <div><h3>Fast and Simple</h3><p>Start a session and begin estimating in seconds</p></div>
             </article>
             <article className="feature-card">
-              <span className="feature-icon" aria-hidden="true"></span>
-              <div><h3>Distraction Free</h3><p>Private voting keeps estimates unbiased</p>🛡️</div>
+              <span className="feature-icon" aria-hidden="true">🛡️</span>
+              <div><h3>Distraction Free</h3><p>Private voting keeps estimates unbiased</p></div>
             </article>
           </div>
         </section>
