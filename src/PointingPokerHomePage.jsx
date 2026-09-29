@@ -42,80 +42,55 @@ const PointingPokerHomePage = () => {
     <>
       {/*Do we want the skip link? That will take you right to the main content? */}
 
-      <a className="skip-link" href="#main-content">Skip to main content</a>
-      <header className="game-header">
-        <div className="game-shell game-header-content">
-          <a className="brand" href="#main-content" aria-label="Pointing Poker home">
-            <span className="brand-mark" aria-hidden="true">PP</span>
-            <span>Pointing Poker</span>
-          </a>
-          <span className="header-status">
-            <nav>
-              <a href="">Features</a>
-              {/* <a href="">Live Activity</a> */}
-            </nav>
-          </span>
-        </div>
-      </header>
-      
-      <main>
-        <section className='Session-section'>
-          <div className="Session-actions">
-            <label htmlFor="Session-Name">Join Session</label>
-            <input id='Session-Name' type='text' />
-            <button>Join Session</button>
-          </div>
-
-          <div className="session-join">
-            <button>Create Session</button>
-          </div>
-          {/* <p>
-            Pointing Poker is a simple yet effective tool used by teams to collaborate and vote on tasks based on the relative effort, complexity,
-            and uncertainty to complete a product item. Teams assign story points the lower the points the easier and higher the more effort it will take,
-            based on the average of all votes cast. Can Adjust info if needed I put in a basic description of pointing poker
-          </p> */}
-        </section>
-      </main>
-
       <main id="main-content">
-        <section className="Pointing-Poker-wrap">
-          <div className="Pointing-Poker">
-            {/* <h1>Plan team sprints without the guesswork of Collaboration</h1>
-            <p>
-              Pointing Poker is a free tool built by the Western Tech College IT Project Management.
-              Teams can collaborate, vote on ideas and in real time with out the ads and no clutter.
-              With a modern style
-            </p> */}
-            {/*className ap stands for Active Players also can be changed early on if we don't like the active players */}
-            {/* <a className="ap" href="#live">Active Players</a> */}
-          </div>
+        <section className="hero">
+          <div className="hero-logo" aria-hidden="true">PP</div>
+          <h1>Pointing Poker</h1>
+          <p className="tagline">Estimate the work together</p>
         </section>
 
-       
+        <section className="Session-section wrap">
+          <div className="session-card">
+            <span className="card-icon" aria-hidden="true">👥</span>
+            <div className="card-text">
+              <p className="eyebrow">Create a session</p>
+              <h2>Create a Session</h2>
+              <p>Start a new estimation session and share the code with your team.</p>
+            </div>
+            <button className="btn btn-create">Create Session <span aria-hidden="true">→</span></button>
+          </div>
+
+          <div className="session-card">
+            <span className="card-icon" aria-hidden="true">🔗</span>
+            <div className="card-text">
+              <p className="eyebrow">Join a session</p>
+              <h2><label htmlFor="Session-Name">Join a Session</label></h2>
+              <p>Enter a session code to join an existing estimation session.</p>
+            </div>
+            <input id="Session-Name" type="text" placeholder="Enter session code" />
+            <button className="btn btn-join">Join Session <span aria-hidden="true">→</span></button>
+          </div>
+        </section>
 
         <section id="features" className="features wrap">
-          <h2>Why Teams Choose to use Pointing Poker style tools for Collaboration</h2>
+          <h2>Why use Pointing Poker?</h2>
           <div className="feature-grid">
             <article className="feature-card">
-              <h3>Pointing Poker Built of easy real time Collaboration</h3>
-              <p>
-                Every team member votes during team meetings allowing for shy voices to carry as much wait as the loud voices.
-                No ads allows for uninterrupted voting rounds or distractions.
-              </p>
+              <span className="feature-icon" aria-hidden="true">👥</span>
+              <div><h3>Collaborative</h3><p>Get input from the whole team in real time.</p></div>
             </article>
             <article className="feature-card">
-              <h3>Effortless to use</h3>
-              <p>
-                Start a session, share the link and start collaborating and voting.
-              </p>
+              <span className="feature-icon" aria-hidden="true"></span>
+              <div><h3>Fast and Simple</h3><p>Start a session and begin estimating in seconds</p></div>
             </article>
+            <article>
+              <span></span>
+              <div><h3>Distraction Free</h3><p>Private voting keeps estimates unbiased</p></div>
+            </article>
+            {/* Fast & Simple, Distraction Free follow the same shape */}
           </div>
         </section>
       </main>
-      <footer className="site-footer wrap">
-        <p>Pointing Poker Built by Jacobs minions IT project management team</p>
-        <p>© 2026 Jacobs Minions. All rights reserved.</p>
-      </footer>
     </>
   )
 }
