@@ -17,7 +17,7 @@ const StoryCard = ({ story, onTitleChange, onDescriptionChange }) => {
         id="story-description"
         value={story.description}
         onChange={(event) => onDescriptionChange(event.target.value)}
-        rows="6"
+        rows="2"
       />
     </div>
   );

@@ -87,7 +87,7 @@ const GamePage = () => {
               <p className="section-kicker">Make your estimate</p>
               <h2 id="point-cards-heading">Choose a point card</h2>
             </div>
-            <span className="round-note">Your vote stays private until everyone is ready.</span>
+            <span className="round-note">Show submitted votes whenever you are ready.</span>
           </div>
           <div className="point-card-grid">
             {points.map((point) => (
@@ -102,16 +102,18 @@ const GamePage = () => {
           <div className="results-heading">
             <p className="section-kicker">Live estimates</p>
             <h2 id="results-heading">Team results</h2>
-            <button
-              type="button"
-              className="reveal-votes-button"
-              onClick={() => setRevealed(true)}
-              disabled={!allVoted}
-            >
-              Show Votes
-            </button>
+            <label className="vote-visibility-toggle">
+              <span>{revealed ? 'Hide votes' : 'Show votes'}</span>
+              <input
+                type="checkbox"
+                role="switch"
+                aria-label={revealed ? 'Hide votes and statistics' : 'Show votes and statistics'}
+                checked={revealed}
+                onChange={(event) => setRevealed(event.target.checked)}
+              />
+            </label>
           </div>
-          <div className="results-grid">
+          <div className={`results-grid${revealed ? ' results-with-stats' : ''}`}>
             <ParticipantList
               participants={participants}
               allVoted={allVoted}
@@ -119,10 +121,12 @@ const GamePage = () => {
               anonymousReveal={anonymousReveal}
               onAnonymousReveal={setAnonymousReveal}
             />
-            <div className="stats-panel">
-              <h3>Vote statistics</h3>
-              <VoteStats votes={numericVotes} />
-            </div>
+            {revealed && (
+              <div className="stats-panel">
+                <h3>Vote statistics</h3>
+                <VoteStats votes={numericVotes} />
+              </div>
+            )}
           </div>
         </section>
       </main>
