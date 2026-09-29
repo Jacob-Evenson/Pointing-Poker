@@ -71,7 +71,7 @@ input:focus-visible {
 /* ---------- header ---------- */
 .game-header {
   color: var(--white);
-  background: linear-gradient(90deg, var(--sage-950), #244231);
+  background: var(--sage-950);
   border-bottom: 4px solid var(--clay-700);
 }
 
@@ -104,6 +104,13 @@ input:focus-visible {
   border-radius: 6px;
   font-size: .9rem;
   letter-spacing: .04em;
+}
+.header-banner {
+  display: block;
+  width: 180px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
 }
 
 .header-status {

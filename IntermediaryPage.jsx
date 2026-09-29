@@ -1,5 +1,7 @@
 import React from 'react';
 import './IntermediaryPage.css';
+import banner from '../src/assets/banner.jpeg';
+
 
 const IntermediaryPage = () => {
   return (
@@ -9,8 +11,7 @@ const IntermediaryPage = () => {
       <header className="game-header">
         <div className="game-shell game-header-content">
           <a href="/" className="brand">
-            <span className="brand-mark">PP</span>
-            <span>Pointing Poker</span>
+            <img className="header-banner" src={banner} alt="Pointing Poker" />
           </a>
 
           <nav className="header-nav">

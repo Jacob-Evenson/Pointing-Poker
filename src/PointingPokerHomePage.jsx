@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import "./PointingPokerHomePage.css";
+import banner from '../../src/assets/banner.jpeg';
 
 
 const PointingPokerHomePage = () => {
@@ -44,8 +45,7 @@ const PointingPokerHomePage = () => {
 
       <main id="main-content">
         <section className="hero">
-          <div className="hero-logo" aria-hidden="true">PP</div>
-          <h1>Pointing Poker</h1>
+          <img className="hero-banner" src={banner} alt="Pointing Poker" />
           <p className="tagline">Estimate the work together</p>
         </section>
 

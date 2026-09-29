@@ -7,6 +7,7 @@ import PointingPokerRounds from './components/PointingPokerRounds.jsx'
 import SessionTimer from './components/SessionTimer.jsx'
 import VoteStats from './components/VoteStats.jsx'
 import { points } from './data/points.js'
+import banner from '../../src/assets/banner.jpeg'
 
 const GamePage = () => {
   const [selectedPoint, setSelectedPoint] = useState(null)
@@ -42,8 +43,7 @@ const GamePage = () => {
       <header className="game-header">
         <div className="game-shell game-header-content">
           <a className="brand" href="#main-content" aria-label="Pointing Poker home">
-            <span className="brand-mark" aria-hidden="true">PP</span>
-            <span>Pointing Poker</span>
+            <img className="header-banner" src={banner} alt="Pointing Poker" />
           </a>
           <span className="header-status">Live estimation session</span>
         </div>

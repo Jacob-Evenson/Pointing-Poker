@@ -70,6 +70,14 @@ body {
   font-style: italic;
 }
 
+.header-banner {
+  display: block;
+  width: 150px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
 .header-nav {
   display: flex;
   align-items: center;
