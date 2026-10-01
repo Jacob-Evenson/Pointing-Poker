@@ -1,9 +1,13 @@
 import { Router } from 'express'
+import { createRoom, getRoom, roomExists } from '../roomStore.js'
 
-const rooms = new Map([
-  ['JACOBS-26', { roomCode: 'JACOBS-26' }],
-  ['TEAM-42', { roomCode: 'TEAM-42' }]
-])
+// Seed the demo rooms in the shared room store if they don't exist yet.
+if (!roomExists('JACOBS-26')) {
+  createRoom('JACOBS-26')
+}
+if (!roomExists('TEAM-42')) {
+  createRoom('TEAM-42')
+}
 
 const roomsRouter = Router({ caseSensitive: true, strict: true })
 
@@ -16,12 +20,12 @@ roomsRouter.all('/:roomCode', (request, response, next) => {
 })
 
 roomsRouter.get('/:roomCode', (request, response) => {
-  const room = rooms.get(request.params.roomCode)
+  const room = getRoom(request.params.roomCode)
   if (!room) {
     return response.status(404).json({ error: 'Room not found' })
   }
 
-  return response.json(room)
+  return response.json({ roomCode: room.id })
 })
 
 export default roomsRouter
