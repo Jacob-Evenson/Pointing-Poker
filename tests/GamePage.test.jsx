@@ -1,11 +1,18 @@
 import React from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { MemoryRouter } from 'react-router-dom'
+import { describe, expect, it, vi } from 'vitest'
 import GamePage from '../src/GamePage.jsx'
+
+const renderGamePage = () => render(
+  <MemoryRouter>
+    <GamePage />
+  </MemoryRouter>
+)
 
 describe('GamePage layout', () => {
   it('renders the three game regions in order', () => {
-    render(<GamePage />)
+    renderGamePage()
 
     const main = screen.getByRole('main')
     const sections = main.querySelectorAll(':scope > section')
@@ -17,7 +24,7 @@ describe('GamePage layout', () => {
   })
 
   it('can reveal partial votes and statistics before everyone has voted', () => {
-    render(<GamePage />)
+    renderGamePage()
 
     const voteSwitch = screen.getByRole('switch', { name: 'Show votes and statistics' })
     expect(voteSwitch).toBeEnabled()
@@ -51,10 +58,34 @@ describe('GamePage layout', () => {
   })
 
   it('preserves the branded header and footer content', () => {
-    render(<GamePage />)
+    renderGamePage()
 
     expect(screen.getByRole('banner')).toHaveTextContent('Pointing Poker')
     expect(screen.getByRole('contentinfo')).toHaveTextContent('Pointing Poker Built by Jacobs minions IT project management team')
     expect(screen.getByRole('contentinfo')).toHaveTextContent('© 2026 Jacobs Minions. All rights reserved.')
+  })
+
+  it('shows player and timer information without a round counter', () => {
+    renderGamePage()
+
+    expect(screen.getByText('Players')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Pause' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Reset' })).toBeInTheDocument()
+    expect(screen.queryByText('Round', { exact: true })).not.toBeInTheDocument()
+    expect(screen.queryByText('1 of 3')).not.toBeInTheDocument()
+  })
+
+  it('copies the session code when the copy button is pressed', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    })
+    renderGamePage()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Copy session code' }))
+
+    expect(writeText).toHaveBeenCalledWith('JACOBS-26')
+    expect(await screen.findByRole('button', { name: 'Session code copied' })).toHaveTextContent('Copied')
   })
 })

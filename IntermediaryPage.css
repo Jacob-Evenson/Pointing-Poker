@@ -1,24 +1,124 @@
-html,
-body,
-#root {
-  min-height: 100%;
-  margin: 0;
-}
-
-.page-wrapper {
-  min-height: 100vh;
+.join-session-page {
   display: flex;
+  min-height: 100vh;
   flex-direction: column;
 }
 
-.game-header {
-  flex: 0 0 auto;
-}
-
-.game-main {
+.join-session-main {
+  display: grid;
   flex: 1 0 auto;
+  place-items: center;
+  padding: 2.5rem 1.5rem;
 }
 
-.site-footer {
-  flex: 0 0 auto;
+.join-session-card {
+  width: min(100%, 520px);
+  padding: 2rem;
+  text-align: center;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 3px 12px rgb(23 35 27 / 7%);
+}
+
+.join-session-icon {
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1rem;
+  place-items: center;
+  background: var(--sage-100);
+  border-radius: 10px;
+  font-size: 1.6rem;
+}
+
+.join-session-card > .eyebrow {
+  margin-bottom: .45rem;
+}
+
+.join-session-card h1 {
+  margin-bottom: .5rem;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  line-height: 1.1;
+}
+
+.join-session-description {
+  max-width: 34ch;
+  margin: 0 auto 1.5rem;
+  color: var(--sage-700);
+  line-height: 1.5;
+}
+
+.username-field {
+  position: relative;
+}
+
+.username-field > span {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+}
+
+.username-input {
+  width: 100%;
+  height: 3.5rem;
+  padding: 0 1rem 0 3rem;
+  color: var(--sage-900);
+  background: var(--sage-050);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.username-input:focus {
+  border-color: var(--sage-500);
+  box-shadow: 0 0 0 3px rgb(107 143 113 / 20%);
+  outline: none;
+}
+
+.join-session-button {
+  width: 100%;
+  height: 3.25rem;
+  margin-top: .85rem;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.join-session-code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  margin: 1.5rem 0 0;
+  color: var(--sage-700);
+  font-size: .9rem;
+}
+
+.join-session-code::before,
+.join-session-code::after {
+  height: 1px;
+  flex: 1;
+  background: var(--border);
+  content: '';
+}
+
+.join-session-code strong {
+  color: var(--sage-900);
+}
+
+@media (max-width: 480px) {
+  .join-session-main {
+    padding: 1.5rem 1rem;
+  }
+
+  .join-session-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .join-session-code {
+    flex-wrap: wrap;
+    font-size: .8rem;
+  }
 }

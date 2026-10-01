@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import './GamePage.css'
+import pointingPokerLogoCrop from './assets/pointing-poker-logo-crop.png'
 import PointCard from './components/PointCard.jsx'
 import SelectedPoint from './components/SelectedPoint.jsx'
 import ParticipantList from './components/ParticipantList.jsx'
@@ -9,11 +11,15 @@ import VoteStats from './components/VoteStats.jsx'
 import { points } from './data/points.js'
 
 const GamePage = () => {
+  const location = useLocation()
+  const sessionUsername = location.state?.username || 'Player'
+  const sessionCode = location.state?.roomCode || 'JACOBS-26'
   const [selectedPoint, setSelectedPoint] = useState(null)
+  const [sessionCodeCopied, setSessionCodeCopied] = useState(false)
   const [anonymousReveal, setAnonymousReveal] = useState(false)
   const [revealed, setRevealed] = useState(false)
   const [participants, setParticipants] = useState([
-    { id: 1, name: 'Player', bid: null, voted: false },
+    { id: 1, name: sessionUsername, bid: null, voted: false },
     { id: 2, name: 'Alex', bid: 5, voted: true },
     { id: 3, name: 'Jordan', bid: 8, voted: true },
   ])
@@ -31,18 +37,27 @@ const GamePage = () => {
     )))
   }
 
+  const handleCopySessionCode = async () => {
+    try {
+      await navigator.clipboard.writeText(sessionCode)
+      setSessionCodeCopied(true)
+    } catch {
+      setSessionCodeCopied(false)
+    }
+  }
+
   useEffect(() => {
     document.title = 'Pointing Poker, Team Collaboration simplified'
   }, [])
 
   return (
-    <>
+    <div className="game-page">
       <a className="skip-link" href="#main-content">Skip to main content</a>
 
       <header className="game-header">
         <div className="game-shell game-header-content">
           <a className="brand" href="#main-content" aria-label="Pointing Poker home">
-            <span className="brand-mark" aria-hidden="true">PP</span>
+            <img src={pointingPokerLogoCrop} alt="" />
             <span>Pointing Poker</span>
           </a>
           <span className="header-status">Live estimation session</span>
@@ -50,7 +65,6 @@ const GamePage = () => {
       </header>
 
       <main id="main-content" className="game-shell game-main">
-        {/* TOP THIRD: story card on the left and session information on the right. */}
         <section className="game-section top-third" aria-label="Top third: story and session">
           <div className="story-panel">
             <p className="section-kicker">Current game</p>
@@ -61,26 +75,37 @@ const GamePage = () => {
             <div>
               <p className="section-kicker">Session information</p>
               <h2 id="session-info-heading">Team estimation room</h2>
-              <p className="session-code">Session code <strong>JACOBS-26</strong></p>
+              <p className="session-code">
+                Session code <strong>{sessionCode}</strong>
+                <button
+                  className="copy-session-code"
+                  type="button"
+                  aria-label={sessionCodeCopied ? 'Session code copied' : 'Copy session code'}
+                  onClick={handleCopySessionCode}
+                >
+                  {sessionCodeCopied ? 'Copied' : 'Copy'}
+                </button>
+              </p>
             </div>
-            <dl className="session-details">
-              <div>
-                <dt>Players</dt>
-                <dd>{participants.length}</dd>
+            <div className="session-metrics">
+              <dl className="players-card">
+                <span className="players-icon" aria-hidden="true">👥</span>
+                <div>
+                  <dt>Players</dt>
+                  <dd>{participants.length}</dd>
+                </div>
+              </dl>
+              <div className="timer-card">
+                <span className="timer-icon" aria-hidden="true">◷</span>
+                <div className="timer-card-content">
+                  <span className="timer-label">Session timer</span>
+                  <SessionTimer />
+                </div>
               </div>
-              <div>
-                <dt>Round</dt>
-                <dd>1 of 3</dd>
-              </div>
-            </dl>
-            <div className="timer-panel">
-              <span className="timer-label">Session timer</span>
-              <SessionTimer />
             </div>
           </aside>
         </section>
 
-        {/* MIDDLE THIRD: point cards used to submit the current estimate. */}
         <section className="game-section middle-third" aria-labelledby="point-cards-heading">
           <div className="section-heading">
             <div>
@@ -97,7 +122,6 @@ const GamePage = () => {
           <SelectedPoint point={selectedPoint} voted={Boolean(currentParticipant?.voted)} />
         </section>
 
-        {/* BOTTOM THIRD: participant status and aggregate vote statistics. */}
         <section className="game-section bottom-third" aria-labelledby="results-heading">
           <div className="results-heading">
             <p className="section-kicker">Live estimates</p>
@@ -132,12 +156,10 @@ const GamePage = () => {
       </main>
 
       <footer className="site-footer">
-        <div className="game-shell">
-          <p>Pointing Poker Built by Jacobs minions IT project management team</p>
-          <p>© 2026 Jacobs Minions. All rights reserved.</p>
-        </div>
+        <p>Pointing Poker Built by Jacobs minions IT project management team</p>
+        <p>© 2026 Jacobs Minions. All rights reserved.</p>
       </footer>
-    </>
+    </div>
   )
 }
 
