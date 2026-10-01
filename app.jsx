@@ -10,11 +10,10 @@ const App = () => {
         <Route path="/" element={<PointingPokerHomePage />} />
         <Route path="/IntermediaryPage" element={<IntermediaryPage />} />
         <Route path="/GamePage" element={<GamePage />} />
+        <Route path="/room/:roomCode/join" element={<GamePage />} />
       </Routes>
     </BrowserRouter>
-
   )
-
 }
 
 export default App
