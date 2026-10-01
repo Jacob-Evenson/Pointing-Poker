@@ -1,10 +1,44 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './PointingPokerHomePage.css'
 import pointingPokerLogo from './assets/pointing-poker-logo.png'
 import pointingPokerLogoCrop from './assets/pointing-poker-logo-crop.png'
 
 
 const PointingPokerHomePage = () => {
+  const navigate = useNavigate()
+  const [isCreatingRoom, setIsCreatingRoom] = useState(false)
+  const [createRoomError, setCreateRoomError] = useState(null)
+
+  const handleCreateSession = async () => {
+    setIsCreatingRoom(true)
+    setCreateRoomError(null)
+
+    try {
+      const response = await fetch('/api/rooms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create room')
+      }
+
+      const data = await response.json()
+      const roomCode = data.roomCode
+
+      if (!roomCode) {
+        throw new Error('No room code returned from server')
+      }
+
+      navigate(`/room/${roomCode}/join`)
+    } catch (err) {
+      setCreateRoomError(err.message)
+    } finally {
+      setIsCreatingRoom(false)
+    }
+  }
+
   useEffect(() => {
     document.title = 'Pointing Poker, Team Collaboration simplified'
   }, [])
@@ -37,9 +71,10 @@ const PointingPokerHomePage = () => {
               <h2>Create a Session</h2>
               <p>Start a new estimation session and share the code with your team.</p>
             </div>
-            <button className="btn btn-create" type="button">
-              Create Session <span aria-hidden="true">→</span>
+            <button className="btn btn-create" type="button" onClick={handleCreateSession} disabled={isCreatingRoom}>
+              {isCreatingRoom ? 'Creating...' : 'Create Session'} <span aria-hidden="true">→</span>
             </button>
+            {createRoomError && <p role="alert">{createRoomError}</p>}
           </div>
 
           <div className="session-card">

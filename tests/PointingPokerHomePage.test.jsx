@@ -1,99 +1,111 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
+import { MemoryRouter } from 'react-router-dom'
 import PointingPokerHomePage from '../src/PointingPokerHomePage.jsx'
 
-// describe('PointingPokerHomePage voting', () => {
-//   it('renders all point cards and starts without a vote', () => {
-//     render(<PointingPokerHomePage />)
+const mockNavigate = vi.fn()
 
-//     expect(screen.getByRole('region', { name: 'Choose your estimate' })).toBeInTheDocument()
-//     expect(within(screen.getByRole('region', { name: 'Choose your estimate' })).getAllByRole('button')).toHaveLength(8)
-//     expect(screen.getByText('Choose a card to submit your estimate.')).toBeInTheDocument()
-//   })
+vi.mock('react-router-dom', async () => {
+    const actual = await vi.importActual('react-router-dom')
+    return {
+        ...actual,
+        useNavigate: () => mockNavigate,
+    }
+})
 
-//   it('renders the story rounds section with its initial stories', () => {
-//     render(<PointingPokerHomePage />)
+function renderWithRouter(ui) {
+    return render(<MemoryRouter>{ui}</MemoryRouter>)
+}
 
-//     expect(screen.getByRole('region', { name: 'Story rounds' })).toBeInTheDocument()
-//     expect(screen.getByText('Pointing Poker - Story Cards')).toBeInTheDocument()
-//     expect(screen.getByText('Round 1 of 3')).toBeInTheDocument()
-//     expect(screen.getByText('This round is still in progress.')).toBeInTheDocument()
-//     expect(screen.getByText('User Login')).toBeInTheDocument()
-//     expect(screen.getByText('Password Reset')).toBeInTheDocument()
-//   })
+describe('PointingPokerHomePage', () => {
+    beforeEach(() => {
+        global.fetch = vi.fn()
+        mockNavigate.mockClear()
+    })
 
-//   it('stores the selected value and marks the user as voted', () => {
-//     render(<PointingPokerHomePage />)
+    afterEach(() => {
+        vi.restoreAllMocks()
+    })
 
-//     fireEvent.click(screen.getByRole('button', { name: /5 Moderate task 5 points/ }))
+    it('renders the hero section and both session cards', () => {
+        renderWithRouter(<PointingPokerHomePage />)
 
-//     expect(screen.getByText('You selected 5 points.')).toBeInTheDocument()
-//     expect(screen.queryByText('Choose a card to submit your estimate.')).not.toBeInTheDocument()
-//   })
+        expect(screen.getByRole('heading', { name: 'Pointing Poker' })).toBeInTheDocument()
+        expect(screen.getByRole('heading', { name: 'Create a Session' })).toBeInTheDocument()
+        expect(screen.getByRole('heading', { name: 'Join a Session' })).toBeInTheDocument()
+    })
 
-//   it('shows session participants and hides votes while someone is waiting', () => {
-//     render(<PointingPokerHomePage />)
+    it('sends a POST request to /api/rooms when Create Session is clicked', async () => {
+        global.fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ roomCode: '123456' }),
+        })
 
-//     expect(screen.getByRole('heading', { name: 'People in this session' })).toBeInTheDocument()
-//     expect(screen.getByText('Player')).toBeInTheDocument()
-//     expect(screen.getByText('Alex')).toBeInTheDocument()
-//     expect(screen.getByText('Jordan')).toBeInTheDocument()
-//     expect(screen.getByText('Votes stay hidden until everyone has voted.')).toBeInTheDocument()
-//     expect(screen.getAllByText('Hidden')).toHaveLength(3)
-//     expect(screen.getByText('Waiting')).toBeInTheDocument()
-//   })
+        renderWithRouter(<PointingPokerHomePage />)
+        await userEvent.click(screen.getByRole('button', { name: /create session/i }))
 
-//   it('reveals linked votes after every participant has voted', () => {
-//     render(<PointingPokerHomePage />)
+        expect(global.fetch).toHaveBeenCalledWith('/api/rooms', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+        })
+    })
 
-//     fireEvent.click(screen.getByRole('button', { name: /5 Moderate task 5 points/ }))
+    it('redirects to /room/:roomCode/join using the code from the server', async () => {
+        global.fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ roomCode: '384920' }),
+        })
 
-//     expect(screen.getByText('All votes are revealed.')).toBeInTheDocument()
-//     expect(screen.getByText('Alex').closest('li')).toHaveTextContent('5')
-//     expect(screen.getByText('Jordan').closest('li')).toHaveTextContent('8')
-//     expect(screen.getByText('Player').closest('li')).toHaveTextContent('5')
-//     expect(screen.queryByText('Votes stay hidden until everyone has voted.')).not.toBeInTheDocument()
-//   })
+        renderWithRouter(<PointingPokerHomePage />)
+        await userEvent.click(screen.getByRole('button', { name: /create session/i }))
 
-//   it('supports anonymous results after all participants have voted', () => {
-//     render(<PointingPokerHomePage />)
+        await waitFor(() => {
+            expect(mockNavigate).toHaveBeenCalledWith('/room/384920/join')
+        })
+    })
 
-//     fireEvent.click(screen.getByRole('button', { name: /5 Moderate task 5 points/ }))
-//     fireEvent.click(screen.getByRole('checkbox', { name: 'Anonymous reveal' }))
+    it('shows a loading state while the request is in progress', async () => {
+        let resolveFetch
+        global.fetch.mockReturnValueOnce(
+            new Promise((resolve) => {
+                resolveFetch = resolve
+            })
+        )
 
-//     expect(screen.getByRole('heading', { name: 'Revealed results' })).toBeInTheDocument()
-//     expect(screen.getByRole('list', { name: 'Anonymous revealed votes' })).toHaveTextContent('5')
-//     expect(screen.getByRole('list', { name: 'Anonymous revealed votes' })).toHaveTextContent('8')
-//     expect(screen.getByText('Alex').closest('li')).toHaveTextContent('Revealed')
-//     expect(screen.getByText('Jordan').closest('li')).toHaveTextContent('Revealed')
-//   })
+        renderWithRouter(<PointingPokerHomePage />)
+        await userEvent.click(screen.getByRole('button', { name: /create session/i }))
 
-//   it('stores zero as a valid bid', () => {
-//     render(<PointingPokerHomePage />)
+        expect(screen.getByRole('button', { name: /creating/i })).toBeDisabled()
 
-//     fireEvent.click(screen.getByRole('button', { name: /0 No effort 0 points/ }))
+        resolveFetch({ ok: true, json: async () => ({ roomCode: '111111' }) })
+    })
 
-//     expect(screen.getByText('You selected 0 points.')).toBeInTheDocument()
-//   })
+    it('shows an error message if the server responds with a failure', async () => {
+        global.fetch.mockResolvedValueOnce({
+            ok: false,
+        })
 
-//   it('replaces the previous bid while keeping all cards available', () => {
-//     render(<PointingPokerHomePage />)
+        renderWithRouter(<PointingPokerHomePage />)
+        await userEvent.click(screen.getByRole('button', { name: /create session/i }))
 
-//     fireEvent.click(screen.getByRole('button', { name: /3 Small task 3 points/ }))
-//     fireEvent.click(screen.getByRole('button', { name: /8 Large task 8 points/ }))
+        await waitFor(() => {
+            expect(screen.getByRole('alert')).toHaveTextContent('Failed to create room')
+        })
+    })
 
-//     expect(screen.getByText('You selected 8 points.')).toBeInTheDocument()
-//     expect(screen.queryByText('You selected 3 points.')).not.toBeInTheDocument()
-//     expect(within(screen.getByRole('region', { name: 'Choose your estimate' })).getAllByRole('button')).toHaveLength(8)
-//   })
+    it('shows an error if the server response has no room code', async () => {
+        global.fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({}),
+        })
 
-//   it('supports the question-mark estimate', () => {
-//     render(<PointingPokerHomePage />)
+        renderWithRouter(<PointingPokerHomePage />)
+        await userEvent.click(screen.getByRole('button', { name: /create session/i }))
 
-//     fireEvent.click(screen.getByRole('button', { name: /\? Need more information Needs more information/ }))
-
-//     expect(screen.getByText('You selected Needs more information.')).toBeInTheDocument()
-//   })
-// })
-// Old Tests as I commented out the story cards and voting system on the home page
+        await waitFor(() => {
+            expect(screen.getByRole('alert')).toHaveTextContent('No room code returned from server')
+        })
+    })
+})

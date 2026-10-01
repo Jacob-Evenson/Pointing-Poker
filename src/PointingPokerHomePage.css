@@ -13,6 +13,7 @@
   --white: #ffffff;
   --focus-ring: #1a4d8f;
   --border: #d5dfd1;
+  --error: #b3261e;
 }
 
 /* ---------- base ---------- */
@@ -175,6 +176,14 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   border-color: var(--sage-500);
   box-shadow: 0 0 0 3px rgba(107, 143, 113, 0.2);
   outline: none;
+}
+
+[role='alert'] {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--error);
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .btn {
