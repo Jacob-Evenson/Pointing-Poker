@@ -1,55 +1,35 @@
-import React, { useEffect, useState } from 'react'
-import "./PointingPokerHomePage.css";
+import React, { useEffect } from 'react'
+import './PointingPokerHomePage.css'
+import pointingPokerLogo from './assets/pointing-poker-logo.png'
+import pointingPokerLogoCrop from './assets/pointing-poker-logo-crop.png'
 
 
 const PointingPokerHomePage = () => {
-  //Place holder for our live stats for showing sessions 
-  //Hook up to API? If we have time
-  // const [liveStats] = useState({ sessions: 0, players: 0 })
-  // const [selectedPoint, setSelectedPoint] = useState(null)
-  // const [anonymousReveal, setAnonymousReveal] = useState(false)
-  // const [participants, setParticipants] = useState([
-  //   { id: 1, name: 'Player', bid: null, voted: false },
-  //   { id: 2, name: 'Alex', bid: 5, voted: true },
-  //   { id: 3, name: 'Jordan', bid: 8, voted: true },
-  // ])
-
-  // const allVoted = participants.length > 0 && participants.every((participant) => participant.voted)
-  // const currentParticipant = participants.find((participant) => participant.id === 1)
-
-  // // handles the selection of a point card and updates the user state accordingly
-  // const handlePointSelect = (point) => {
-  //   setSelectedPoint(point)
-  //   setParticipants((currentParticipants) => currentParticipants.map((participant) => (
-  //     participant.id === 1
-  //       ? { ...participant, bid: point.value, voted: true }
-  //       : participant
-  //   )))
-  // }
-
-
-
   useEffect(() => {
-    document.title = "Pointing Poker, Team Collaboration simplified"
-    //TO DO LIST
-    /*
-    Set up our live stats here 
-    Add an interval to update those live stats I was thinking 15-60 seconds per stats refresh? const interval = setInterval(()=> setLiveStats(newData), 27,000) 27 seconds is the place holder value can be adjusted
-    return () => clearInterval(interval)
-    */
+    document.title = 'Pointing Poker, Team Collaboration simplified'
   }, [])
-  return (
-    <>
-      {/*Do we want the skip link? That will take you right to the main content? */}
 
-      <main id="main-content">
+  return (
+    <div className="home-page">
+      <a className="skip-link" href="#main-content">Skip to main content</a>
+
+      <header className="game-header">
+        <div className="game-shell game-header-content">
+          <a className="brand" href="#main-content" aria-label="Pointing Poker home">
+            <img src={pointingPokerLogoCrop} alt="" />
+            <span>Pointing Poker</span>
+          </a>
+        </div>
+      </header>
+
+      <main id="main-content" className="home-main">
         <section className="hero">
-          <div className="hero-logo" aria-hidden="true">PP</div>
-          <h1>Pointing Poker</h1>
+          <img className="hero-logo" src={pointingPokerLogo} alt="" />
+          <h1 className="visually-hidden">Pointing Poker</h1>
           <p className="tagline">Estimate the work together</p>
         </section>
 
-        <section className="Session-section wrap">
+        <section className="Session-section" aria-label="Create or join a session">
           <div className="session-card">
             <span className="card-icon" aria-hidden="true">👥</span>
             <div className="card-text">
@@ -57,41 +37,59 @@ const PointingPokerHomePage = () => {
               <h2>Create a Session</h2>
               <p>Start a new estimation session and share the code with your team.</p>
             </div>
-            <button className="btn btn-create">Create Session <span aria-hidden="true">→</span></button>
+            <button className="btn btn-create" type="button">
+              Create Session <span aria-hidden="true">→</span>
+            </button>
           </div>
 
           <div className="session-card">
-            <span className="card-icon" aria-hidden="true">🔗</span>
+            <span className="card-icon link-icon" aria-hidden="true">🔗</span>
             <div className="card-text">
               <p className="eyebrow">Join a session</p>
-              <h2><label htmlFor="Session-Name">Join a Session</label></h2>
+              <h2>Join a Session</h2>
               <p>Enter a session code to join an existing estimation session.</p>
             </div>
-            <input id="Session-Name" type="text" placeholder="Enter session code" />
-            <button className="btn btn-join">Join Session <span aria-hidden="true">→</span></button>
+            <label className="visually-hidden" htmlFor="session-code">Session code</label>
+            <input id="session-code" type="text" placeholder="Enter session code" />
+            <button className="btn btn-join" type="button">
+              Join Session <span aria-hidden="true">→</span>
+            </button>
           </div>
         </section>
 
         <section id="features" className="features wrap">
-          <h2>Why use Pointing Poker?</h2>
+          <h2>Why Use Pointing Poker?</h2>
           <div className="feature-grid">
             <article className="feature-card">
               <span className="feature-icon" aria-hidden="true">👥</span>
-              <div><h3>Collaborative</h3><p>Get input from the whole team in real time.</p></div>
+              <div>
+                <h3>Collaborative</h3>
+                <p>Get input from the whole team in real time.</p>
+              </div>
             </article>
             <article className="feature-card">
-              <span className="feature-icon" aria-hidden="true"></span>
-              <div><h3>Fast and Simple</h3><p>Start a session and begin estimating in seconds</p></div>
+              <span className="feature-icon feature-lightning" aria-hidden="true">⚡</span>
+              <div>
+                <h3>Fast &amp; Simple</h3>
+                <p>Start a session and begin estimating in seconds.</p>
+              </div>
             </article>
-            <article>
-              <span></span>
-              <div><h3>Distraction Free</h3><p>Private voting keeps estimates unbiased</p></div>
+            <article className="feature-card">
+              <span className="feature-icon feature-shield" aria-hidden="true">🛡️</span>
+              <div>
+                <h3>Distraction Free</h3>
+                <p>Private voting keeps estimates unbiased.</p>
+              </div>
             </article>
-            {/* Fast & Simple, Distraction Free follow the same shape */}
           </div>
         </section>
       </main>
-    </>
+
+      <footer className="site-footer">
+        <p>Pointing Poker Built by Jacobs minions IT project management team</p>
+        <p>© 2026 Jacobs Minions. All rights reserved.</p>
+      </footer>
+    </div>
   )
 }
 
