@@ -18,6 +18,7 @@ const GamePage = () => {
   const [sessionCodeCopied, setSessionCodeCopied] = useState(false)
   const [anonymousReveal, setAnonymousReveal] = useState(false)
   const [revealed, setRevealed] = useState(false)
+  const [storySnapshots, setStorySnapshots] = useState({})
   const [participants, setParticipants] = useState([
     { id: 1, name: sessionUsername, bid: null, voted: false },
     { id: 2, name: 'Alex', bid: 5, voted: true },
@@ -35,6 +36,23 @@ const GamePage = () => {
         ? { ...participant, bid: point.value, voted: true }
         : participant
     )))
+  }
+
+  const handleStoryChange = (currentStoryIndex, nextStoryIndex) => {
+    const nextSnapshots = {
+      ...storySnapshots,
+      [currentStoryIndex]: { participants, selectedPoint, revealed },
+    }
+    const nextStorySnapshot = nextSnapshots[nextStoryIndex]
+
+    setStorySnapshots(nextSnapshots)
+    setParticipants(nextStorySnapshot?.participants ?? participants.map((participant) => ({
+      ...participant,
+      bid: null,
+      voted: false,
+    })))
+    setSelectedPoint(nextStorySnapshot?.selectedPoint ?? null)
+    setRevealed(nextStorySnapshot?.revealed ?? false)
   }
 
   const handleCopySessionCode = async () => {
@@ -69,7 +87,7 @@ const GamePage = () => {
           <div className="story-panel">
             <p className="section-kicker">Current game</p>
             <h1 id="session-heading">Estimate the work together</h1>
-            <PointingPokerRounds />
+            <PointingPokerRounds onStoryChange={handleStoryChange} />
           </div>
           <aside className="session-panel" aria-labelledby="session-info-heading">
             <div>

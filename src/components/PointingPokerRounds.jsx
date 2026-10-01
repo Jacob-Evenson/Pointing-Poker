@@ -9,7 +9,7 @@ const initialStories = [
   },
 ];
 
-const PointingPokerRounds = () => {
+const PointingPokerRounds = ({ onStoryChange }) => {
   const [stories, setStories] = useState(initialStories);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
 
@@ -23,16 +23,19 @@ const PointingPokerRounds = () => {
 
   const handlePreviousStory = () => {
     if (currentStoryIndex > 0) {
+      onStoryChange?.(currentStoryIndex, currentStoryIndex - 1);
       setCurrentStoryIndex(currentStoryIndex - 1);
     }
   };
 
   const handleNextStory = () => {
     if (currentStoryIndex < stories.length - 1) {
+      onStoryChange?.(currentStoryIndex, currentStoryIndex + 1);
       setCurrentStoryIndex(currentStoryIndex + 1);
       return;
     }
 
+    onStoryChange?.(currentStoryIndex, currentStoryIndex + 1);
     setStories((previousStories) => [
       ...previousStories,
       { title: "", description: "" },

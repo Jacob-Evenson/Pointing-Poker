@@ -57,6 +57,34 @@ describe('GamePage layout', () => {
     expect(screen.getAllByText('Voted', { selector: '.participant-vote' })).toHaveLength(3)
   })
 
+  it('resets votes on a new story and restores the previous story votes and visibility', () => {
+    renderGamePage()
+
+    fireEvent.click(screen.getByRole('button', { name: /5 Moderate task 5 points/ }))
+    fireEvent.click(screen.getByRole('switch', { name: 'Show votes and statistics' }))
+
+    expect(screen.getByText('You selected 5 points.')).toBeInTheDocument()
+    expect(screen.getByRole('switch', { name: 'Hide votes and statistics' })).toBeChecked()
+    expect(screen.getByText('Low: 5')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next Story' }))
+
+    expect(screen.getByText('Story 2 of 2')).toBeInTheDocument()
+    expect(screen.getAllByText('Not yet Voted')).toHaveLength(3)
+    expect(screen.getByRole('switch', { name: 'Show votes and statistics' })).not.toBeChecked()
+    expect(screen.queryByText('You selected 5 points.')).not.toBeInTheDocument()
+    expect(screen.queryByText('Low: 5')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Previous Story' }))
+
+    expect(screen.getByText('Story 1 of 2')).toBeInTheDocument()
+    expect(screen.getByText('You selected 5 points.')).toBeInTheDocument()
+    expect(screen.getByRole('switch', { name: 'Hide votes and statistics' })).toBeChecked()
+    expect(screen.getByText('Low: 5')).toBeInTheDocument()
+    expect(screen.getByText('Average: 6.0')).toBeInTheDocument()
+    expect(screen.getByText('High: 8')).toBeInTheDocument()
+  })
+
   it('preserves the branded header and footer content', () => {
     renderGamePage()
 
