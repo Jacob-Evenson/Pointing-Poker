@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import './GamePage.css'
 import pointingPokerLogoCrop from './assets/pointing-poker-logo-crop.png'
 import PointCard from './components/PointCard.jsx'
@@ -56,10 +56,10 @@ const GamePage = () => {
 
       <header className="game-header">
         <div className="game-shell game-header-content">
-          <a className="brand" href="#main-content" aria-label="Pointing Poker home">
+          <Link className="brand" to="/" aria-label="Pointing Poker home">
             <img src={pointingPokerLogoCrop} alt="" />
             <span>Pointing Poker</span>
-          </a>
+          </Link>
           <span className="header-status">Live estimation session</span>
         </div>
       </header>

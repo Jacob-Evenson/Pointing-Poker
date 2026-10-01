@@ -1,7 +1,7 @@
 import React from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import PointingPokerHomePage from '../src/PointingPokerHomePage.jsx'
 
@@ -21,12 +21,7 @@ function renderWithRouter(ui) {
 
 describe('PointingPokerHomePage', () => {
     beforeEach(() => {
-        global.fetch = vi.fn()
         mockNavigate.mockClear()
-    })
-
-    afterEach(() => {
-        vi.restoreAllMocks()
     })
 
     it('renders the hero section and both session cards', () => {
@@ -37,75 +32,33 @@ describe('PointingPokerHomePage', () => {
         expect(screen.getByRole('heading', { name: 'Join a Session' })).toBeInTheDocument()
     })
 
-    it('sends a POST request to /api/rooms when Create Session is clicked', async () => {
-        global.fetch.mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({ roomCode: '123456' }),
-        })
-
+    it('opens username entry in the hardcoded demo session when Create Session is clicked', async () => {
         renderWithRouter(<PointingPokerHomePage />)
         await userEvent.click(screen.getByRole('button', { name: /create session/i }))
 
-        expect(global.fetch).toHaveBeenCalledWith('/api/rooms', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+        expect(mockNavigate).toHaveBeenCalledWith('/IntermediaryPage', {
+            state: { roomCode: 'JACOBS-26' },
         })
     })
 
-    it('redirects to /room/:roomCode/join using the code from the server', async () => {
-        global.fetch.mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({ roomCode: '384920' }),
-        })
-
+    it('opens username entry when the valid demo code is submitted', async () => {
+        const user = userEvent.setup()
         renderWithRouter(<PointingPokerHomePage />)
-        await userEvent.click(screen.getByRole('button', { name: /create session/i }))
+        await user.type(screen.getByRole('textbox', { name: 'Session code' }), ' jacobs-26 ')
+        await user.click(screen.getByRole('button', { name: /join session/i }))
 
-        await waitFor(() => {
-            expect(mockNavigate).toHaveBeenCalledWith('/room/384920/join')
+        expect(mockNavigate).toHaveBeenCalledWith('/IntermediaryPage', {
+            state: { roomCode: 'JACOBS-26' },
         })
     })
 
-    it('shows a loading state while the request is in progress', async () => {
-        let resolveFetch
-        global.fetch.mockReturnValueOnce(
-            new Promise((resolve) => {
-                resolveFetch = resolve
-            })
-        )
-
+    it('rejects codes other than the demo session code', async () => {
+        const user = userEvent.setup()
         renderWithRouter(<PointingPokerHomePage />)
-        await userEvent.click(screen.getByRole('button', { name: /create session/i }))
+        await user.type(screen.getByRole('textbox', { name: 'Session code' }), 'TEAM-42')
+        await user.click(screen.getByRole('button', { name: /join session/i }))
 
-        expect(screen.getByRole('button', { name: /creating/i })).toBeDisabled()
-
-        resolveFetch({ ok: true, json: async () => ({ roomCode: '111111' }) })
-    })
-
-    it('shows an error message if the server responds with a failure', async () => {
-        global.fetch.mockResolvedValueOnce({
-            ok: false,
-        })
-
-        renderWithRouter(<PointingPokerHomePage />)
-        await userEvent.click(screen.getByRole('button', { name: /create session/i }))
-
-        await waitFor(() => {
-            expect(screen.getByRole('alert')).toHaveTextContent('Failed to create room')
-        })
-    })
-
-    it('shows an error if the server response has no room code', async () => {
-        global.fetch.mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({}),
-        })
-
-        renderWithRouter(<PointingPokerHomePage />)
-        await userEvent.click(screen.getByRole('button', { name: /create session/i }))
-
-        await waitFor(() => {
-            expect(screen.getByRole('alert')).toHaveTextContent('No room code returned from server')
-        })
+        expect(screen.getByRole('alert')).toHaveTextContent('Session not found')
+        expect(mockNavigate).not.toHaveBeenCalled()
     })
 })

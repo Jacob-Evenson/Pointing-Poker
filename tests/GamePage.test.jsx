@@ -61,6 +61,7 @@ describe('GamePage layout', () => {
     renderGamePage()
 
     expect(screen.getByRole('banner')).toHaveTextContent('Pointing Poker')
+    expect(screen.getByRole('link', { name: 'Pointing Poker home' })).toHaveAttribute('href', '/')
     expect(screen.getByRole('contentinfo')).toHaveTextContent('Pointing Poker Built by Jacobs minions IT project management team')
     expect(screen.getByRole('contentinfo')).toHaveTextContent('© 2026 Jacobs Minions. All rights reserved.')
   })

@@ -3,40 +3,27 @@ import { useNavigate } from 'react-router-dom'
 import './PointingPokerHomePage.css'
 import pointingPokerLogo from './assets/pointing-poker-logo.png'
 import pointingPokerLogoCrop from './assets/pointing-poker-logo-crop.png'
-
+import { DEMO_SESSION_CODE, isValidDemoSessionCode } from './components/demoSession.js'
 
 const PointingPokerHomePage = () => {
   const navigate = useNavigate()
-  const [isCreatingRoom, setIsCreatingRoom] = useState(false)
-  const [createRoomError, setCreateRoomError] = useState(null)
+  const [sessionCode, setSessionCode] = useState('')
+  const [joinError, setJoinError] = useState('')
 
-  const handleCreateSession = async () => {
-    setIsCreatingRoom(true)
-    setCreateRoomError(null)
+  const handleCreateSession = () => {
+    navigate('/IntermediaryPage', { state: { roomCode: DEMO_SESSION_CODE } })
+  }
 
-    try {
-      const response = await fetch('/api/rooms', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      })
+  const handleJoinSession = (event) => {
+    event.preventDefault()
 
-      if (!response.ok) {
-        throw new Error('Failed to create room')
-      }
-
-      const data = await response.json()
-      const roomCode = data.roomCode
-
-      if (!roomCode) {
-        throw new Error('No room code returned from server')
-      }
-
-      navigate(`/room/${roomCode}/join`)
-    } catch (err) {
-      setCreateRoomError(err.message)
-    } finally {
-      setIsCreatingRoom(false)
+    if (!isValidDemoSessionCode(sessionCode)) {
+      setJoinError('Session not found. Check the code and try again.')
+      return
     }
+
+    setJoinError('')
+    navigate('/IntermediaryPage', { state: { roomCode: DEMO_SESSION_CODE } })
   }
 
   useEffect(() => {
@@ -71,10 +58,9 @@ const PointingPokerHomePage = () => {
               <h2>Create a Session</h2>
               <p>Start a new estimation session and share the code with your team.</p>
             </div>
-            <button className="btn btn-create" type="button" onClick={handleCreateSession} disabled={isCreatingRoom}>
-              {isCreatingRoom ? 'Creating...' : 'Create Session'} <span aria-hidden="true">→</span>
+            <button className="btn btn-create" type="button" onClick={handleCreateSession}>
+              Create Session <span aria-hidden="true">→</span>
             </button>
-            {createRoomError && <p role="alert">{createRoomError}</p>}
           </div>
 
           <div className="session-card">
@@ -84,11 +70,26 @@ const PointingPokerHomePage = () => {
               <h2>Join a Session</h2>
               <p>Enter a session code to join an existing estimation session.</p>
             </div>
-            <label className="visually-hidden" htmlFor="session-code">Session code</label>
-            <input id="session-code" type="text" placeholder="Enter session code" />
-            <button className="btn btn-join" type="button">
-              Join Session <span aria-hidden="true">→</span>
-            </button>
+            <form className="session-join-form" onSubmit={handleJoinSession}>
+              <label className="visually-hidden" htmlFor="session-code">Session code</label>
+              <input
+                id="session-code"
+                type="text"
+                placeholder="Enter session code"
+                value={sessionCode}
+                onChange={(event) => {
+                  setSessionCode(event.target.value)
+                  setJoinError('')
+                }}
+                aria-invalid={Boolean(joinError)}
+                aria-describedby={joinError ? 'session-code-error' : undefined}
+                required
+              />
+              <button className="btn btn-join" type="submit">
+                Join Session <span aria-hidden="true">→</span>
+              </button>
+              {joinError && <p id="session-code-error" role="alert">{joinError}</p>}
+            </form>
           </div>
         </section>
 

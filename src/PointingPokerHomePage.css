@@ -177,6 +177,11 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   box-shadow: 0 0 0 3px rgba(107, 143, 113, 0.2);
   outline: none;
 }
+.session-join-form {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: .75rem;
+}
 
 [role='alert'] {
   grid-column: 1 / -1;
