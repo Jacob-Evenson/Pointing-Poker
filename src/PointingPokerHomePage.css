@@ -114,7 +114,7 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .Session-section {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr)); /* two equal cards */
-  align-items: stretch;
+  align-items: stretch;                              /* both cards same height */
   gap: 1.5rem;
   width: min(1000px, calc(100% - 3rem));
   margin: 0 auto;
@@ -123,7 +123,11 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .session-card {
   display: grid;
   grid-template-columns: auto 1fr;   /* icon | text */
-  grid-template-rows: minmax(0, 1fr) auto auto;
+  /* row 1: icon + text (takes spare space)
+     row 2: text input (Join card only)
+     row 3: error message (Join card only)
+     row 4: button (BOTH cards) */
+  grid-template-rows: minmax(0, 1fr) auto auto auto;
   column-gap: 1.25rem;
   row-gap: .75rem;
   align-content: start;
@@ -157,20 +161,18 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   margin: 0; color: var(--sage-700); font-size: 0.9rem; line-height: 1.5;
 }
 
-/* input and buttons span both grid columns */
-.session-card input[type='text'],
-.session-card .btn {
+/* text input spans both grid columns, sits in row 2 */
+.session-card input[type='text'] {
   grid-column: 1 / -1;
+  grid-row: 2;
   width: 100%;
   height: 48px;
-  border-radius: 6px;
-  font-size: 0.95rem;
-}
-.session-card input[type='text'] {
   padding: 0 1rem;
   border: 1px solid var(--border);
+  border-radius: 6px;
   background: var(--white);
   font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
 }
 .session-card input[type='text']:focus {
   border-color: var(--sage-500);
@@ -178,36 +180,55 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   outline: none;
 }
 
+/* error message gets its own row so it can never push the button */
 [role='alert'] {
   grid-column: 1 / -1;
+  grid-row: 3;
   margin: 0;
   color: var(--error);
   font-size: 0.9rem;
   font-weight: 600;
 }
 
-.btn {
-  display: flex; align-items: center; justify-content: space-between;
+/* ---------- buttons (identical size, same row in both cards) ---------- */
+.session-card .btn {
+  grid-column: 1 / -1;   /* span icon + text columns */
+  grid-row: 4;           /* same row in every card */
+  align-self: end;       /* hug the bottom of the card */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  width: 100%;
+  height: 48px;
+  margin: 0;
   padding: 0 1.5rem;
-  border: none; cursor: pointer;
+
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
   color: var(--white);
-  font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+  text-decoration: none;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
   transition: background 0.2s ease, transform 0.2s ease;
 }
-.btn > span { font-size: 1.25rem; }
-.btn::before { content: ''; }           /* keeps label centered with arrow on the right */
-.btn { justify-content: center; position: relative; }
-.btn > span { position: absolute; right: 1.5rem; }
-.btn:hover { transform: translateY(-2px); }
+.session-card .btn > span {   /* arrow pinned right, label stays centered */
+  position: absolute;
+  right: 1.5rem;
+  font-size: 1.25rem;
+}
+.session-card .btn:hover { transform: translateY(-2px); }
 
-.btn-create { background: var(--clay-700); margin-top: auto; }
+/* the only intentional difference between the two buttons: color */
+.btn-create { background: var(--clay-700); }
 .btn-create:hover { background: #543a1f; }
 .btn-join { background: var(--sage-950); }
 .btn-join:hover { background: var(--sage-700); }
-
-/* Create card has no input, so push its button to the bottom to line up */
-.session-card:first-child .btn { margin-top: auto; }
-.session-card:first-child .btn { grid-row: 3; }
 
 /* ---------- features ---------- */
 .features { padding: 2rem 0 2.25rem; text-align: center; }
