@@ -45,3 +45,31 @@ describe('GET /api/rooms/:roomCode', () => {
     expect(response.body).toEqual({ error: 'Room not found' })
   })
 })
+
+describe('POST /api/rooms', () => {
+  const app = createApiApp()
+
+  it('creates a new room and returns a 6-digit room code', async () => {
+    const response = await request(app).post('/api/rooms')
+
+    expect(response.status).toBe(201)
+    expect(response.body.roomCode).toMatch(/^\d{6}$/)
+  })
+
+  it('generates different codes across multiple requests', async () => {
+    const first = await request(app).post('/api/rooms')
+    const second = await request(app).post('/api/rooms')
+
+    expect(first.body.roomCode).not.toBe(second.body.roomCode)
+  })
+
+  it('stores the new room so it can immediately be found via GET', async () => {
+    const createResponse = await request(app).post('/api/rooms')
+    const roomCode = createResponse.body.roomCode
+
+    const getResponse = await request(app).get(`/api/rooms/${roomCode}`)
+
+    expect(getResponse.status).toBe(200)
+    expect(getResponse.body).toEqual({ roomCode })
+  })
+})

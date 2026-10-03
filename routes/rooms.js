@@ -1,5 +1,6 @@
 import { Router } from 'express'
-import { createRoom, getRoom, roomExists } from '../roomStore.js'
+import { createRoom, getRoom, roomExists, getAllRooms } from '../roomStore.js'
+import { generateUniqueRoomCode } from '../src/components/roomCode.js'
 
 // Seed the demo rooms in the shared room store if they don't exist yet.
 if (!roomExists('JACOBS-26')) {
@@ -26,6 +27,15 @@ roomsRouter.get('/:roomCode', (request, response) => {
   }
 
   return response.json({ roomCode: room.id })
+})
+
+roomsRouter.post('/', (request, response) => {
+  const existingIds = [...getAllRooms().keys()]
+  const roomCode = generateUniqueRoomCode(existingIds)
+
+  createRoom(roomCode)
+
+  response.status(201).json({ roomCode })
 })
 
 export default roomsRouter
