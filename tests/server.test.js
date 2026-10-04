@@ -8,7 +8,15 @@ describe('GET /api/rooms/:roomCode', () => {
     const response = await request(app).get(`/api/rooms/${roomCode}`)
 
     expect(response.status).toBe(200)
-    expect(response.body).toEqual({ roomCode })
+    expect(response.body).toEqual({
+      players: [],
+      stories: [],
+      votes: {},
+      currentStoryIndex: 0,
+      votesRevealed: false,
+      createdAt: expect.any(String),
+      roomCode,
+    })
   })
 
   it('returns 404 for an unknown room code', async () => {
