@@ -8,13 +8,38 @@ const IntermediaryPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const [username, setUsername] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
   const sessionCode = location.state?.roomCode || location.state?.sessionCode || 'JACOBS-26'
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
-    navigate('/GamePage', {
-      state: { username: username.trim(), roomCode: sessionCode },
-    })
+    setErrorMessage('')
+
+    const cleanName = username.trim()
+
+    try {
+      const response = await fetch(`/api/rooms/${sessionCode}/players`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: cleanName }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setErrorMessage(data.error || 'Something went wrong.')
+        return
+      }
+
+      navigate('/GamePage', {
+        state: {
+          username: cleanName,
+          roomCode: sessionCode,
+        },
+      })
+    } catch {
+      setErrorMessage('Unable to connect to the server.')
+    }
   }
 
   return (
@@ -54,6 +79,11 @@ const IntermediaryPage = () => {
                 required
               />
             </div>
+            {errorMessage && (
+              <p className="username-error" role="alert">
+                {errorMessage}
+              </p>
+            )}
             <button className="btn btn-join join-session-button" type="submit">
               Join Session <span aria-hidden="true">→</span>
             </button>
