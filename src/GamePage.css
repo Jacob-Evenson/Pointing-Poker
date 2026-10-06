@@ -8,9 +8,13 @@
   --sage-200: #d7e4d2;
   --sage-050: #f5f8f3;
   --clay-700: #6b4a28;
+  --clay-800: #543a1f;
   --white: #ffffff;
   --focus-ring: #1a4d8f;
   --border: #c8d8c4;
+
+  --btn-radius: 6px;
+  --btn-shadow: 0 2px 8px rgba(23, 35, 27, .15);
 }
 
 * {
@@ -158,6 +162,37 @@ input:focus-visible {
   text-transform: uppercase;
 }
 
+.story-panel button,
+.results-heading button,
+.section-heading button {
+  padding: .65rem 1.25rem;
+  color: var(--white);
+  background: var(--clay-700);
+  border: none;
+  border-radius: var(--btn-radius);
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--btn-shadow);
+  transition: background .2s, transform .2s;
+}
+
+.story-panel button:hover,
+.results-heading button:hover,
+.section-heading button:hover {
+  background: var(--clay-800);
+  transform: translateY(-1px);
+}
+
+.story-panel button:disabled {
+  color: var(--sage-700);
+  background: var(--sage-200);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .session-panel {
   display: flex;
   flex-direction: column;
@@ -286,6 +321,7 @@ input:focus-visible {
   font: inherit;
   font-size: .9rem;
   cursor: pointer;
+  transition: border-color .2s, background .2s;
 }
 
 .timer-controls button:hover {
@@ -657,4 +693,25 @@ input:focus-visible {
   .anonymous-toggle {
     white-space: normal;
   }
+}
+
+.point-card,
+.point-card:not(:hover) {
+  color: var(--sage-900) !important;
+  background: var(--sage-050) !important;
+}
+
+.point-card:hover,
+.point-card:focus-visible {
+  color: var(--sage-900) !important;
+  background: var(--white) !important;
+}
+
+.point-card h3 {
+  color: var(--sage-700) !important;
+}
+
+.point-card p,
+.point-card span {
+  color: var(--sage-900) !important;
 }
