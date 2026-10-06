@@ -67,7 +67,7 @@ const PointingPokerHomePage = () => {
         throw new Error('Session details did not include a room code')
       }
 
-      navigate('/IntermediaryPage', { state: { roomCode: data.roomCode } })
+      navigate(`/room/${encodeURIComponent(roomCode)}/join`)
     } catch (err) {
       setJoinRoomError(err.message)
     } finally {

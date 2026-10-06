@@ -10,7 +10,7 @@ describe('GET /api/rooms/:roomCode', () => {
     expect(response.status).toBe(200)
     expect(response.body).toEqual({
       players: [],
-      stories: [],
+      stories: [{ title: '', description: '' }],
       votes: {},
       currentStoryIndex: 0,
       votesRevealed: false,
@@ -78,6 +78,67 @@ describe('POST /api/rooms', () => {
     const getResponse = await request(app).get(`/api/rooms/${roomCode}`)
 
     expect(getResponse.status).toBe(200)
-    expect(getResponse.body).toEqual({ roomCode })
+    expect(getResponse.body.roomCode).toBe(roomCode)
+  })
+})
+describe('room players, stories and votes', () => {
+  const app = createApiApp()
+
+  const createRoomWithPlayer = async (name = 'Sam') => {
+    const { body: { roomCode } } = await request(app).post('/api/rooms')
+    const { body: { player } } = await request(app).post(`/api/rooms/${roomCode}/players`).send({ name })
+    return { roomCode, player }
+  }
+
+  it('adds players and rejects empty or duplicate names', async () => {
+    const { roomCode, player } = await createRoomWithPlayer('Sam')
+
+    expect(player).toEqual({ id: expect.any(String), name: 'Sam' })
+    expect((await request(app).post(`/api/rooms/${roomCode}/players`).send({ name: '  ' })).status).toBe(400)
+    expect((await request(app).post(`/api/rooms/${roomCode}/players`).send({ name: 'sam' })).status).toBe(409)
+    expect((await request(app).post('/api/rooms/NOPE-1/players').send({ name: 'Al' })).status).toBe(404)
+
+    const room = await request(app).get(`/api/rooms/${roomCode}`)
+    expect(room.body.players).toEqual([player])
+  })
+
+  it('edits the current story and moves between stories', async () => {
+    const { roomCode } = await createRoomWithPlayer()
+
+    await request(app).patch(`/api/rooms/${roomCode}/stories/current`).send({ title: 'Login', description: 'Add login' })
+    let room = (await request(app).post(`/api/rooms/${roomCode}/stories/next`)).body
+    expect(room.stories).toHaveLength(2)
+    expect(room.currentStoryIndex).toBe(1)
+    expect(room.stories[1]).toEqual({ title: '', description: '' })
+
+    room = (await request(app).post(`/api/rooms/${roomCode}/stories/previous`)).body
+    expect(room.currentStoryIndex).toBe(0)
+    expect(room.stories[0]).toEqual({ title: 'Login', description: 'Add login' })
+
+    room = (await request(app).post(`/api/rooms/${roomCode}/stories/previous`)).body
+    expect(room.currentStoryIndex).toBe(0)
+  })
+
+  it('hides vote values until revealed and clears them on reset', async () => {
+    const { roomCode, player } = await createRoomWithPlayer()
+
+    let room = (await request(app).post(`/api/rooms/${roomCode}/votes`).send({ playerId: player.id, value: 8 })).body
+    expect(room.votes).toEqual({ [player.id]: null })
+
+    room = (await request(app).post(`/api/rooms/${roomCode}/votes/reveal`)).body
+    expect(room.votesRevealed).toBe(true)
+    expect(room.votes).toEqual({ [player.id]: 8 })
+
+    room = (await request(app).post(`/api/rooms/${roomCode}/votes/reset`)).body
+    expect(room.votesRevealed).toBe(false)
+    expect(room.votes).toEqual({})
+  })
+
+  it('accepts the ? card and rejects invalid votes or unknown players', async () => {
+    const { roomCode, player } = await createRoomWithPlayer()
+
+    expect((await request(app).post(`/api/rooms/${roomCode}/votes`).send({ playerId: player.id, value: '?' })).status).toBe(200)
+    expect((await request(app).post(`/api/rooms/${roomCode}/votes`).send({ playerId: player.id, value: 4 })).status).toBe(400)
+    expect((await request(app).post(`/api/rooms/${roomCode}/votes`).send({ playerId: 'nobody', value: 5 })).status).toBe(404)
   })
 })

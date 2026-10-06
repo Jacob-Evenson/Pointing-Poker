@@ -1,20 +1,36 @@
 import React, { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import './src/PointingPokerHomePage.css'
 import './IntermediaryPage.css'
 import pointingPokerLogoCrop from './src/assets/pointing-poker-logo-crop.png'
 
 const IntermediaryPage = () => {
-  const location = useLocation()
   const navigate = useNavigate()
   const [username, setUsername] = useState('')
-  const sessionCode = location.state?.roomCode || location.state?.sessionCode || 'JACOBS-26'
+  const [joinError, setJoinError] = useState(null)
+  const { roomCode } = useParams()
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
-    navigate('/GamePage', {
-      state: { username: username.trim(), roomCode: sessionCode },
-    })
+    setJoinError(null)
+
+    try {
+      const response = await fetch(`/api/rooms/${encodeURIComponent(roomCode)}/players`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: username.trim() }),
+      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to join session')
+      }
+
+      sessionStorage.setItem(`playerId:${roomCode}`, data.player.id)
+      navigate(`/room/${encodeURIComponent(roomCode)}`)
+    } catch (err) {
+      setJoinError(err.message)
+    }
   }
 
   return (
@@ -57,11 +73,12 @@ const IntermediaryPage = () => {
             <button className="btn btn-join join-session-button" type="submit">
               Join Session <span aria-hidden="true">→</span>
             </button>
+            {joinError && <p role="alert">{joinError}</p>}
           </form>
 
           <p className="join-session-code">
             <span>Joining session</span>
-            <strong>{sessionCode}</strong>
+            <strong>{roomCode}</strong>
           </p>
         </section>
       </main>

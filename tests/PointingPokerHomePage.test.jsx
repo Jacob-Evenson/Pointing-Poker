@@ -112,7 +112,7 @@ describe('PointingPokerHomePage', () => {
         })
     })
 
-    it('checks the entered session code and navigates to the intermediary page', async () => {
+    it('checks the entered session code and navigates to the room join page', async () => {
         global.fetch.mockResolvedValueOnce({
             ok: true,
             json: async () => ({ roomCode: 'TEAM-42', players: [] }),
@@ -124,9 +124,7 @@ describe('PointingPokerHomePage', () => {
 
         await waitFor(() => {
             expect(global.fetch).toHaveBeenCalledWith('/api/rooms/TEAM-42', { method: 'GET' })
-            expect(mockNavigate).toHaveBeenCalledWith('/IntermediaryPage', {
-                state: { roomCode: 'TEAM-42' },
-            })
+            expect(mockNavigate).toHaveBeenCalledWith('/room/TEAM-42/join')
         })
     })
 
@@ -162,9 +160,7 @@ describe('PointingPokerHomePage', () => {
 
         resolveFetch({ ok: true, json: async () => ({ roomCode: 'TEAM-42' }) })
         await waitFor(() => {
-            expect(mockNavigate).toHaveBeenCalledWith('/IntermediaryPage', {
-                state: { roomCode: 'TEAM-42' },
-            })
+            expect(mockNavigate).toHaveBeenCalledWith('/room/TEAM-42/join')
         })
     })
 })

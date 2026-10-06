@@ -7,7 +7,7 @@ describe('roomStore', () => {
     expect(room).toEqual({
       id: 'TEST-ROOM',
       players: [],
-      stories: [],
+      stories: [{ title: '', description: '' }],
       votes: {},
       currentStoryIndex: 0,
       votesRevealed: false,

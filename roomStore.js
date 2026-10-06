@@ -8,7 +8,7 @@ export const createRoom = (roomId) => {
   const room = {
     id: roomId,
     players: [],
-    stories: [],
+    stories: [{ title: '', description: '' }],
     votes: {},
     currentStoryIndex: 0,
     votesRevealed: false,
@@ -43,7 +43,9 @@ export const removePlayer = (roomId, playerName) => {
     return null
   }
 
+  const removed = room.players.filter((player) => player.name === playerName)
   room.players = room.players.filter((player) => player.name !== playerName)
+  removed.forEach((player) => delete room.votes[player.id])
   return room
 }
 
@@ -54,3 +56,85 @@ export const deleteRoom = (roomId) => {
 
 // Returns the full Map of rooms, mainly for testing/debugging.
 export const getAllRooms = () => rooms
+
+// Card values a player is allowed to vote with.
+export const VALID_VOTES = [0, 1, 2, 3, 5, 8, 13, '?']
+
+// Changes the title and/or description of the story currently shown.
+export const updateCurrentStory = (roomId, changes) => {
+  const room = rooms.get(roomId)
+  if (!room) {
+    return null
+  }
+
+  const story = room.stories[room.currentStoryIndex]
+  if (typeof changes.title === 'string') {
+    story.title = changes.title
+  }
+  if (typeof changes.description === 'string') {
+    story.description = changes.description
+  }
+  return room
+}
+
+// Clears every vote and hides them again.
+export const resetVotes = (roomId) => {
+  const room = rooms.get(roomId)
+  if (!room) {
+    return null
+  }
+
+  room.votes = {}
+  room.votesRevealed = false
+  return room
+}
+
+// Moves back one story (stays on story 1). Votes start fresh for the story.
+export const goToPreviousStory = (roomId) => {
+  const room = rooms.get(roomId)
+  if (!room) {
+    return null
+  }
+
+  if (room.currentStoryIndex > 0) {
+    room.currentStoryIndex -= 1
+    resetVotes(roomId)
+  }
+  return room
+}
+
+// Moves forward one story. Going past the newest story creates a blank one.
+export const goToNextStory = (roomId) => {
+  const room = rooms.get(roomId)
+  if (!room) {
+    return null
+  }
+
+  if (room.currentStoryIndex === room.stories.length - 1) {
+    room.stories.push({ title: '', description: '' })
+  }
+  room.currentStoryIndex += 1
+  resetVotes(roomId)
+  return room
+}
+
+// Records a player's vote. Returns null if the room or player does not exist.
+export const setVote = (roomId, playerId, value) => {
+  const room = rooms.get(roomId)
+  if (!room || !room.players.some((player) => player.id === playerId)) {
+    return null
+  }
+
+  room.votes[playerId] = value
+  return room
+}
+
+export const setVotesRevealed = (roomId, revealed) => {
+  const room = rooms.get(roomId)
+  if (!room) {
+    return null
+  }
+
+  room.votesRevealed = revealed
+  return room
+}

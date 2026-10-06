@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import './GamePage.css'
 import pointingPokerLogoCrop from './assets/pointing-poker-logo-crop.png'
 import PointCard from './components/PointCard.jsx'
@@ -11,48 +11,98 @@ import VoteStats from './components/VoteStats.jsx'
 import { points } from './data/points.js'
 
 const GamePage = () => {
-  const location = useLocation()
-  const sessionUsername = location.state?.username || 'Player'
-  const sessionCode = location.state?.roomCode || 'JACOBS-26'
+  const navigate = useNavigate()
+  const { roomCode: sessionCode } = useParams()
+  const roomUrl = `/api/rooms/${encodeURIComponent(sessionCode)}`
+  const playerId = sessionStorage.getItem(`playerId:${sessionCode}`)
+  const [room, setRoom] = useState(null)
+  const [loadError, setLoadError] = useState(null)
   const [selectedPoint, setSelectedPoint] = useState(null)
   const [sessionCodeCopied, setSessionCodeCopied] = useState(false)
   const [anonymousReveal, setAnonymousReveal] = useState(false)
-  const [revealed, setRevealed] = useState(false)
-  const [storySnapshots, setStorySnapshots] = useState({})
-  const [participants, setParticipants] = useState([
-    { id: 1, name: sessionUsername, bid: null, voted: false },
-    { id: 2, name: 'Alex', bid: 5, voted: true },
-    { id: 3, name: 'Jordan', bid: 8, voted: true },
-  ])
 
+  // Sends a request to the server and shows the updated room it sends back.
+  const sendToServer = async (path, method = 'POST', body) => {
+    try {
+      const response = await fetch(`${roomUrl}${path}`, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Request failed')
+      }
+      setRoom(data)
+    } catch (err) {
+      setLoadError(err.message)
+    }
+  }
+
+  useEffect(() => {
+    const loadRoom = async () => {
+      try {
+        const response = await fetch(roomUrl)
+        const data = await response.json()
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load room')
+        }
+        if (!data.players.some((player) => player.id === playerId)) {
+          navigate(`/room/${encodeURIComponent(sessionCode)}/join`, { replace: true })
+          return
+        }
+        setRoom(data)
+      } catch (err) {
+        setLoadError(err.message)
+      }
+    }
+
+    loadRoom()
+  }, [roomUrl, playerId, sessionCode, navigate])
+
+  useEffect(() => {
+    document.title = 'Pointing Poker, Team Collaboration simplified'
+  }, [])
+
+  if (!room) {
+    return (
+      <div className="game-page">
+        <main id="main-content" className="game-shell game-main">
+          <p role={loadError ? 'alert' : 'status'}>{loadError || 'Loading room...'}</p>
+        </main>
+      </div>
+    )
+  }
+
+  const participants = room.players.map((player) => ({
+    id: player.id,
+    name: player.name,
+    voted: player.id in room.votes,
+    bid: room.votes[player.id],
+  }))
+  const revealed = room.votesRevealed
   const allVoted = participants.length > 0 && participants.every((participant) => participant.voted)
-  const currentParticipant = participants.find((participant) => participant.id === 1)
+  const currentParticipant = participants.find((participant) => participant.id === playerId)
   const numericVotes = participants.map((participant) => participant.bid)
 
   const handlePointSelect = (point) => {
     setSelectedPoint(point)
-    setParticipants((currentParticipants) => currentParticipants.map((participant) => (
-      participant.id === 1
-        ? { ...participant, bid: point.value, voted: true }
-        : participant
-    )))
+    sendToServer('/votes', 'POST', { playerId, value: point.value })
   }
 
-  const handleStoryChange = (currentStoryIndex, nextStoryIndex) => {
-    const nextSnapshots = {
-      ...storySnapshots,
-      [currentStoryIndex]: { participants, selectedPoint, revealed },
-    }
-    const nextStorySnapshot = nextSnapshots[nextStoryIndex]
-
-    setStorySnapshots(nextSnapshots)
-    setParticipants(nextStorySnapshot?.participants ?? participants.map((participant) => ({
-      ...participant,
-      bid: null,
-      voted: false,
-    })))
-    setSelectedPoint(nextStorySnapshot?.selectedPoint ?? null)
-    setRevealed(nextStorySnapshot?.revealed ?? false)
+  const handleStoryEdit = (field, value) => {
+    // Update the screen right away so typing feels smooth, then tell the server.
+    setRoom((currentRoom) => ({
+      ...currentRoom,
+      stories: currentRoom.stories.map((story, index) => (
+        index === currentRoom.currentStoryIndex ? { ...story, [field]: value } : story
+      )),
+    }))
+    fetch(`${roomUrl}/stories/current`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ [field]: value }),
+    }).catch((err) => setLoadError(err.message))
   }
 
   const handleCopySessionCode = async () => {
@@ -64,17 +114,13 @@ const GamePage = () => {
     }
   }
 
-  useEffect(() => {
-    document.title = 'Pointing Poker, Team Collaboration simplified'
-  }, [])
-
   return (
     <div className="game-page">
       <a className="skip-link" href="#main-content">Skip to main content</a>
 
       <header className="game-header">
         <div className="game-shell game-header-content">
-          <a className="brand" href="#main-content" aria-label="Pointing Poker home">
+          <a className="brand" href="/" aria-label="Pointing Poker home">
             <img src={pointingPokerLogoCrop} alt="" />
             <span>Pointing Poker</span>
           </a>
@@ -87,7 +133,14 @@ const GamePage = () => {
           <div className="story-panel">
             <p className="section-kicker">Current game</p>
             <h1 id="session-heading">Estimate the work together</h1>
-            <PointingPokerRounds onStoryChange={handleStoryChange} />
+            <PointingPokerRounds
+              stories={room.stories}
+              currentStoryIndex={room.currentStoryIndex}
+              onTitleChange={(value) => handleStoryEdit('title', value)}
+              onDescriptionChange={(value) => handleStoryEdit('description', value)}
+              onPreviousStory={() => sendToServer('/stories/previous')}
+              onNextStory={() => sendToServer('/stories/next')}
+            />
           </div>
           <aside className="session-panel" aria-labelledby="session-info-heading">
             <div>
@@ -151,9 +204,10 @@ const GamePage = () => {
                 role="switch"
                 aria-label={revealed ? 'Hide votes and statistics' : 'Show votes and statistics'}
                 checked={revealed}
-                onChange={(event) => setRevealed(event.target.checked)}
+                onChange={(event) => sendToServer(event.target.checked ? '/votes/reveal' : '/votes/hide')}
               />
             </label>
+            <button type="button" onClick={() => sendToServer('/votes/reset')}>Reset Votes</button>
           </div>
           <div className={`results-grid${revealed ? ' results-with-stats' : ''}`}>
             <ParticipantList
