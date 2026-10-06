@@ -11,6 +11,7 @@ describe('roomStore', () => {
       votes: {},
       currentStoryIndex: 0,
       votesRevealed: false,
+      savedVotes: {},
       createdAt: expect.any(Date)
     })
     expect(roomExists('TEST-ROOM')).toBe(true)

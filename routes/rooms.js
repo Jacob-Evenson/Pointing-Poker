@@ -29,7 +29,7 @@ roomsRouter.use(express.json())
 
 // Builds the JSON the frontend sees. Vote values stay hidden (null) until revealed.
 const toRoomResponse = (room) => {
-  const { id, votes, ...roomDetails } = room
+  const { id, votes, savedVotes, ...roomDetails } = room
   const visibleVotes = {}
   for (const playerId of Object.keys(votes)) {
     visibleVotes[playerId] = room.votesRevealed ? votes[playerId] : null

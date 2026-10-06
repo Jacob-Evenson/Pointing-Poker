@@ -17,7 +17,8 @@ const GamePage = () => {
   const playerId = sessionStorage.getItem(`playerId:${sessionCode}`)
   const [room, setRoom] = useState(null)
   const [loadError, setLoadError] = useState(null)
-  const [selectedPoint, setSelectedPoint] = useState(null)
+  // The card this browser picked for each story, so it can be shown again when returning to that story.
+  const [selectedPoints, setSelectedPoints] = useState({})
   const [sessionCodeCopied, setSessionCodeCopied] = useState(false)
   const [anonymousReveal, setAnonymousReveal] = useState(false)
 
@@ -84,9 +85,10 @@ const GamePage = () => {
   const allVoted = participants.length > 0 && participants.every((participant) => participant.voted)
   const currentParticipant = participants.find((participant) => participant.id === playerId)
   const numericVotes = participants.map((participant) => participant.bid)
+  const selectedPoint = selectedPoints[room.currentStoryIndex] ?? null
 
   const handlePointSelect = (point) => {
-    setSelectedPoint(point)
+    setSelectedPoints((current) => ({ ...current, [room.currentStoryIndex]: point }))
     sendToServer('/votes', 'POST', { playerId, value: point.value })
   }
 

@@ -12,6 +12,7 @@ export const createRoom = (roomId) => {
     votes: {},
     currentStoryIndex: 0,
     votesRevealed: false,
+    savedVotes: {},
     createdAt: new Date()
   }
 
@@ -89,7 +90,21 @@ export const resetVotes = (roomId) => {
   return room
 }
 
-// Moves back one story (stays on story 1). Votes start fresh for the story.
+// Stores the votes of the story being left, then loads the votes saved for the
+// story being opened (or empty ones if nobody has voted on it yet).
+const switchStory = (room, newIndex) => {
+  room.savedVotes[room.currentStoryIndex] = {
+    votes: room.votes,
+    votesRevealed: room.votesRevealed,
+  }
+
+  const saved = room.savedVotes[newIndex]
+  room.currentStoryIndex = newIndex
+  room.votes = saved ? saved.votes : {}
+  room.votesRevealed = saved ? saved.votesRevealed : false
+}
+
+// Moves back one story (stays on story 1). Each story keeps its own votes.
 export const goToPreviousStory = (roomId) => {
   const room = rooms.get(roomId)
   if (!room) {
@@ -97,8 +112,7 @@ export const goToPreviousStory = (roomId) => {
   }
 
   if (room.currentStoryIndex > 0) {
-    room.currentStoryIndex -= 1
-    resetVotes(roomId)
+    switchStory(room, room.currentStoryIndex - 1)
   }
   return room
 }
@@ -113,8 +127,7 @@ export const goToNextStory = (roomId) => {
   if (room.currentStoryIndex === room.stories.length - 1) {
     room.stories.push({ title: '', description: '' })
   }
-  room.currentStoryIndex += 1
-  resetVotes(roomId)
+  switchStory(room, room.currentStoryIndex + 1)
   return room
 }
 

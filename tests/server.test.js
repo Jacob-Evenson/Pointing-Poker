@@ -141,4 +141,27 @@ describe('room players, stories and votes', () => {
     expect((await request(app).post(`/api/rooms/${roomCode}/votes`).send({ playerId: player.id, value: 4 })).status).toBe(400)
     expect((await request(app).post(`/api/rooms/${roomCode}/votes`).send({ playerId: 'nobody', value: 5 })).status).toBe(404)
   })
+
+  it('remembers each story\'s votes and reveal state when moving between stories', async () => {
+    const { roomCode, player } = await createRoomWithPlayer()
+    const base = `/api/rooms/${roomCode}`
+
+    await request(app).post(`${base}/votes`).send({ playerId: player.id, value: 5 })
+    await request(app).post(`${base}/votes/reveal`)
+
+    let room = (await request(app).post(`${base}/stories/next`)).body
+    expect(room.votes).toEqual({})
+    expect(room.votesRevealed).toBe(false)
+    expect(room).not.toHaveProperty('savedVotes')
+
+    await request(app).post(`${base}/votes`).send({ playerId: player.id, value: 13 })
+
+    room = (await request(app).post(`${base}/stories/previous`)).body
+    expect(room.votes).toEqual({ [player.id]: 5 })
+    expect(room.votesRevealed).toBe(true)
+
+    room = (await request(app).post(`${base}/stories/next`)).body
+    expect(room.votes).toEqual({ [player.id]: null })
+    expect(room.votesRevealed).toBe(false)
+  })
 })

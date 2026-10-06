@@ -183,4 +183,24 @@ describe('GamePage', () => {
     expect(writeText).toHaveBeenCalledWith(roomCode)
     expect(await screen.findByRole('button', { name: 'Session code copied' })).toHaveTextContent('Copied')
   })
+
+  it('restores votes, reveal state and the selected card when returning to a story', async () => {
+    await renderGamePage()
+
+    await vote(5)
+    fireEvent.click(screen.getByRole('switch', { name: 'Show votes and statistics' }))
+    await screen.findByText('Low: 5')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next Story' }))
+    await screen.findByText('Story 2 of 2')
+    expect(screen.getAllByText('Not yet Voted')).toHaveLength(2)
+    expect(screen.queryByText('You selected 5 points.')).not.toBeInTheDocument()
+    expect(screen.queryByText('Low: 5')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Previous Story' }))
+
+    expect(await screen.findByText('Low: 5')).toBeInTheDocument()
+    expect(screen.getByText('You selected 5 points.')).toBeInTheDocument()
+    expect(screen.getByRole('switch', { name: 'Hide votes and statistics' })).toBeChecked()
+  })
 })
