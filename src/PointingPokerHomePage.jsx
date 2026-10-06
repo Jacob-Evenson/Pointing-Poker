@@ -9,6 +9,9 @@ const PointingPokerHomePage = () => {
   const navigate = useNavigate()
   const [isCreatingRoom, setIsCreatingRoom] = useState(false)
   const [createRoomError, setCreateRoomError] = useState(null)
+  const [sessionCode, setSessionCode] = useState('')
+  const [isJoiningRoom, setIsJoiningRoom] = useState(false)
+  const [joinRoomError, setJoinRoomError] = useState(null)
 
   const handleCreateSession = async () => {
     setIsCreatingRoom(true)
@@ -36,6 +39,39 @@ const PointingPokerHomePage = () => {
       setCreateRoomError(err.message)
     } finally {
       setIsCreatingRoom(false)
+    }
+  }
+
+  const handleJoinSession = async (event) => {
+    event.preventDefault()
+    const roomCode = sessionCode.trim()
+    if (!roomCode) {
+      setJoinRoomError('Enter a session code')
+      return
+    }
+
+    setIsJoiningRoom(true)
+    setJoinRoomError(null)
+
+    try {
+      const response = await fetch(`/api/rooms/${encodeURIComponent(roomCode)}`, {
+        method: 'GET',
+      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to find session')
+      }
+
+      if (!data.roomCode) {
+        throw new Error('Session details did not include a room code')
+      }
+
+      navigate('/IntermediaryPage', { state: { roomCode: data.roomCode } })
+    } catch (err) {
+      setJoinRoomError(err.message)
+    } finally {
+      setIsJoiningRoom(false)
     }
   }
 
@@ -77,7 +113,7 @@ const PointingPokerHomePage = () => {
             {createRoomError && <p role="alert">{createRoomError}</p>}
           </div>
 
-          <div className="session-card">
+          <form className="session-card" onSubmit={handleJoinSession}>
             <span className="card-icon link-icon" aria-hidden="true">🔗</span>
             <div className="card-text">
               <p className="eyebrow">Join a session</p>
@@ -85,11 +121,23 @@ const PointingPokerHomePage = () => {
               <p>Enter a session code to join an existing estimation session.</p>
             </div>
             <label className="visually-hidden" htmlFor="session-code">Session code</label>
-            <input id="session-code" type="text" placeholder="Enter session code" />
-            <button className="btn btn-join" type="button">
-              Join Session <span aria-hidden="true">→</span>
+            <input
+              id="session-code"
+              type="text"
+              placeholder="Enter session code"
+              value={sessionCode}
+              onChange={(event) => {
+                setSessionCode(event.target.value)
+                setJoinRoomError(null)
+              }}
+              required
+              disabled={isJoiningRoom}
+            />
+            <button className="btn btn-join" type="submit" disabled={isJoiningRoom}>
+              {isJoiningRoom ? 'Checking...' : 'Join Session'} <span aria-hidden="true">→</span>
             </button>
-          </div>
+            {joinRoomError && <p role="alert">{joinRoomError}</p>}
+          </form>
         </section>
 
         <section id="features" className="features wrap">

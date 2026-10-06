@@ -25,7 +25,8 @@ roomsRouter.get('/:roomCode', (request, response) => {
     return response.status(404).json({ error: 'Room not found' })
   }
 
-  return response.json({ roomCode: room.id })
+  const { id, ...roomDetails } = room
+  return response.json({ ...roomDetails, roomCode: id })
 })
 
 export default roomsRouter

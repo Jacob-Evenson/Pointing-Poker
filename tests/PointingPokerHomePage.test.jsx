@@ -80,6 +80,9 @@ describe('PointingPokerHomePage', () => {
         expect(screen.getByRole('button', { name: /creating/i })).toBeDisabled()
 
         resolveFetch({ ok: true, json: async () => ({ roomCode: '111111' }) })
+        await waitFor(() => {
+            expect(screen.getByRole('button', { name: /create session/i })).toBeEnabled()
+        })
     })
 
     it('shows an error message if the server responds with a failure', async () => {
@@ -106,6 +109,62 @@ describe('PointingPokerHomePage', () => {
 
         await waitFor(() => {
             expect(screen.getByRole('alert')).toHaveTextContent('No room code returned from server')
+        })
+    })
+
+    it('checks the entered session code and navigates to the intermediary page', async () => {
+        global.fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ roomCode: 'TEAM-42', players: [] }),
+        })
+
+        renderWithRouter(<PointingPokerHomePage />)
+        await userEvent.type(screen.getByLabelText('Session code'), ' TEAM-42 ')
+        await userEvent.click(screen.getByRole('button', { name: /join session/i }))
+
+        await waitFor(() => {
+            expect(global.fetch).toHaveBeenCalledWith('/api/rooms/TEAM-42', { method: 'GET' })
+            expect(mockNavigate).toHaveBeenCalledWith('/IntermediaryPage', {
+                state: { roomCode: 'TEAM-42' },
+            })
+        })
+    })
+
+    it('shows the server error and stays on the homepage when the session does not exist', async () => {
+        global.fetch.mockResolvedValueOnce({
+            ok: false,
+            json: async () => ({ error: 'Room not found' }),
+        })
+
+        renderWithRouter(<PointingPokerHomePage />)
+        await userEvent.type(screen.getByLabelText('Session code'), 'UNKNOWN-99')
+        await userEvent.click(screen.getByRole('button', { name: /join session/i }))
+
+        await waitFor(() => {
+            expect(screen.getByRole('alert')).toHaveTextContent('Room not found')
+        })
+        expect(mockNavigate).not.toHaveBeenCalled()
+    })
+
+    it('shows a pending state while checking whether a session exists', async () => {
+        let resolveFetch
+        global.fetch.mockReturnValueOnce(
+            new Promise((resolve) => {
+                resolveFetch = resolve
+            })
+        )
+
+        renderWithRouter(<PointingPokerHomePage />)
+        await userEvent.type(screen.getByLabelText('Session code'), 'TEAM-42')
+        await userEvent.click(screen.getByRole('button', { name: /join session/i }))
+
+        expect(screen.getByRole('button', { name: /checking/i })).toBeDisabled()
+
+        resolveFetch({ ok: true, json: async () => ({ roomCode: 'TEAM-42' }) })
+        await waitFor(() => {
+            expect(mockNavigate).toHaveBeenCalledWith('/IntermediaryPage', {
+                state: { roomCode: 'TEAM-42' },
+            })
         })
     })
 })
