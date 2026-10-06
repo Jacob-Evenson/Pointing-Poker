@@ -1,24 +1,36 @@
 import React, { useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import './src/PointingPokerHomePage.css'
 import './IntermediaryPage.css'
 import pointingPokerLogoCrop from './src/assets/pointing-poker-logo-crop.png'
-import { DEMO_SESSION_CODE, isValidDemoSessionCode } from './src/components/demoSession.js'
 
 const IntermediaryPage = () => {
-  const location = useLocation()
   const navigate = useNavigate()
-  const { roomCode } = useParams()
   const [username, setUsername] = useState('')
-  const requestedSessionCode = location.state?.roomCode || location.state?.sessionCode || roomCode || DEMO_SESSION_CODE
-  const isValidSession = isValidDemoSessionCode(requestedSessionCode)
-  const sessionCode = isValidSession ? DEMO_SESSION_CODE : requestedSessionCode
+  const [joinError, setJoinError] = useState(null)
+  const { roomCode } = useParams()
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
-    navigate('/GamePage', {
-      state: { username: username.trim(), roomCode: sessionCode },
-    })
+    setJoinError(null)
+
+    try {
+      const response = await fetch(`/api/rooms/${encodeURIComponent(roomCode)}/players`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: username.trim() }),
+      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to join session')
+      }
+
+      sessionStorage.setItem(`playerId:${roomCode}`, data.player.id)
+      navigate(`/room/${encodeURIComponent(roomCode)}`)
+    } catch (err) {
+      setJoinError(err.message)
+    }
   }
 
   return (
@@ -36,48 +48,38 @@ const IntermediaryPage = () => {
 
       <main id="main-content" className="join-session-main">
         <section className="join-session-card" aria-labelledby="join-session-heading">
-          {isValidSession ? (
-            <>
-              <span className="join-session-icon" aria-hidden="true">👥</span>
-              <p className="eyebrow">Join Session</p>
-              <h1 id="join-session-heading">Enter your username</h1>
-              <p className="join-session-description">
-                Choose the name that will appear in the estimation session.
-              </p>
+          <span className="join-session-icon" aria-hidden="true">👥</span>
+          <p className="eyebrow">Join Session</p>
+          <h1 id="join-session-heading">Enter your username</h1>
+          <p className="join-session-description">
+            Choose the name that will appear in the estimation session.
+          </p>
 
-              <form onSubmit={handleSubmit}>
-                <label className="visually-hidden" htmlFor="username">Your name</label>
-                <div className="username-field">
-                  <span aria-hidden="true">👤</span>
-                  <input
-                    id="username"
-                    className="username-input"
-                    type="text"
-                    placeholder="Your name"
-                    value={username}
-                    onChange={(event) => setUsername(event.target.value)}
-                    autoComplete="name"
-                    required
-                  />
-                </div>
-                <button className="btn btn-join join-session-button" type="submit">
-                  Join Session <span aria-hidden="true">→</span>
-                </button>
-              </form>
+          <form onSubmit={handleSubmit}>
+            <label className="visually-hidden" htmlFor="username">Your name</label>
+            <div className="username-field">
+              <span aria-hidden="true">👤</span>
+              <input
+                id="username"
+                className="username-input"
+                type="text"
+                placeholder="Your name"
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                autoComplete="name"
+                required
+              />
+            </div>
+            <button className="btn btn-join join-session-button" type="submit">
+              Join Session <span aria-hidden="true">→</span>
+            </button>
+            {joinError && <p role="alert">{joinError}</p>}
+          </form>
 
-              <p className="join-session-code">
-                <span>Joining session</span>
-                <strong>{sessionCode}</strong>
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="eyebrow">Invalid Session</p>
-              <h1 id="join-session-heading">Session not found</h1>
-              <p role="alert">The code {sessionCode} is not available in this demo.</p>
-              <a className="btn btn-join join-session-button" href="/">Return to home</a>
-            </>
-          )}
+          <p className="join-session-code">
+            <span>Joining session</span>
+            <strong>{roomCode}</strong>
+          </p>
         </section>
       </main>
 

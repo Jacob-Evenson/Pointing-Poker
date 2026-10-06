@@ -17,6 +17,10 @@ export const createApiApp = () => {
       return response.status(404).json({ error: 'Room not found' })
     }
 
+    if (error.type === 'entity.parse.failed') {
+      return response.status(400).json({ error: 'Invalid JSON' })
+    }
+
     if (response.headersSent) {
       return next(error)
     }
