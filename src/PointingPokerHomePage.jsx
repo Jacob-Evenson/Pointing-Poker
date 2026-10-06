@@ -105,7 +105,7 @@ const PointingPokerHomePage = () => {
             <div className="card-text">
               <p className="eyebrow">Create a session</p>
               <h2>Create a Session</h2>
-              <p>Start a new estimation session and share the code with your team.</p>
+              <p>Start a new estimation session and share the code with your team. Sessions are valid for 24 hours.</p>
             </div>
             <button className="btn btn-create" type="button" onClick={handleCreateSession} disabled={isCreatingRoom}>
               {isCreatingRoom ? 'Creating...' : 'Create Session'} <span aria-hidden="true">→</span>

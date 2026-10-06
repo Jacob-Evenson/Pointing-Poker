@@ -79,6 +79,7 @@ const IntermediaryPage = () => {
           <p className="join-session-code">
             <span>Joining session</span>
             <strong>{roomCode}</strong>
+            <span>Sessions are valid for 24 hours.</span>
           </p>
         </section>
       </main>
