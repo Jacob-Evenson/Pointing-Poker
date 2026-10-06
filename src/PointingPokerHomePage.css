@@ -10,10 +10,13 @@
   --sage-100: #e8efe4;   /* pale icon tiles */
   --sage-050: #f5f8f3;
   --clay-700: #6b4a28;
+  --clay-800: #543a1f;
   --white: #ffffff;
   --focus-ring: #1a4d8f;
   --border: #d5dfd1;
   --error: #b3261e;
+  --btn-radius: 6px;
+  --btn-shadow: 0 2px 8px rgba(23, 35, 27, .15);
 }
 
 /* ---------- base ---------- */
