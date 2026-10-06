@@ -14,7 +14,7 @@ Amelia
 ### Yesterday:
 Worked on the Gamepage and file structure
 ### Today:
-
+Game page optimization, show votes, intermediary hookups
 ### Blocks:
 Nothing major
 ---
@@ -23,7 +23,7 @@ Nathaniel
 ### Yesterday:
 Worked on the intermediary page and home page
 ### Today:
-
+intermediary page optimization, homepage hookups, home page optimization
 ### Blocks:
 css
 ---
@@ -32,7 +32,7 @@ Jacob
 ### Yesterday:
 Worked on revamping the story cards
 ### Today:
-
+research sessions id's, design and mockups for documentation
 ### Blocks:
 nothing Major
 ---
@@ -41,6 +41,6 @@ Eliy
 ### Yesterday:
 Worked on fixing a bug with the score average and a next button
 ### Today:
-
+css consistency
 ### Blocks:
 n/a

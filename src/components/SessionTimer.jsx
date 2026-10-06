@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 
 const SessionTimer = () => {
     const [seconds, setSeconds] = useState(0);
@@ -33,14 +33,16 @@ const SessionTimer = () => {
         setRunning(false);
     };
 
+    const minutes = String(Math.floor(seconds / 60)).padStart(2, '0')
+    const remainingSeconds = String(seconds % 60).padStart(2, '0')
+
     return (
-        <div>
-            <p>Seconds: {seconds}</p>
-            <button onClick={handleButtonClick}>
+        <div className="timer-controls">
+            <p className="timer-value">{minutes}:{remainingSeconds}</p>
+            <button type="button" onClick={handleButtonClick}>
                 {running ? "Pause" : "Start"}
             </button>
-            <br />
-            <button onClick={handleResetClick}>
+            <button type="button" onClick={handleResetClick}>
                 Reset
             </button>
         </div>

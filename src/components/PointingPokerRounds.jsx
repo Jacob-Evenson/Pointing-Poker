@@ -1,63 +1,32 @@
-import React, { useState } from "react";
+import React from "react";
 import StoryCard from "./StoryCard";
 import "./PointingPokerRounds.css";
 
-const initialStories = [
-  {
-    title: "",
-    description: "",
-  },
-];
-
-const PointingPokerRounds = () => {
-  const [stories, setStories] = useState(initialStories);
-  const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
-
-  const updateCurrentStory = (field, value) => {
-    setStories((previousStories) =>
-      previousStories.map((story, index) =>
-        index === currentStoryIndex ? { ...story, [field]: value } : story
-      )
-    );
-  };
-
-  const handlePreviousStory = () => {
-    if (currentStoryIndex > 0) {
-      setCurrentStoryIndex(currentStoryIndex - 1);
-    }
-  };
-
-  const handleNextStory = () => {
-    if (currentStoryIndex < stories.length - 1) {
-      setCurrentStoryIndex(currentStoryIndex + 1);
-      return;
-    }
-
-    setStories((previousStories) => [
-      ...previousStories,
-      { title: "", description: "" },
-    ]);
-    setCurrentStoryIndex(currentStoryIndex + 1);
-  };
-
+// Shows one story at a time. The stories themselves are owned by the server room.
+const PointingPokerRounds = ({
+  stories,
+  currentStoryIndex,
+  onTitleChange,
+  onDescriptionChange,
+  onPreviousStory,
+  onNextStory,
+}) => {
   const currentStory = stories[currentStoryIndex];
 
   return (
     <div className="pointing-poker-rounds">
-      <h1>Pointing Poker - Story Cards</h1>
-
       <div className="story-navigation">
-        <button onClick={handlePreviousStory} disabled={currentStoryIndex === 0}>
+        <button onClick={onPreviousStory} disabled={currentStoryIndex === 0}>
           Previous Story
         </button>
         <span>Story {currentStoryIndex + 1} of {stories.length}</span>
-        <button onClick={handleNextStory}>Next Story</button>
+        <button onClick={onNextStory}>Next Story</button>
       </div>
 
       <StoryCard
         story={currentStory}
-        onTitleChange={(value) => updateCurrentStory("title", value)}
-        onDescriptionChange={(value) => updateCurrentStory("description", value)}
+        onTitleChange={onTitleChange}
+        onDescriptionChange={onDescriptionChange}
       />
     </div>
   );

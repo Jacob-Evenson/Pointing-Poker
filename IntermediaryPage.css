@@ -1,119 +1,124 @@
-/* ---------- intermediary page ---------- */
-
-html,
-body {
-  height: 100%;
-  margin: 0;
-}
-
-#root {
+.join-session-page {
   display: flex;
-  flex-direction: column;
   min-height: 100vh;
+  flex-direction: column;
 }
 
-.game-header {
-  width: 100%;
-  color: var(--white);
-  background: var(--sage-950);
-  border-bottom: 4px solid var(--clay-700);
-}
-
-.game-shell {
-  width: min(1180px, calc(100% - 3rem));
-  margin: 0 auto;
-}
-
-.game-header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  min-height: 70px;
-}
-
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: .7rem;
-  color: var(--white);
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.25rem;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.brand-mark {
+.join-session-main {
   display: grid;
-  width: 2.25rem;
-  height: 2.25rem;
-  place-items: center;
-  color: var(--sage-950);
-  background: var(--sage-200);
-  border-radius: 6px;
-  font-size: .75rem;
-  letter-spacing: .04em;
-}
-
-.header-status {
-  color: var(--sage-200);
-  font-size: .85rem;
-}
-
-.header-status nav {
-  display: flex;
-  gap: 1.25rem;
-}
-
-.header-status nav a {
-  color: var(--sage-200);
-  text-decoration: none;
-}
-
-.header-status nav a:hover {
-  color: var(--white);
-}
-
-/* ---------- main content ---------- */
-
-.game-main {
-  padding: 3rem 0;
   flex: 1 0 auto;
+  place-items: center;
+  padding: 2.5rem 1.5rem;
+}
+
+.join-session-card {
+  width: min(100%, 520px);
+  padding: 2rem;
   text-align: center;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 3px 12px rgb(23 35 27 / 7%);
 }
 
-.game-main label {
-  display: block;
-  margin-bottom: .5rem;
-}
-
-.game-main input[type='text'] {
-  display: block;
+.join-session-icon {
+  display: grid;
+  width: 4rem;
+  height: 4rem;
   margin: 0 auto 1rem;
-  width: min(320px, 90%);
-  padding: .75rem 1rem;
+  place-items: center;
+  background: var(--sage-100);
+  border-radius: 10px;
+  font-size: 1.6rem;
+}
+
+.join-session-card > .eyebrow {
+  margin-bottom: .45rem;
+}
+
+.join-session-card h1 {
+  margin-bottom: .5rem;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  line-height: 1.1;
+}
+
+.join-session-description {
+  max-width: 34ch;
+  margin: 0 auto 1.5rem;
+  color: var(--sage-700);
+  line-height: 1.5;
+}
+
+.username-field {
+  position: relative;
+}
+
+.username-field > span {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
   font-size: 1.1rem;
 }
 
-.game-main button {
-  padding: .75rem 1.5rem;
-  color: var(--white);
-  background: var(--clay-700);
-  border: none;
-  border-radius: var(--btn-radius, 6px);
+.username-input {
+  width: 100%;
+  height: 3.5rem;
+  padding: 0 1rem 0 3rem;
+  color: var(--sage-900);
+  background: var(--sage-050);
+  border: 1px solid var(--border);
+  border-radius: 6px;
   font: inherit;
+}
+
+.username-input:focus {
+  border-color: var(--sage-500);
+  box-shadow: 0 0 0 3px rgb(107 143 113 / 20%);
+  outline: none;
+}
+
+.join-session-button {
+  width: 100%;
+  height: 3.25rem;
+  margin-top: .85rem;
+  border-radius: 6px;
   font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: var(--btn-shadow, 0 2px 8px rgba(23, 35, 27, .15));
-  transition: background .2s, transform .2s;
 }
 
-.game-main button:hover {
-  background: var(--clay-800, #543a1f);
-  transform: translateY(-1px);
+.join-session-code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  margin: 1.5rem 0 0;
+  color: var(--sage-700);
+  font-size: .9rem;
 }
 
-.site-footer {
-  flex-shrink: 0;
+.join-session-code::before,
+.join-session-code::after {
+  height: 1px;
+  flex: 1;
+  background: var(--border);
+  content: '';
+}
+
+.join-session-code strong {
+  color: var(--sage-900);
+}
+
+@media (max-width: 480px) {
+  .join-session-main {
+    padding: 1.5rem 1rem;
+  }
+
+  .join-session-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .join-session-code {
+    flex-wrap: wrap;
+    font-size: .8rem;
+  }
 }

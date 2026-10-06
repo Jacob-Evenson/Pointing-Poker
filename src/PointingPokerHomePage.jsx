@@ -1,165 +1,178 @@
 import React, { useEffect, useState } from 'react'
-import "./PointingPokerHomePage.css";
-import PointCard from './components/PointCard.jsx';
-import SelectedPoint from './components/SelectedPoint.jsx';
-import ParticipantList from './components/ParticipantList.jsx';
-import { points } from './data/points.js';
+import { useNavigate } from 'react-router-dom'
+import './PointingPokerHomePage.css'
+import pointingPokerLogo from './assets/pointing-poker-logo.png'
+import pointingPokerLogoCrop from './assets/pointing-poker-logo-crop.png'
+
 
 const PointingPokerHomePage = () => {
-  //Place holder for our live stats for showing sessions 
-  //Hook up to API? If we have time
-  // const [liveStats] = useState({ sessions: 0, players: 0 })
-  // const [selectedPoint, setSelectedPoint] = useState(null)
-  // const [anonymousReveal, setAnonymousReveal] = useState(false)
-  // const [participants, setParticipants] = useState([
-  //   { id: 1, name: 'Player', bid: null, voted: false },
-  //   { id: 2, name: 'Alex', bid: 5, voted: true },
-  //   { id: 3, name: 'Jordan', bid: 8, voted: true },
-  // ])
+  const navigate = useNavigate()
+  const [isCreatingRoom, setIsCreatingRoom] = useState(false)
+  const [createRoomError, setCreateRoomError] = useState(null)
+  const [sessionCode, setSessionCode] = useState('')
+  const [isJoiningRoom, setIsJoiningRoom] = useState(false)
+  const [joinRoomError, setJoinRoomError] = useState(null)
 
-  // const allVoted = participants.length > 0 && participants.every((participant) => participant.voted)
-  // const currentParticipant = participants.find((participant) => participant.id === 1)
+  const handleCreateSession = async () => {
+    setIsCreatingRoom(true)
+    setCreateRoomError(null)
 
-  // // handles the selection of a point card and updates the user state accordingly
-  // const handlePointSelect = (point) => {
-  //   setSelectedPoint(point)
-  //   setParticipants((currentParticipants) => currentParticipants.map((participant) => (
-  //     participant.id === 1
-  //       ? { ...participant, bid: point.value, voted: true }
-  //       : participant
-  //   )))
-  // }
+    try {
+      const response = await fetch('/api/rooms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
 
+      if (!response.ok) {
+        throw new Error('Failed to create room')
+      }
 
+      const data = await response.json()
+      const roomCode = data.roomCode
+
+      if (!roomCode) {
+        throw new Error('No room code returned from server')
+      }
+
+      navigate(`/room/${roomCode}/join`)
+    } catch (err) {
+      setCreateRoomError(err.message)
+    } finally {
+      setIsCreatingRoom(false)
+    }
+  }
+
+  const handleJoinSession = async (event) => {
+    event.preventDefault()
+    const roomCode = sessionCode.trim()
+    if (!roomCode) {
+      setJoinRoomError('Enter a session code')
+      return
+    }
+
+    setIsJoiningRoom(true)
+    setJoinRoomError(null)
+
+    try {
+      const response = await fetch(`/api/rooms/${encodeURIComponent(roomCode)}`, {
+        method: 'GET',
+      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to find session')
+      }
+
+      if (!data.roomCode) {
+        throw new Error('Session details did not include a room code')
+      }
+
+      navigate(`/room/${encodeURIComponent(roomCode)}/join`)
+    } catch (err) {
+      setJoinRoomError(err.message)
+    } finally {
+      setIsJoiningRoom(false)
+    }
+  }
 
   useEffect(() => {
-    document.title = "Pointing Poker, Team Collaboration simplified"
-    //TO DO LIST
-    /*
-    Set up our live stats here 
-    Add an interval to update those live stats I was thinking 15-60 seconds per stats refresh? const interval = setInterval(()=> setLiveStats(newData), 27,000) 27 seconds is the place holder value can be adjusted
-    return () => clearInterval(interval)
-    */
+    document.title = 'Pointing Poker, Team Collaboration simplified'
   }, [])
-  return (
-    <>
-      {/*Do we want the skip link? That will take you right to the main content? */}
 
+  return (
+    <div className="home-page">
       <a className="skip-link" href="#main-content">Skip to main content</a>
+
       <header className="game-header">
         <div className="game-shell game-header-content">
           <a className="brand" href="#main-content" aria-label="Pointing Poker home">
-            <span className="brand-mark" aria-hidden="true">PP</span>
+            <img src={pointingPokerLogoCrop} alt="" />
             <span>Pointing Poker</span>
           </a>
-          <span className="header-status">
-            <nav>
-              <a href="">Features</a>
-              <a href="">Live Activity</a>
-            </nav>
-          </span>
         </div>
       </header>
-      {/* <header className="site-header">
-        <div className="wrap">
-          <span className="Pointing Poker">Pointing Poker</span>
-          <nav aria-label="primary">
-            <a href="#features">Features</a>
-            <a href="#live">Live Activity</a>
-          </nav>
-        </div>
-      </header> */}
 
-      <main>
-        <section className='Session-name'>
-          <div className="Session-name">
-            <label htmlFor="session-join">Join Session</label>
-            <input id='Session-Name' type='text' />
-            <button>Join Session</button>
-          </div>
-
-          <div className="session-join">
-            <button>Create Session</button>
-          </div>
-          <p>
-            Pointing Poker is a simple yet effective tool used by teams to collaborate and vote on tasks based on the relative effort, complexity,
-            and uncertainty to complete a product item. Teams assign story points the lower the points the easier and higher the more effort it will take,
-            based on the average of all votes cast. {/*Can Adjust info if needed I put in a basic description of pointing poker */}
-          </p>
-        </section>
-      </main>
-
-      <main id="main-content">
-        <section className="Pointing-Poker-wrap">
-          <div className="Pointing-Poker">
-            <h1>Plan team sprints without the guesswork of Collaboration</h1>
-            <p>
-              Pointing Poker is a free tool built by the Western Tech College IT Project Management.
-              Teams can collaborate, vote on ideas and in real time with out the ads and no clutter.
-              With a modern style
-            </p>
-            {/*className ap stands for Active Players also can be changed early on if we don't like the active players */}
-            <a className="ap" href="#live">Active Players</a>
-          </div>
+      <main id="main-content" className="home-main">
+        <section className="hero">
+          <img className="hero-logo" src={pointingPokerLogo} alt="" />
+          <h1 className="visually-hidden">Pointing Poker</h1>
+          <p className="tagline">Estimate the work together</p>
         </section>
 
-        {/* <section className="voting-section wrap" aria-labelledby="voting-heading">
-          <h2 id="voting-heading">Choose your estimate</h2>
-          <div className="point-card-grid">
-            {points.map((point) => (
-              <PointCard
-                key={point.value}
-                point={point}
-                onSelect={handlePointSelect}
-              />
-            ))}
+        <section className="Session-section" aria-label="Create or join a session">
+          <div className="session-card">
+            <span className="card-icon" aria-hidden="true">👥</span>
+            <div className="card-text">
+              <p className="eyebrow">Create a session</p>
+              <h2>Create a Session</h2>
+              <p>Start a new estimation session and share the code with your team. Sessions are valid for 24 hours.</p>
+            </div>
+            <button className="btn btn-create" type="button" onClick={handleCreateSession} disabled={isCreatingRoom}>
+              {isCreatingRoom ? 'Creating...' : 'Create Session'} <span aria-hidden="true">→</span>
+            </button>
+            {createRoomError && <p role="alert">{createRoomError}</p>}
           </div>
-          <SelectedPoint point={selectedPoint} voted={Boolean(currentParticipant?.voted)} />
-          <ParticipantList
-            participants={participants}
-            allVoted={allVoted}
-            anonymousReveal={anonymousReveal}
-            onAnonymousReveal={setAnonymousReveal}
-          />
-        </section> */}
+
+          <form className="session-card" onSubmit={handleJoinSession}>
+            <span className="card-icon link-icon" aria-hidden="true">🔗</span>
+            <div className="card-text">
+              <p className="eyebrow">Join a session</p>
+              <h2>Join a Session</h2>
+              <p>Enter a session code to join an existing estimation session.</p>
+            </div>
+            <label className="visually-hidden" htmlFor="session-code">Session code</label>
+            <input
+              id="session-code"
+              type="text"
+              placeholder="Enter session code"
+              value={sessionCode}
+              onChange={(event) => {
+                setSessionCode(event.target.value)
+                setJoinRoomError(null)
+              }}
+              required
+              disabled={isJoiningRoom}
+            />
+            <button className="btn btn-join" type="submit" disabled={isJoiningRoom}>
+              {isJoiningRoom ? 'Checking...' : 'Join Session'} <span aria-hidden="true">→</span>
+            </button>
+            {joinRoomError && <p role="alert">{joinRoomError}</p>}
+          </form>
+        </section>
 
         <section id="features" className="features wrap">
-          <h2>Why Teams Choose to use Pointing Poker style tools for Collaboration</h2>
+          <h2>Why Use Pointing Poker?</h2>
           <div className="feature-grid">
             <article className="feature-card">
-              <h3>Pointing Poker Built of easy real time Collaboration</h3>
-              <p>
-                Every team member votes during team meetings allowing for shy voices to carry as much wait as the loud voices.
-                No ads allows for uninterrupted voting rounds or distractions.
-              </p>
+              <span className="feature-icon" aria-hidden="true">👥</span>
+              <div>
+                <h3>Collaborative</h3>
+                <p>Get input from the whole team in real time.</p>
+              </div>
             </article>
             <article className="feature-card">
-              <h3>Effortless to use</h3>
-              <p>
-                Start a session, share the link and start collaborating and voting.
-              </p>
+              <span className="feature-icon feature-lightning" aria-hidden="true">⚡</span>
+              <div>
+                <h3>Fast &amp; Simple</h3>
+                <p>Start a session and begin estimating in seconds.</p>
+              </div>
+            </article>
+            <article className="feature-card">
+              <span className="feature-icon feature-shield" aria-hidden="true">🛡️</span>
+              <div>
+                <h3>Distraction Free</h3>
+                <p>Private voting keeps estimates unbiased.</p>
+              </div>
             </article>
           </div>
         </section>
-        <section id="live">
-          <h2>Teams collaborating live right now</h2>
-          <dl className="stat-row" aria-live="polite">
-            <div className="stat">
-              <dt>Active Collaboration sessions</dt>
-              {/* <dd>{liveStats.sessions}</dd> */}
-            </div>
-            <div className="stat">
-              <dt>Players online</dt>
-              {/* <dd>{liveStats.players}</dd> */}
-            </div>
-          </dl>
-        </section>
       </main>
-      <footer className="site-footer wrap">
+
+      <footer className="site-footer">
         <p>Pointing Poker Built by Jacobs minions IT project management team</p>
         <p>© 2026 Jacobs Minions. All rights reserved.</p>
       </footer>
-    </>
+    </div>
   )
 }
 

@@ -9,7 +9,13 @@ const ParticipantList = ({ participants, allVoted, revealed, anonymousReveal, on
         <div>
           <h2 id="participant-heading">People in this session</h2>
           <p role="status">
-            {allVoted ? 'All votes are revealed.' : 'Votes stay hidden until everyone has voted.'}
+            {revealed
+              ? allVoted
+                ? 'All votes are revealed.'
+                : 'Votes are revealed for players who have voted.'
+              : allVoted
+                ? 'Everyone has voted. Votes are ready to reveal.'
+                : 'Votes stay private until you reveal them.'}
           </p>
         </div>
         <label className="anonymous-toggle">
@@ -27,12 +33,13 @@ const ParticipantList = ({ participants, allVoted, revealed, anonymousReveal, on
           <li className="participant" key={participant.id}>
             <div>
               <strong>{participant.name}</strong>
-              <span className={participant.voted ? 'participant-status voted' : 'participant-status'}>
-                {participant.voted ? 'Voted' : 'Waiting'}
-              </span>
             </div>
-            <span className="participant-vote">
-              {revealed ? (anonymousReveal ? 'Revealed' : participant.bid) : 'Hidden'}
+            <span className={`participant-vote${participant.voted ? ' voted' : ''}`}>
+              {!participant.voted
+                ? 'Not yet Voted'
+                : revealed
+                  ? (anonymousReveal ? 'Revealed' : participant.bid)
+                  : 'Voted'}
             </span>
           </li>
         ))}
