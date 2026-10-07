@@ -6,7 +6,7 @@ const rooms = new Map()
 const timeoutValue = 35000 //<--- Ensure this is 45+ seconds before going live or for live
 
 //protecting demo rooms for testing
-const namesVIP = new Set(['JACOBS-26', 'TEAM-42'])
+const protectedRoomsId = new Set(['JACOBS-26', 'TEAM-42'])
 
 
 // Creates a new room, stores it in the Map, and returns it.
@@ -41,7 +41,7 @@ const emptyRoomTimers = new Map()
 
 
 const startEmptyRoomTimer = (roomId) => {
-  if (namesVIP.has(roomId)) {
+  if (protectedRoomsId.has(roomId)) {
     return
   }
   const handle = setTimeout(() => {
