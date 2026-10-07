@@ -58,6 +58,22 @@ If the session is valid, the user is taken to the username page. After entering 
 
 If the session does not exist, the user receives an error message.
 
+The player endpoint is:
+
+```http
+POST /api/rooms/{roomCode}/players
+Content-Type: application/json
+```
+
+Send the display name as either `name` (the field used by the web app) or
+`username`:
+
+```json
+{
+  "username": "chuddy"
+}
+```
+
 ### 3. Story Cards
 
 Each room contains a sequence of editable story cards.

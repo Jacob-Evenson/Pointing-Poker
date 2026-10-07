@@ -55,7 +55,8 @@ roomsRouter.post('/:roomCode/players', (request, response) => {
     return response.status(404).json({ error: 'Room not found' })
   }
 
-  const name = typeof request.body?.name === 'string' ? request.body.name.trim() : ''
+  const submittedName = request.body?.name ?? request.body?.username
+  const name = typeof submittedName === 'string' ? submittedName.trim() : ''
   if (!name) {
     return response.status(400).json({ error: 'Username is required' })
   }
