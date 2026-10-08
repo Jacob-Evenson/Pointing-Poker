@@ -6,6 +6,9 @@ import {
   setVote, setVotesRevealed, resetVotes, VALID_VOTES,
 } from '../roomStore.js'
 import { generateUniqueRoomCode } from '../src/components/roomCode.js'
+import {
+  SESSION_NOT_FOUND_MESSAGE, validateUsername, validateStoryTitle, validateStoryDescription,
+} from '../src/validation.js'
 
 // Seed the demo rooms in the shared room store if they don't exist yet.
 if (!roomExists('JACOBS-26')) {
@@ -40,7 +43,7 @@ const toRoomResponse = (room) => {
 // Runs an action on the requested room and replies with the updated room.
 const respondWithRoom = (response, room) => {
   if (!room) {
-    return response.status(404).json({ error: 'Room not found' })
+    return response.status(404).json({ error: SESSION_NOT_FOUND_MESSAGE })
   }
   return response.json(toRoomResponse(room))
 }
@@ -52,7 +55,7 @@ roomsRouter.get('/:roomCode', (request, response) => {
 roomsRouter.post('/:roomCode/players', (request, response) => {
   const room = getRoom(request.params.roomCode)
   if (!room) {
-    return response.status(404).json({ error: 'Room not found' })
+    return response.status(404).json({ error: SESSION_NOT_FOUND_MESSAGE })
   }
 
   const submittedName = request.body?.username ?? request.body?.username
@@ -63,7 +66,6 @@ roomsRouter.post('/:roomCode/players', (request, response) => {
   if (room.players.some((player) => player.name.toLowerCase() === name.toLowerCase())) {
     return response.status(409).json({ error: 'That username is already taken in this room' })
   }
-
   const player = { id: randomUUID(), name }
   addPlayer(room.id, player)
   return response.status(201).json({ player })
@@ -74,6 +76,11 @@ roomsRouter.post('/:roomCode/players', (request, response) => {
 // }) testing delete route!
 
 roomsRouter.patch('/:roomCode/stories/current', (request, response) => {
+  const changes = request.body ?? {}
+  const storyError = validateStoryTitle(changes.title) || validateStoryDescription(changes.description)
+  if (storyError) {
+    return response.status(400).json({ error: storyError })
+  }
   respondWithRoom(response, updateCurrentStory(request.params.roomCode, request.body ?? {}))
 })
 
@@ -88,12 +95,12 @@ roomsRouter.post('/:roomCode/stories/next', (request, response) => {
 roomsRouter.post('/:roomCode/votes', (request, response) => {
   const { playerId, value } = request.body ?? {}
   if (!VALID_VOTES.includes(value)) {
-    return response.status(400).json({ error: 'Invalid vote value' })
+    return response.status(400).json({ error: 'Please choose one of the point cards.' })
   }
 
   const room = setVote(request.params.roomCode, playerId, value)
   if (!room) {
-    return response.status(404).json({ error: 'Room or player not found' })
+    return response.status(404).json({ error: SESSION_NOT_FOUND_MESSAGE })
   }
   return response.json(toRoomResponse(room))
 })

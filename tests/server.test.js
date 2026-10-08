@@ -23,7 +23,7 @@ describe('GET /api/rooms/:roomCode', () => {
     const response = await request(app).get('/api/rooms/UNKNOWN-99')
 
     expect(response.status).toBe(404)
-    expect(response.body).toEqual({ error: 'Room not found' })
+    expect(response.body).toEqual({ error: "We couldn't find a session with that code." })
   })
 
   it('does not treat other paths or methods as room lookups', async () => {
@@ -43,14 +43,14 @@ describe('GET /api/rooms/:roomCode', () => {
     expect(trailingSlash.status).toBe(404)
     expect(trailingSlash.body).toEqual({ error: 'Not found' })
     expect(wrongCase.status).toBe(404)
-    expect(wrongCase.body).toEqual({ error: 'Room not found' })
+    expect(wrongCase.body).toEqual({ error: "We couldn't find a session with that code." })
   })
 
   it('returns a room not found response for malformed encoded room codes', async () => {
     const response = await request(app).get('/api/rooms/%E0%A4%A')
 
     expect(response.status).toBe(404)
-    expect(response.body).toEqual({ error: 'Room not found' })
+    expect(response.body).toEqual({ error: "We couldn't find a session with that code." })
   })
 })
 
@@ -94,12 +94,20 @@ describe('room players, stories and votes', () => {
     const { roomCode, player } = await createRoomWithPlayer('Sam')
 
     expect(player).toEqual({ id: expect.any(String), name: 'Sam' })
-    expect((await request(app).post(`/api/rooms/${roomCode}/players`).send({ name: '  ' })).status).toBe(400)
-    expect((await request(app).post(`/api/rooms/${roomCode}/players`).send({ name: 'sam' })).status).toBe(409)
+    const blank = await request(app).post(`/api/rooms/${roomCode}/players`).send({ name: '  ' })
+    expect(blank.status).toBe(400)
+    expect(blank.body.error).toBe('Please enter a username.')
+    const long = await request(app).post(`/api/rooms/${roomCode}/players`).send({ name: 'a'.repeat(21) })
+    expect(long.body.error).toBe('Username must be 20 characters or fewer.')
+    expect((await request(app).post(`/api/rooms/${roomCode}/players`).send({ name: 'a'.repeat(20) })).status).toBe(201)
+    const duplicate = await request(app).post(`/api/rooms/${roomCode}/players`).send({ name: ' sam ' })
+    expect(duplicate.status).toBe(400)
+    expect(duplicate.body.error).toBe('That username is already being used in this session.')
     expect((await request(app).post('/api/rooms/NOPE-1/players').send({ name: 'Al' })).status).toBe(404)
 
     const room = await request(app).get(`/api/rooms/${roomCode}`)
-    expect(room.body.players).toEqual([player])
+    expect(room.body.players).toHaveLength(2)
+    expect(room.body.players[0]).toEqual(player)
   })
 
   it('accepts username as an alias for name', async () => {
@@ -174,5 +182,24 @@ describe('room players, stories and votes', () => {
     room = (await request(app).post(`${base}/stories/next`)).body
     expect(room.votes).toEqual({ [player.id]: null })
     expect(room.votesRevealed).toBe(false)
+  })
+
+  it('rejects story titles and descriptions that are too long, but allows blanks', async () => {
+    const { roomCode } = await createRoomWithPlayer()
+    const url = `/api/rooms/${roomCode}/stories/current`
+
+    const title = await request(app).patch(url).send({ title: 'a'.repeat(101) })
+    expect(title.status).toBe(400)
+    expect(title.body.error).toBe('Story title must be 100 characters or fewer.')
+
+    const description = await request(app).patch(url).send({ description: 'a'.repeat(2001) })
+    expect(description.status).toBe(400)
+    expect(description.body.error).toBe('Story description must be 2000 characters or fewer.')
+
+    expect((await request(app).patch(url).send({ title: 'a'.repeat(100), description: 'a'.repeat(2000) })).status).toBe(200)
+    expect((await request(app).patch(url).send({ title: '', description: '' })).status).toBe(200)
+
+    const room = await request(app).get(`/api/rooms/${roomCode}`)
+    expect(room.body.stories[0].title).toBe('')
   })
 })
