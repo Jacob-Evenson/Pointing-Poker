@@ -2,6 +2,7 @@ import express from 'express'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import roomsRouter from './routes/rooms.js'
+import { SESSION_NOT_FOUND_MESSAGE } from './src/validation.js'
 
 export const createApiApp = () => {
   const app = express()
@@ -14,18 +15,18 @@ export const createApiApp = () => {
   })
   app.use((error, _request, response, next) => {
     if (error instanceof URIError) {
-      return response.status(404).json({ error: 'Room not found' })
+      return response.status(404).json({ error: SESSION_NOT_FOUND_MESSAGE })
     }
 
     if (error.type === 'entity.parse.failed') {
-      return response.status(400).json({ error: 'Invalid JSON' })
+      return response.status(400).json({ error: 'Something went wrong. Please try again.' })
     }
 
     if (response.headersSent) {
       return next(error)
     }
 
-    return response.status(500).json({ error: 'Internal server error' })
+    return response.status(500).json({ error: 'Something went wrong. Please try again.' })
   })
 
   return app
