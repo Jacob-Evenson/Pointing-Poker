@@ -94,7 +94,7 @@ describe('GamePage', () => {
       </MemoryRouter>
     )
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Room not found')
+    expect(await screen.findByRole('alert')).toHaveTextContent("We couldn't find a session with that code.")
   })
 
   it('keeps votes hidden until revealed, then shows statistics', async () => {
@@ -203,5 +203,42 @@ describe('GamePage', () => {
     expect(await screen.findByText('Low: 5')).toBeInTheDocument()
     expect(screen.getByText('You selected 5 points.')).toBeInTheDocument()
     expect(screen.getByRole('switch', { name: 'Hide votes and statistics' })).toBeChecked()
+  })
+
+  it('shows story title and description errors, keeps them off the server, and blocks navigation', async () => {
+    await renderGamePage()
+
+    fireEvent.change(screen.getByLabelText('Story Title'), { target: { value: 'a'.repeat(101) } })
+    fireEvent.change(screen.getByLabelText('Story Description'), { target: { value: 'b'.repeat(2001) } })
+
+    expect(screen.getByText('Story title must be 100 characters or fewer.')).toBeInTheDocument()
+    expect(screen.getByText('Story description must be 2000 characters or fewer.')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next Story' }))
+    expect(screen.getByText('Story 1 of 1')).toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText('Story Title'), { target: { value: 'Short title' } })
+    fireEvent.change(screen.getByLabelText('Story Description'), { target: { value: '' } })
+
+    expect(screen.queryByText('Story title must be 100 characters or fewer.')).not.toBeInTheDocument()
+    expect(screen.queryByText('Story description must be 2000 characters or fewer.')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next Story' }))
+    expect(await screen.findByText('Story 2 of 2')).toBeInTheDocument()
+  })
+
+  it('allows blank story titles and descriptions', async () => {
+    await renderGamePage()
+
+    fireEvent.change(screen.getByLabelText('Story Title'), { target: { value: '' } })
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('limits the story title to 100 characters and the description to 2000', async () => {
+    await renderGamePage()
+
+    expect(screen.getByLabelText('Story Title')).toHaveAttribute('maxlength', '100')
+    expect(screen.getByLabelText('Story Description')).toHaveAttribute('maxlength', '2000')
   })
 })

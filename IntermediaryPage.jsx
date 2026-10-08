@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import './src/PointingPokerHomePage.css'
 import './IntermediaryPage.css'
 import pointingPokerLogoCrop from './src/assets/pointing-poker-logo-crop.png'
+import { validateUsername, USERNAME_MAX_LENGTH } from './src/validation.js'
 
 const IntermediaryPage = () => {
   const navigate = useNavigate()
@@ -12,8 +13,13 @@ const IntermediaryPage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setJoinError(null)
 
+    const usernameError = validateUsername(username)
+    if (usernameError) {
+      setJoinError(usernameError)
+      return
+    }
+    setJoinError(null)
     try {
       const response = await fetch(`/api/rooms/${encodeURIComponent(roomCode)}/players`, {
         method: 'POST',
@@ -23,13 +29,14 @@ const IntermediaryPage = () => {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to join session')
+        setJoinError(data.error || 'Something went wrong. Please try again.')
+        return
       }
 
       sessionStorage.setItem(`playerId:${roomCode}`, data.player.id)
       navigate(`/room/${encodeURIComponent(roomCode)}`)
     } catch (err) {
-      setJoinError(err.message)
+      setJoinError('Something went wrong. Please try again.')
     }
   }
 
@@ -64,16 +71,21 @@ const IntermediaryPage = () => {
                 className="username-input"
                 type="text"
                 placeholder="Your name"
+                maxLength={USERNAME_MAX_LENGTH}
                 value={username}
-                onChange={(event) => setUsername(event.target.value)}
+                onChange={(event) => {
+                  setUsername(event.target.value)
+                  setJoinError(null)
+                }}
                 autoComplete="name"
-                required
+                aria-invalid={Boolean(joinError)}
+                aria-describedby="username-error"
               />
             </div>
+            <p id="username-error" className="field-error" role={joinError ? 'alert' : undefined}>{joinError}</p>
             <button className="btn btn-join join-session-button" type="submit">
               Join Session <span aria-hidden="true">→</span>
             </button>
-            {joinError && <p role="alert">{joinError}</p>}
           </form>
 
           <p className="join-session-code">

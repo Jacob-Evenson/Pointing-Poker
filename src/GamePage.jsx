@@ -9,6 +9,9 @@ import PointingPokerRounds from './components/PointingPokerRounds.jsx'
 import SessionTimer from './components/SessionTimer.jsx'
 import VoteStats from './components/VoteStats.jsx'
 import { points } from './data/points.js'
+import { validateStoryTitle, validateStoryDescription } from './validation.js'
+
+const SAFE_ERROR = 'Something went wrong. Please try again.'
 
 const GamePage = () => {
   const navigate = useNavigate()
@@ -21,6 +24,7 @@ const GamePage = () => {
   const [selectedPoints, setSelectedPoints] = useState({})
   const [sessionCodeCopied, setSessionCodeCopied] = useState(false)
   const [anonymousReveal, setAnonymousReveal] = useState(false)
+  const [storyErrors, setStoryErrors] = useState({ title: null, description: null })
 
   // Sends a request to the server and shows the updated room it sends back.
   const sendToServer = async (path, method = 'POST', body) => {
@@ -32,11 +36,11 @@ const GamePage = () => {
       })
       const data = await response.json()
       if (!response.ok) {
-        throw new Error(data.error || 'Request failed')
+        throw new Error(data.error || SAFE_ERROR)
       }
       setRoom(data)
     } catch (err) {
-      setLoadError(err.message)
+      setLoadError(err instanceof SyntaxError || err instanceof TypeError ? SAFE_ERROR : err.message)
     }
   }
 
@@ -46,7 +50,7 @@ const GamePage = () => {
         const response = await fetch(roomUrl)
         const data = await response.json()
         if (!response.ok) {
-          throw new Error(data.error || 'Failed to load room')
+          throw new Error(data.error || SAFE_ERROR)
         }
         if (!data.players.some((player) => player.id === playerId)) {
           navigate(`/room/${encodeURIComponent(sessionCode)}/join`, { replace: true })
@@ -54,7 +58,7 @@ const GamePage = () => {
         }
         setRoom(data)
       } catch (err) {
-        setLoadError(err.message)
+        setLoadError(err instanceof SyntaxError || err instanceof TypeError ? SAFE_ERROR : err.message)
       }
     }
 
@@ -93,20 +97,34 @@ const GamePage = () => {
   }
 
   const handleStoryEdit = (field, value) => {
-    // Update the screen right away so typing feels smooth, then tell the server.
+    const error = field === 'title' ? validateStoryTitle(value) : validateStoryDescription(value)
+    setStoryErrors((current) => ({ ...current, [field]: error }))
+
+    // Update the screen right away so typing feels smooth.
     setRoom((currentRoom) => ({
       ...currentRoom,
       stories: currentRoom.stories.map((story, index) => (
         index === currentRoom.currentStoryIndex ? { ...story, [field]: value } : story
       )),
     }))
-    fetch(`${roomUrl}/stories/current`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ [field]: value }),
-    }).catch((err) => setLoadError(err.message))
+
+    // Text that is too long is not saved until the user shortens it.
+    if (!error) {
+      fetch(`${roomUrl}/stories/current`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [field]: value }),
+      }).catch(() => setLoadError(SAFE_ERROR))
+    }
   }
 
+  // Stay on the current story until its title and description are within the limits.
+  const handleStoryNavigation = (path) => {
+    if (storyErrors.title || storyErrors.description) {
+      return
+    }
+    sendToServer(path)
+  }
   const handleCopySessionCode = async () => {
     try {
       await navigator.clipboard.writeText(sessionCode)
@@ -140,8 +158,10 @@ const GamePage = () => {
               currentStoryIndex={room.currentStoryIndex}
               onTitleChange={(value) => handleStoryEdit('title', value)}
               onDescriptionChange={(value) => handleStoryEdit('description', value)}
-              onPreviousStory={() => sendToServer('/stories/previous')}
-              onNextStory={() => sendToServer('/stories/next')}
+              titleError={storyErrors.title}
+              descriptionError={storyErrors.description}
+              onPreviousStory={() => handleStoryNavigation('/stories/previous')}
+              onNextStory={() => handleStoryNavigation('/stories/next')}
             />
           </div>
           <aside className="session-panel" aria-labelledby="session-info-heading">
