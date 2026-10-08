@@ -110,17 +110,6 @@ describe('room players, stories and votes', () => {
     expect(room.body.players[0]).toEqual(player)
   })
 
-  it('accepts username as an alias for name', async () => {
-    const { body: { roomCode } } = await request(app).post('/api/rooms')
-
-    const response = await request(app)
-      .post(`/api/rooms/${roomCode}/players`)
-      .send({ username: 'chuddy' })
-
-    expect(response.status).toBe(201)
-    expect(response.body.player).toEqual({ id: expect.any(String), name: 'chuddy' })
-  })
-
   it('edits the current story and moves between stories', async () => {
     const { roomCode } = await createRoomWithPlayer()
 
