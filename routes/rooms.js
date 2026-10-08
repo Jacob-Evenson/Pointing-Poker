@@ -1,7 +1,7 @@
 import express, { Router } from 'express'
 import { randomUUID } from 'node:crypto'
 import {
-  createRoom, getRoom, roomExists, getAllRooms, addPlayer,
+  createRoom, getRoom, roomExists, getAllRooms, addPlayer, removePlayer,
   updateCurrentStory, goToPreviousStory, goToNextStory,
   setVote, setVotesRevealed, resetVotes, VALID_VOTES,
 } from '../roomStore.js'
@@ -68,6 +68,10 @@ roomsRouter.post('/:roomCode/players', (request, response) => {
   addPlayer(room.id, player)
   return response.status(201).json({ player })
 })
+
+// roomsRouter.delete('/:roomCode/players/:player', (request, response) => {
+//   respondWithRoom(response, removePlayer(request.params.roomCode, request.params.player))
+// }) testing delete route!
 
 roomsRouter.patch('/:roomCode/stories/current', (request, response) => {
   respondWithRoom(response, updateCurrentStory(request.params.roomCode, request.body ?? {}))

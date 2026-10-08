@@ -3,7 +3,7 @@
 // If the server restarts, this Map is cleared and all rooms disappear.
 const rooms = new Map()
 //sets the timeout value to 15 seconds for testing. Before going live this needs to be set to 45+ seconds
-const timeoutValue = 35000 //<--- Ensure this is 45+ seconds before going live or for live
+const timeoutValue = 60000 //<--- Ensure this is 45+ seconds before going live or for live
 
 //protecting demo rooms for testing
 const protectedRoomsId = new Set(['JACOBS-26', 'TEAM-42'])
