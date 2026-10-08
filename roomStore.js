@@ -8,7 +8,6 @@ const timeoutValue = 86400001 //<--- Ensure this is 45+ seconds before going liv
 //protecting demo rooms for testing
 const protectedRoomsId = new Set(['JACOBS-26', 'TEAM-42'])
 
-
 // Creates a new room, stores it in the Map, and returns it.
 export const createRoom = (roomId) => {
   const room = {
@@ -22,23 +21,19 @@ export const createRoom = (roomId) => {
     createdAt: new Date()
   }
 
-
   rooms.set(roomId, room)
   startEmptyRoomTimer(roomId)
 
   return room
 }
 
-
 // Returns true if a room with this id exists.
 export const roomExists = (roomId) => rooms.has(roomId)
 
 // Returns the room object, or undefined if it does not exist.
 export const getRoom = (roomId) => rooms.get(roomId)
-//Some one add to trello "ensure timeout is set to 30+ secconds and not at 7 second test"-0pts
-//sets a emptyRoomTimer for each room that maps through the room
-const emptyRoomTimers = new Map()
 
+const emptyRoomTimers = new Map()
 
 const startEmptyRoomTimer = (roomId) => {
   if (protectedRoomsId.has(roomId)) {
@@ -57,15 +52,13 @@ const startEmptyRoomTimer = (roomId) => {
   emptyRoomTimers.set(roomId, handle)
 }
 
-const cancelEmptyRoomTimer = ((roomId) => {
+const cancelEmptyRoomTimer = (roomId) => {
   const handle = emptyRoomTimers.get(roomId)
   if (handle) {
     clearTimeout(handle)
     emptyRoomTimers.delete(roomId)
   }
-})
-
-
+}
 
 // Adds a player to the room's players array.
 export const addPlayer = (roomId, player) => {
@@ -79,7 +72,6 @@ export const addPlayer = (roomId, player) => {
   return room
 }
 
-
 // Removes a player from the room by name.
 export const removePlayer = (roomId, playerName) => {
   const room = rooms.get(roomId)
@@ -90,10 +82,9 @@ export const removePlayer = (roomId, playerName) => {
   const removed = room.players.filter((player) => player.name === playerName)
   room.players = room.players.filter((player) => player.name !== playerName)
   removed.forEach((player) => delete room.votes[player.id])
-  if(room.players.length === 0){
+  if (room.players.length === 0) {
     startEmptyRoomTimer(roomId)
   }
-
   return room
 }
 
