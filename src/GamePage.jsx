@@ -66,6 +66,32 @@ const GamePage = () => {
   }, [roomUrl, playerId, sessionCode, navigate])
 
   useEffect(() => {
+    const socket = new WebSocket('ws://127.0.0.1:3001')
+
+    socket.addEventListener('open', () => {
+      socket.send(JSON.stringify({
+        type: 'JOIN_ROOM',
+        roomCode: sessionCode,
+      }))
+
+      console.log(`Connected to WebSocket room ${sessionCode}`)
+    })
+
+    socket.addEventListener('message', (event) => {
+      const message = JSON.parse(event.data)
+      console.log('WebSocket message received:', message)
+    })
+
+    socket.addEventListener('error', (error) => {
+      console.error('WebSocket error:', error)
+    })
+
+    return () => {
+      socket.close()
+    }
+  }, [sessionCode])
+
+  useEffect(() => {
     document.title = 'Pointing Poker, Team Collaboration simplified'
   }, [])
 
