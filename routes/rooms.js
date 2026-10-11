@@ -1,14 +1,15 @@
 import express, { Router } from 'express'
 import { randomUUID } from 'node:crypto'
 import {
-  createRoom, getRoom, roomExists, getAllRooms, addPlayer,
+  createRoom, getRoom, roomExists, getAllRooms, addPlayer, removePlayer,
   updateCurrentStory, goToPreviousStory, goToNextStory,
-  setVote, setVotesRevealed, resetVotes, VALID_VOTES,
+  setVote, setVotesRevealed, resetVotes, getSessionTimer, updateSessionTimer, VALID_VOTES,
 } from '../roomStore.js'
 import { generateUniqueRoomCode } from '../src/components/roomCode.js'
 import {
   SESSION_NOT_FOUND_MESSAGE, validateUsername, validateStoryTitle, validateStoryDescription,
 } from '../src/validation.js'
+import { publishRoomEvent } from '../roomEvents.js'
 
 // Seed the demo rooms in the shared room store if they don't exist yet.
 if (!roomExists('JACOBS-26')) {
@@ -32,12 +33,17 @@ roomsRouter.use(express.json())
 
 // Builds the JSON the frontend sees. Vote values stay hidden (null) until revealed.
 const toRoomResponse = (room) => {
-  const { id, votes, savedVotes, ...roomDetails } = room
+  const { id, votes, savedVotes: _savedVotes, ...roomDetails } = room
   const visibleVotes = {}
   for (const playerId of Object.keys(votes)) {
     visibleVotes[playerId] = room.votesRevealed ? votes[playerId] : null
   }
-  return { ...roomDetails, votes: visibleVotes, roomCode: id }
+  return {
+    ...roomDetails,
+    sessionTimer: getSessionTimer(id),
+    votes: visibleVotes,
+    roomCode: id,
+  }
 }
 
 // Runs an action on the requested room and replies with the updated room.
@@ -46,6 +52,14 @@ const respondWithRoom = (response, room) => {
     return response.status(404).json({ error: SESSION_NOT_FOUND_MESSAGE })
   }
   return response.json(toRoomResponse(room))
+}
+
+const publishRoomUpdate = (roomCode, reason) => {
+  // Events are invalidation notices; clients fetch the authoritative room via REST.
+  publishRoomEvent(roomCode, {
+    type: 'ROOM_UPDATED',
+    reason,
+  })
 }
 
 roomsRouter.get('/:roomCode', (request, response) => {
@@ -65,7 +79,45 @@ roomsRouter.post('/:roomCode/players', (request, response) => {
   }
   const player = { id: randomUUID(), name }
   addPlayer(room.id, player)
+  publishRoomEvent(room.id, {
+    type: 'PLAYER_JOINED',
+    player,
+  })
   return response.status(201).json({ player })
+})
+
+roomsRouter.delete('/:roomCode/players/:playerId', (request, response) => {
+  const { roomCode, playerId } = request.params
+  const room = removePlayer(roomCode, playerId)
+  if (!room) {
+    return response.status(404).json({ error: SESSION_NOT_FOUND_MESSAGE })
+  }
+
+  publishRoomEvent(roomCode, {
+    type: 'PLAYER_LEFT',
+    playerId,
+  })
+  return response.json(toRoomResponse(room))
+})
+
+roomsRouter.post('/:roomCode/timer', (request, response) => {
+  const { roomCode } = request.params
+  const { playerId, action } = request.body ?? {}
+  const room = getRoom(roomCode)
+  if (!room) {
+    return response.status(404).json({ error: SESSION_NOT_FOUND_MESSAGE })
+  }
+  if (!['start', 'pause', 'reset'].includes(action)) {
+    return response.status(400).json({ error: 'Choose a valid timer action.' })
+  }
+  if (!room.hostPlayerId || playerId !== room.hostPlayerId) {
+    return response.status(403).json({ error: 'Only the session host can control the timer.' })
+  }
+
+  // Timer authority stays on the API; WebSocket subscribers are only notified.
+  updateSessionTimer(roomCode, action)
+  publishRoomUpdate(roomCode, 'TIMER_UPDATED')
+  return response.json(toRoomResponse(room))
 })
 
 roomsRouter.patch('/:roomCode/stories/current', (request, response) => {
@@ -74,15 +126,30 @@ roomsRouter.patch('/:roomCode/stories/current', (request, response) => {
   if (storyError) {
     return response.status(400).json({ error: storyError })
   }
-  respondWithRoom(response, updateCurrentStory(request.params.roomCode, request.body ?? {}))
+  const roomCode = request.params.roomCode
+  const room = updateCurrentStory(roomCode, request.body ?? {})
+  if (room) {
+    publishRoomUpdate(roomCode, 'STORY_UPDATED')
+  }
+  respondWithRoom(response, room)
 })
 
 roomsRouter.post('/:roomCode/stories/previous', (request, response) => {
-  respondWithRoom(response, goToPreviousStory(request.params.roomCode))
+  const roomCode = request.params.roomCode
+  const room = goToPreviousStory(roomCode)
+  if (room) {
+    publishRoomUpdate(roomCode, 'STORY_CHANGED')
+  }
+  respondWithRoom(response, room)
 })
 
 roomsRouter.post('/:roomCode/stories/next', (request, response) => {
-  respondWithRoom(response, goToNextStory(request.params.roomCode))
+  const roomCode = request.params.roomCode
+  const room = goToNextStory(roomCode)
+  if (room) {
+    publishRoomUpdate(roomCode, 'STORY_CHANGED')
+  }
+  respondWithRoom(response, room)
 })
 
 roomsRouter.post('/:roomCode/votes', (request, response) => {
@@ -95,19 +162,35 @@ roomsRouter.post('/:roomCode/votes', (request, response) => {
   if (!room) {
     return response.status(404).json({ error: SESSION_NOT_FOUND_MESSAGE })
   }
+  publishRoomUpdate(request.params.roomCode, 'VOTE_CAST')
   return response.json(toRoomResponse(room))
 })
 
 roomsRouter.post('/:roomCode/votes/reveal', (request, response) => {
-  respondWithRoom(response, setVotesRevealed(request.params.roomCode, true))
+  const roomCode = request.params.roomCode
+  const room = setVotesRevealed(roomCode, true)
+  if (room) {
+    publishRoomUpdate(roomCode, 'VOTES_REVEALED')
+  }
+  respondWithRoom(response, room)
 })
 
 roomsRouter.post('/:roomCode/votes/hide', (request, response) => {
-  respondWithRoom(response, setVotesRevealed(request.params.roomCode, false))
+  const roomCode = request.params.roomCode
+  const room = setVotesRevealed(roomCode, false)
+  if (room) {
+    publishRoomUpdate(roomCode, 'VOTES_HIDDEN')
+  }
+  respondWithRoom(response, room)
 })
 
 roomsRouter.post('/:roomCode/votes/reset', (request, response) => {
-  respondWithRoom(response, resetVotes(request.params.roomCode))
+  const roomCode = request.params.roomCode
+  const room = resetVotes(roomCode)
+  if (room) {
+    publishRoomUpdate(roomCode, 'VOTES_RESET')
+  }
+  respondWithRoom(response, room)
 })
 
 roomsRouter.post('/', (request, response) => {

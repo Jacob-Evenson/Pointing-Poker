@@ -48,7 +48,7 @@ describe('PointCard', () => {
 
     render(<PointCard point={unknownPoint} onSelect={vi.fn()} />)
 
-    expect(screen.getByText('Needs more information')).toBeInTheDocument()
+    expect(screen.getByText('Need more information')).toBeInTheDocument()
     expect(screen.queryByText('? points')).not.toBeInTheDocument()
   })
 })
