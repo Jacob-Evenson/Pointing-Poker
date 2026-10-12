@@ -1,7 +1,7 @@
 import express, { Router } from 'express'
 import { randomUUID } from 'node:crypto'
 import {
-  createRoom, getRoom, roomExists, getAllRooms, addPlayer, removePlayer,
+  createRoom, getRoom, roomExists, getAllRooms, addPlayer,
   updateCurrentStory, goToPreviousStory, goToNextStory,
   setVote, setVotesRevealed, resetVotes, VALID_VOTES,
 } from '../roomStore.js'
@@ -58,22 +58,15 @@ roomsRouter.post('/:roomCode/players', (request, response) => {
     return response.status(404).json({ error: SESSION_NOT_FOUND_MESSAGE })
   }
 
-  const submittedName = request.body?.username ?? request.body?.username
-  const name = typeof submittedName === 'string' ? submittedName.trim() : ''
-  if (!name) {
-    return response.status(400).json({ error: 'Username is required' })
-  }
-  if (room.players.some((player) => player.name.toLowerCase() === name.toLowerCase())) {
-    return response.status(409).json({ error: 'That username is already taken in this room' })
+  const name = typeof request.body?.name === 'string' ? request.body.name.trim() : ''
+  const nameError = validateUsername(name, room.players.map((player) => player.name))
+  if (nameError) {
+    return response.status(400).json({ error: nameError })
   }
   const player = { id: randomUUID(), name }
   addPlayer(room.id, player)
   return response.status(201).json({ player })
 })
-
-// roomsRouter.delete('/:roomCode/players/:player', (request, response) => {
-//   respondWithRoom(response, removePlayer(request.params.roomCode, request.params.player))
-// }) testing delete route!
 
 roomsRouter.patch('/:roomCode/stories/current', (request, response) => {
   const changes = request.body ?? {}
