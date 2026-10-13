@@ -96,7 +96,7 @@ clients display a local ticking view based on the latest server response.
 ```sh
 npm run test:run
 npm run lint
-npm run build
+npm run build:client
 ```
 
 `npm run test` starts Vitest in watch mode; `npm run test:run` runs the tests
@@ -104,10 +104,13 @@ once.
 
 ### Production deployment
 
-1. Build the frontend client bundle:
+1. Install dependencies. The `postinstall` script builds the frontend into `dist/`
+   (there is intentionally no `build` script, so hosts that infer the app type
+   from it treat this as a Node server instead of a static site):
    ```sh
-   npm run build
+   npm install
    ```
+   To rebuild the client manually, run `npm run build:client`.
 2. Start the unified production server:
    ```sh
    npm start
