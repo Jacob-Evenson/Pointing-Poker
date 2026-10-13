@@ -1,11 +1,14 @@
 import express from 'express'
 import { createServer } from 'node:http'
-import { resolve } from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { existsSync } from 'node:fs'
+import { resolve, dirname } from 'node:path'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import roomsRouter from './routes/rooms.js'
 import { createSocketServer } from './socketServer.js'
 
 import { SESSION_NOT_FOUND_MESSAGE } from './src/validation.js'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export const createApiApp = () => {
   const app = express()
@@ -16,6 +19,21 @@ export const createApiApp = () => {
   app.use('/api', (_request, response) => {
     response.status(404).json({ error: 'Not found' })
   })
+
+  const distPath = resolve(__dirname, 'dist')
+  const indexPath = resolve(distPath, 'index.html')
+
+  if (existsSync(distPath)) {
+    app.use(express.static(distPath))
+  }
+
+  app.use((req, res, next) => {
+    if (req.method === 'GET' && existsSync(indexPath)) {
+      return res.sendFile(indexPath)
+    }
+    return next()
+  })
+
   app.use((error, _request, response, next) => {
     if (error instanceof URIError) {
       return response.status(404).json({ error: SESSION_NOT_FOUND_MESSAGE })
@@ -36,13 +54,13 @@ export const createApiApp = () => {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  const port = Number(process.env.API_PORT || 3001)
+  const port = process.env.PORT || process.env.API_PORT || 3001
   const app = createApiApp()
   const server = createServer(app)
 
   createSocketServer(server)
 
-  server.listen(port, '127.0.0.1', () => {
-    console.log(`Room API listening on http://127.0.0.1:${port}`)
+  server.listen(port, () => {
+    console.log(`Server listening on port ${port}`)
   })
 }

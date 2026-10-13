@@ -115,7 +115,12 @@ const GamePage = () => {
 
     let socket
     try {
-      socket = new WebSocket('ws://127.0.0.1:3001')
+      const isDev = import.meta.env.DEV
+      const defaultWsUrl = isDev
+        ? 'ws://127.0.0.1:3001'
+        : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`
+      const wsUrl = import.meta.env.VITE_WS_URL || defaultWsUrl
+      socket = new WebSocket(wsUrl)
     } catch (error) {
       console.error('Failed to connect to room WebSocket:', error)
       return undefined

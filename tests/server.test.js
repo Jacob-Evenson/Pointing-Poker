@@ -59,6 +59,20 @@ describe('GET /api/rooms/:roomCode', () => {
   })
 })
 
+describe('static and SPA frontend serving', () => {
+  const app = createApiApp()
+
+  it('serves index.html for root and client-side SPA routes', async () => {
+    const rootResponse = await request(app).get('/')
+    expect(rootResponse.status).toBe(200)
+    expect(rootResponse.headers['content-type']).toMatch(/html/)
+
+    const roomRouteResponse = await request(app).get('/room/JACOBS-26')
+    expect(roomRouteResponse.status).toBe(200)
+    expect(roomRouteResponse.headers['content-type']).toMatch(/html/)
+  })
+})
+
 describe('POST /api/rooms', () => {
   const app = createApiApp()
 

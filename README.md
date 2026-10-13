@@ -101,3 +101,15 @@ npm run build
 
 `npm run test` starts Vitest in watch mode; `npm run test:run` runs the tests
 once.
+
+### Production deployment
+
+1. Build the frontend client bundle:
+   ```sh
+   npm run build
+   ```
+2. Start the unified production server:
+   ```sh
+   npm start
+   ```
+   The production server listens on `process.env.PORT` (or `3001`), serves static files from `dist/`, handles SPA client-side routing fallback, and provides the REST API and WebSocket connections.
