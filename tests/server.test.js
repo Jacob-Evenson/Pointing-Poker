@@ -1,5 +1,7 @@
 import request from 'supertest'
 import { createApiApp } from '../server.js'
+import { getRoom } from '../roomStore.js'
+import { subscribeToRoomEvents } from '../roomEvents.js'
 
 describe('GET /api/rooms/:roomCode', () => {
   const app = createApiApp()
@@ -10,6 +12,8 @@ describe('GET /api/rooms/:roomCode', () => {
     expect(response.status).toBe(200)
     expect(response.body).toEqual({
       players: [],
+      hostPlayerId: null,
+      sessionTimer: { elapsedSeconds: 0, running: false, syncedAt: expect.any(Number) },
       stories: [{ title: '', description: '' }],
       votes: {},
       currentStoryIndex: 0,
@@ -190,5 +194,176 @@ describe('room players, stories and votes', () => {
 
     const room = await request(app).get(`/api/rooms/${roomCode}`)
     expect(room.body.stories[0].title).toBe('')
+  })
+})
+
+describe('DELETE /api/rooms/:roomCode/players/:playerId', () => {
+  const app = createApiApp()
+
+  const createRoomWithPlayer = async () => {
+    const { body: { roomCode } } = await request(app).post('/api/rooms')
+    const { body: { player } } = await request(app)
+      .post(`/api/rooms/${roomCode}/players`)
+      .send({ name: 'Sam' })
+    return { roomCode, player }
+  }
+
+  it('removes the player, clears their current and saved votes, and publishes one room event', async () => {
+    const { roomCode, player } = await createRoomWithPlayer()
+    await request(app).post(`/api/rooms/${roomCode}/votes`).send({ playerId: player.id, value: 5 })
+    await request(app).post(`/api/rooms/${roomCode}/votes/reveal`)
+    await request(app).post(`/api/rooms/${roomCode}/stories/next`)
+    await request(app).post(`/api/rooms/${roomCode}/votes`).send({ playerId: player.id, value: 8 })
+
+    const events = []
+    const unsubscribe = subscribeToRoomEvents((eventRoomCode, event) => {
+      events.push({ roomCode: eventRoomCode, event })
+    })
+    try {
+      const response = await request(app).delete(`/api/rooms/${roomCode}/players/${player.id}`)
+
+      expect(response.status).toBe(200)
+      expect(response.body.players).toEqual([])
+      expect(response.body.votes).toEqual({})
+      expect(response.body).not.toHaveProperty('savedVotes')
+      expect(getRoom(roomCode).savedVotes[0].votes).not.toHaveProperty(player.id)
+      expect(events).toEqual([{
+        roomCode,
+        event: { type: 'PLAYER_LEFT', playerId: player.id },
+      }])
+    } finally {
+      unsubscribe()
+    }
+  })
+
+  it('returns 404 for an unknown room or player and does not publish an event', async () => {
+    const { roomCode, player } = await createRoomWithPlayer()
+    const events = []
+    const unsubscribe = subscribeToRoomEvents((eventRoomCode, event) => {
+      events.push({ roomCode: eventRoomCode, event })
+    })
+    try {
+      const unknownRoom = await request(app).delete(`/api/rooms/UNKNOWN-ROOM/players/${player.id}`)
+      const unknownPlayer = await request(app).delete(`/api/rooms/${roomCode}/players/missing-id`)
+
+      expect(unknownRoom.status).toBe(404)
+      expect(unknownPlayer.status).toBe(404)
+      expect(events).toEqual([])
+    } finally {
+      unsubscribe()
+    }
+  })
+
+  it('publishes PLAYER_JOINED only after a player is successfully added', async () => {
+    const { roomCode } = await createRoomWithPlayer()
+    const events = []
+    const unsubscribe = subscribeToRoomEvents((eventRoomCode, event) => {
+      events.push({ roomCode: eventRoomCode, event })
+    })
+    try {
+      const successfulJoin = await request(app)
+        .post(`/api/rooms/${roomCode}/players`)
+        .send({ name: 'Riley' })
+      const failedJoin = await request(app)
+        .post(`/api/rooms/${roomCode}/players`)
+        .send({ name: 'Riley' })
+
+      expect(successfulJoin.status).toBe(201)
+      expect(failedJoin.status).toBe(400)
+      expect(events).toEqual([{
+        roomCode,
+        event: { type: 'PLAYER_JOINED', player: successfulJoin.body.player },
+      }])
+    } finally {
+      unsubscribe()
+    }
+  })
+})
+
+describe('room update events', () => {
+  const app = createApiApp()
+
+  it('publishes room updates for votes, vote visibility, resets, and story changes', async () => {
+    const { body: { roomCode } } = await request(app).post('/api/rooms')
+    const { body: { player } } = await request(app)
+      .post(`/api/rooms/${roomCode}/players`)
+      .send({ name: 'Sam' })
+
+    const events = []
+    const unsubscribe = subscribeToRoomEvents((eventRoomCode, event) => {
+      events.push({ roomCode: eventRoomCode, event })
+    })
+    try {
+      const base = `/api/rooms/${roomCode}`
+      expect((await request(app).post(`${base}/votes`).send({ playerId: player.id, value: 5 })).status).toBe(200)
+      expect((await request(app).post(`${base}/votes/reveal`)).status).toBe(200)
+      expect((await request(app).post(`${base}/votes/hide`)).status).toBe(200)
+      expect((await request(app).post(`${base}/votes/reset`)).status).toBe(200)
+      expect((await request(app).patch(`${base}/stories/current`).send({ title: 'Login' })).status).toBe(200)
+      expect((await request(app).patch(`${base}/stories/current`).send({ description: 'Add login' })).status).toBe(200)
+      expect((await request(app).post(`${base}/stories/next`)).status).toBe(200)
+      expect((await request(app).post(`${base}/stories/previous`)).status).toBe(200)
+      expect((await request(app).post(`${base}/votes`).send({ playerId: player.id, value: 4 })).status).toBe(400)
+      expect((await request(app).patch(`${base}/stories/current`).send({ title: 'x'.repeat(101) })).status).toBe(400)
+
+      expect(events).toEqual([
+        { roomCode, event: { type: 'ROOM_UPDATED', reason: 'VOTE_CAST' } },
+        { roomCode, event: { type: 'ROOM_UPDATED', reason: 'VOTES_REVEALED' } },
+        { roomCode, event: { type: 'ROOM_UPDATED', reason: 'VOTES_HIDDEN' } },
+        { roomCode, event: { type: 'ROOM_UPDATED', reason: 'VOTES_RESET' } },
+        { roomCode, event: { type: 'ROOM_UPDATED', reason: 'STORY_UPDATED' } },
+        { roomCode, event: { type: 'ROOM_UPDATED', reason: 'STORY_UPDATED' } },
+        { roomCode, event: { type: 'ROOM_UPDATED', reason: 'STORY_CHANGED' } },
+        { roomCode, event: { type: 'ROOM_UPDATED', reason: 'STORY_CHANGED' } },
+      ])
+    } finally {
+      unsubscribe()
+    }
+  })
+})
+
+describe('POST /api/rooms/:roomCode/timer', () => {
+  const app = createApiApp()
+
+  it('allows the host to control the shared timer and rejects other players', async () => {
+    const { body: { roomCode } } = await request(app).post('/api/rooms')
+    const host = (await request(app).post(`/api/rooms/${roomCode}/players`).send({ name: 'Host' })).body.player
+    const guest = (await request(app).post(`/api/rooms/${roomCode}/players`).send({ name: 'Guest' })).body.player
+    const events = []
+    const unsubscribe = subscribeToRoomEvents((eventRoomCode, event) => {
+      events.push({ roomCode: eventRoomCode, event })
+    })
+    try {
+      const unauthorized = await request(app)
+        .post(`/api/rooms/${roomCode}/timer`)
+        .send({ playerId: guest.id, action: 'pause' })
+      expect(unauthorized.status).toBe(403)
+
+      const paused = await request(app)
+        .post(`/api/rooms/${roomCode}/timer`)
+        .send({ playerId: host.id, action: 'pause' })
+      expect(paused.status).toBe(200)
+      expect(paused.body.hostPlayerId).toBe(host.id)
+      expect(paused.body.sessionTimer).toEqual({
+        elapsedSeconds: expect.any(Number),
+        running: false,
+        syncedAt: expect.any(Number),
+      })
+
+      const invalidAction = await request(app)
+        .post(`/api/rooms/${roomCode}/timer`)
+        .send({ playerId: host.id, action: 'delete' })
+      const unknownRoom = await request(app)
+        .post('/api/rooms/UNKNOWN-ROOM/timer')
+        .send({ playerId: host.id, action: 'pause' })
+      expect(invalidAction.status).toBe(400)
+      expect(unknownRoom.status).toBe(404)
+      expect(events).toEqual([{
+        roomCode,
+        event: { type: 'ROOM_UPDATED', reason: 'TIMER_UPDATED' },
+      }])
+    } finally {
+      unsubscribe()
+    }
   })
 })

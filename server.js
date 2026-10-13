@@ -1,7 +1,10 @@
 import express from 'express'
+import { createServer } from 'node:http'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import roomsRouter from './routes/rooms.js'
+import { createSocketServer } from './socketServer.js'
+
 import { SESSION_NOT_FOUND_MESSAGE } from './src/validation.js'
 
 export const createApiApp = () => {
@@ -34,7 +37,12 @@ export const createApiApp = () => {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const port = Number(process.env.API_PORT || 3001)
-  createApiApp().listen(port, '127.0.0.1', () => {
+  const app = createApiApp()
+  const server = createServer(app)
+
+  createSocketServer(server)
+
+  server.listen(port, '127.0.0.1', () => {
     console.log(`Room API listening on http://127.0.0.1:${port}`)
   })
 }
