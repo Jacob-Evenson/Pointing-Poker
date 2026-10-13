@@ -2,6 +2,11 @@
 // This Map is the single source of truth for room data while the server is running.
 // If the server restarts, this Map is cleared and all rooms disappear.
 const rooms = new Map()
+//sets the timeout value to 15 seconds for testing. Before going live this needs to be set to 45+ seconds
+const timeoutValue = 86400001 //<--- Ensure this is 45+ seconds before going live or for live
+
+//protecting demo rooms for testing
+const protectedRoomsId = new Set(['JACOBS-26', 'TEAM-42'])
 
 // Creates a new room, stores it in the Map, and returns it.
 export const createRoom = (roomId) => {
@@ -22,6 +27,8 @@ export const createRoom = (roomId) => {
   }
 
   rooms.set(roomId, room)
+  startEmptyRoomTimer(roomId)
+
   return room
 }
 
@@ -31,6 +38,33 @@ export const roomExists = (roomId) => rooms.has(roomId)
 // Returns the room object, or undefined if it does not exist.
 export const getRoom = (roomId) => rooms.get(roomId)
 
+const emptyRoomTimers = new Map()
+
+const startEmptyRoomTimer = (roomId) => {
+  if (protectedRoomsId.has(roomId)) {
+    return
+  }
+  const handle = setTimeout(() => {
+    const room = getRoom(roomId)
+    if (!room) {
+      return
+    }
+    if (room.players.length === 0) {
+      deleteRoom(roomId)
+    }
+  }, timeoutValue)
+
+  emptyRoomTimers.set(roomId, handle)
+}
+
+const cancelEmptyRoomTimer = (roomId) => {
+  const handle = emptyRoomTimers.get(roomId)
+  if (handle) {
+    clearTimeout(handle)
+    emptyRoomTimers.delete(roomId)
+  }
+}
+
 // Adds a player to the room's players array.
 export const addPlayer = (roomId, player) => {
   const room = rooms.get(roomId)
@@ -38,6 +72,7 @@ export const addPlayer = (roomId, player) => {
     return null
   }
 
+  cancelEmptyRoomTimer(roomId)
   room.players.push(player)
   if (!room.hostPlayerId) {
     // The first player to join owns timer controls until they leave.
@@ -69,6 +104,9 @@ export const removePlayer = (roomId, playerId) => {
   Object.values(room.savedVotes).forEach((saved) => {
     delete saved.votes[playerId]
   })
+  if (room.players.length === 0) {
+    startEmptyRoomTimer(roomId)
+  }
   return room
 }
 
