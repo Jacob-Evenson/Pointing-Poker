@@ -23,7 +23,6 @@ const GamePage = () => {
   // The card this browser picked for each story, so it can be shown again when returning to that story.
   const [selectedPoints, setSelectedPoints] = useState({})
   const [sessionCodeCopied, setSessionCodeCopied] = useState(false)
-  const [anonymousReveal, setAnonymousReveal] = useState(false)
   const [storyErrors, setStoryErrors] = useState({ title: null, description: null })
   const [isLeavingRoom, setIsLeavingRoom] = useState(false)
   const [isTimerUpdating, setIsTimerUpdating] = useState(false)
@@ -192,6 +191,8 @@ const GamePage = () => {
     bid: room.votes[player.id],
   }))
   const revealed = room.votesRevealed
+  const anonymousReveal = Boolean(room.anonymousReveal)
+  const setAnonymousReveal = (enabled) => sendToServer('/anonymous', 'POST', { enabled })
   const allVoted = participants.length > 0 && participants.every((participant) => participant.voted)
   const currentParticipant = participants.find((participant) => participant.id === playerId)
   const numericVotes = participants.map((participant) => participant.bid)

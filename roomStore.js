@@ -22,6 +22,7 @@ export const createRoom = (roomId) => {
     votes: {},
     currentStoryIndex: 0,
     votesRevealed: false,
+    anonymousReveal: false,
     savedVotes: {},
     createdAt: new Date()
   }
@@ -209,6 +210,16 @@ export const setVotesRevealed = (roomId, revealed) => {
   }
 
   room.votesRevealed = revealed
+  return room
+}
+
+export const setAnonymousReveal = (roomId, enabled) => {
+  const room = rooms.get(roomId)
+  if (!room) {
+    return null
+  }
+
+  room.anonymousReveal = enabled
   return room
 }
 

@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto'
 import {
   createRoom, getRoom, roomExists, getAllRooms, addPlayer, removePlayer,
   updateCurrentStory, goToPreviousStory, goToNextStory,
-  setVote, setVotesRevealed, resetVotes, getSessionTimer, updateSessionTimer, VALID_VOTES,
+  setVote, setVotesRevealed, setAnonymousReveal, resetVotes, getSessionTimer, updateSessionTimer, VALID_VOTES,
 } from '../roomStore.js'
 import { generateUniqueRoomCode } from '../src/components/roomCode.js'
 import {
@@ -180,6 +180,20 @@ roomsRouter.post('/:roomCode/votes/hide', (request, response) => {
   const room = setVotesRevealed(roomCode, false)
   if (room) {
     publishRoomUpdate(roomCode, 'VOTES_HIDDEN')
+  }
+  respondWithRoom(response, room)
+})
+
+roomsRouter.post('/:roomCode/anonymous', (request, response) => {
+  const roomCode = request.params.roomCode
+  const enabled = request.body?.enabled
+  if (typeof enabled !== 'boolean') {
+    return response.status(400).json({ error: 'Choose a valid anonymous reveal setting.' })
+  }
+
+  const room = setAnonymousReveal(roomCode, enabled)
+  if (room) {
+    publishRoomUpdate(roomCode, 'ANONYMOUS_REVEAL_UPDATED')
   }
   respondWithRoom(response, room)
 })
