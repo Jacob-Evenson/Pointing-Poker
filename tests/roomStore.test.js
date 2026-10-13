@@ -16,6 +16,7 @@ describe('roomStore', () => {
       votes: {},
       currentStoryIndex: 0,
       votesRevealed: false,
+      anonymousReveal: false,
       savedVotes: {},
       createdAt: expect.any(Date)
     })

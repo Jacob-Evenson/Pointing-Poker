@@ -18,6 +18,7 @@ describe('GET /api/rooms/:roomCode', () => {
       votes: {},
       currentStoryIndex: 0,
       votesRevealed: false,
+      anonymousReveal: false,
       createdAt: expect.any(String),
       roomCode,
     })
@@ -315,6 +316,32 @@ describe('room update events', () => {
         { roomCode, event: { type: 'ROOM_UPDATED', reason: 'STORY_UPDATED' } },
         { roomCode, event: { type: 'ROOM_UPDATED', reason: 'STORY_CHANGED' } },
         { roomCode, event: { type: 'ROOM_UPDATED', reason: 'STORY_CHANGED' } },
+      ])
+    } finally {
+      unsubscribe()
+    }
+  })
+})
+
+describe('POST /api/rooms/:roomCode/anonymous', () => {
+  const app = createApiApp()
+
+  it('stores the shared setting, publishes an update, and validates input', async () => {
+    const { body: { roomCode } } = await request(app).post('/api/rooms')
+    const base = `/api/rooms/${roomCode}`
+    const events = []
+    const unsubscribe = subscribeToRoomEvents((eventRoomCode, event) => {
+      events.push({ roomCode: eventRoomCode, event })
+    })
+    try {
+      const on = await request(app).post(`${base}/anonymous`).send({ enabled: true })
+      expect(on.status).toBe(200)
+      expect(on.body.anonymousReveal).toBe(true)
+      expect((await request(app).get(base)).body.anonymousReveal).toBe(true)
+      expect((await request(app).post(`${base}/anonymous`).send({ enabled: 'yes' })).status).toBe(400)
+      expect((await request(app).post('/api/rooms/NOPE-00/anonymous').send({ enabled: true })).status).toBe(404)
+      expect(events).toEqual([
+        { roomCode, event: { type: 'ROOM_UPDATED', reason: 'ANONYMOUS_REVEAL_UPDATED' } },
       ])
     } finally {
       unsubscribe()
