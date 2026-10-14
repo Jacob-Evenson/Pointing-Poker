@@ -132,6 +132,8 @@ const PointingPokerHomePage = () => {
                 setSessionCode(event.target.value)
                 setJoinRoomError(null)
               }}
+              autoComplete="off"
+              spellCheck="false"
               aria-invalid={Boolean(joinRoomError)}
               aria-describedby={joinRoomError ? 'session-code-error' : undefined}
               disabled={isJoiningRoom}

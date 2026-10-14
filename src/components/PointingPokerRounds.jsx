@@ -18,11 +18,11 @@ const PointingPokerRounds = ({
   return (
     <div className="pointing-poker-rounds">
       <div className="story-navigation">
-        <button onClick={onPreviousStory} disabled={currentStoryIndex === 0}>
+        <button type="button" onClick={onPreviousStory} disabled={currentStoryIndex === 0}>
           Previous Story
         </button>
-        <span>Story {currentStoryIndex + 1} of {stories.length}</span>
-        <button onClick={onNextStory}>Next Story</button>
+        <span aria-live="polite">Story {currentStoryIndex + 1} of {stories.length}</span>
+        <button type="button" onClick={onNextStory}>Next Story</button>
       </div>
 
       <StoryCard

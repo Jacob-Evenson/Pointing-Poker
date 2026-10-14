@@ -9,6 +9,7 @@ const StoryCard = ({ story, titleError, descriptionError, onTitleChange, onDescr
       <input
         id="story-title"
         type="text"
+        autoComplete="off"
         maxLength={STORY_TITLE_MAX_LENGTH}
         value={story.title}
         onChange={(event) => onTitleChange(event.target.value)}
@@ -20,6 +21,7 @@ const StoryCard = ({ story, titleError, descriptionError, onTitleChange, onDescr
       <label htmlFor="story-description">Story Description</label>
       <textarea
         id="story-description"
+        aria-label="Story description"
         value={story.description}
         onChange={(event) => onDescriptionChange(event.target.value)}
         rows="2"

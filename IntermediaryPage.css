@@ -78,6 +78,11 @@
   outline: none;
 }
 
+.username-input:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
 .join-session-button {
   width: 100%;
   height: 3.25rem;

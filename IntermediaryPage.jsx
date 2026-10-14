@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import './src/PointingPokerHomePage.css'
 import './IntermediaryPage.css'
@@ -10,6 +10,10 @@ const IntermediaryPage = () => {
   const [username, setUsername] = useState('')
   const [joinError, setJoinError] = useState(null)
   const { roomCode } = useParams()
+
+  useEffect(() => {
+    document.title = 'Join Pointing Poker session'
+  }, [])
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -35,7 +39,7 @@ const IntermediaryPage = () => {
 
       sessionStorage.setItem(`playerId:${roomCode}`, data.player.id)
       navigate(`/room/${encodeURIComponent(roomCode)}`)
-    } catch (err) {
+    } catch {
       setJoinError('Something went wrong. Please try again.')
     }
   }
@@ -79,7 +83,7 @@ const IntermediaryPage = () => {
                 }}
                 autoComplete="name"
                 aria-invalid={Boolean(joinError)}
-                aria-describedby="username-error"
+                aria-describedby={joinError ? 'username-error' : undefined}
               />
             </div>
             <p id="username-error" className="field-error" role={joinError ? 'alert' : undefined}>{joinError}</p>

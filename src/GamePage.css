@@ -64,7 +64,8 @@ p {
 
 a:focus-visible,
 button:focus-visible,
-input:focus-visible {
+input:focus-visible,
+textarea:focus-visible {
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }
@@ -561,6 +562,11 @@ input:focus-visible {
   opacity: .55;
 }
 
+.vote-visibility-toggle input:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
 .participant-list,
 .anonymous-results ul {
   display: grid;
@@ -666,6 +672,17 @@ input:focus-visible {
   margin: .25rem 0;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
 @media (max-width: 760px) {
   .game-shell {
     width: min(100% - 2rem, 680px);
@@ -755,4 +772,14 @@ input:focus-visible {
 .point-card p,
 .point-card span {
   color: var(--sage-900) !important;
+}
+
+.point-card[aria-pressed='true'] {
+  background: var(--sage-200) !important;
+  border-color: var(--clay-700);
+  box-shadow: 0 0 0 3px rgb(107 74 40 / 20%);
+}
+
+.point-card[aria-pressed='true']:focus-visible {
+  outline-offset: 4px;
 }

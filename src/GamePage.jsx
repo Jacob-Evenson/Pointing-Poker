@@ -364,7 +364,12 @@ const GamePage = () => {
           </div>
           <div className="point-card-grid">
             {points.map((point) => (
-              <PointCard key={point.value} point={point} onSelect={handlePointSelect} />
+              <PointCard
+                key={point.value}
+                point={point}
+                selected={selectedPoint?.value === point.value}
+                onSelect={handlePointSelect}
+              />
             ))}
           </div>
           <SelectedPoint point={selectedPoint} voted={Boolean(currentParticipant?.voted)} />

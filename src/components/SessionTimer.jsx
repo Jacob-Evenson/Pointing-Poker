@@ -26,8 +26,17 @@ const SessionTimer = ({ timer, isHost, onAction, isUpdating }) => {
 
   return (
     <div className="timer-controls">
-      <p className="timer-value" aria-label="Session time">{minutes}:{remainingSeconds}</p>
-      <span className="timer-host-note">{running ? 'Timer running' : 'Timer paused'}</span>
+      <p
+        className="timer-value"
+        role="timer"
+        aria-label="Session time"
+        aria-valuetext={`${minutes} minutes, ${remainingSeconds} seconds`}
+      >
+        {minutes}:{remainingSeconds}
+      </p>
+      <span className="timer-host-note" role="status">
+        {running ? 'Timer running' : 'Timer paused'}
+      </span>
       {isHost ? (
         <>
           <button
