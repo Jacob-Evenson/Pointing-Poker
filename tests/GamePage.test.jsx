@@ -133,6 +133,11 @@ describe('GamePage', () => {
     await waitFor(() => expect(MockWebSocket.instances).toHaveLength(1))
     const socket = MockWebSocket.instances[0]
     socket.dispatch('open')
+    expect(JSON.parse(socket.sent[0])).toEqual({
+      type: 'JOIN_ROOM',
+      roomCode,
+      playerId: myId,
+    })
 
     const joinedResponse = await fakeFetch(`/api/rooms/${roomCode}/players`, {
       method: 'POST',

@@ -3,7 +3,7 @@ import { createServer } from 'node:http'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { WebSocket } from 'ws'
 import { createSocketServer } from '../socketServer.js'
-import { createRoom, deleteRoom } from '../roomStore.js'
+import { addPlayer, createRoom, deleteRoom, getRoom } from '../roomStore.js'
 import { publishRoomEvent } from '../roomEvents.js'
 
 const clients = []
@@ -31,7 +31,7 @@ const openSocketServer = async () => {
   return `ws://127.0.0.1:${port}`
 }
 
-const joinRoom = async (url, roomCode) => {
+const joinRoom = async (url, roomCode, playerId) => {
   const socket = new WebSocket(url)
   clients.push(socket)
   await new Promise((resolve, reject) => {
@@ -39,7 +39,7 @@ const joinRoom = async (url, roomCode) => {
     socket.once('error', reject)
   })
 
-  socket.send(JSON.stringify({ type: 'JOIN_ROOM', roomCode }))
+  socket.send(JSON.stringify({ type: 'JOIN_ROOM', roomCode, playerId }))
   const joined = waitForMessage(socket)
   socket.send(JSON.stringify({ type: 'TEST_BROADCAST', message: 'joined' }))
   expect(await joined).toEqual({ type: 'TEST_BROADCAST', message: 'joined' })
@@ -141,5 +141,38 @@ describe('socketServer room events', () => {
     publishRoomEvent('SOCKET-ROOM-A', { type: 'PLAYER_LEFT', playerId: 'player-a' })
 
     expect(send).not.toHaveBeenCalled()
+  })
+
+  it('removes a player and publishes PLAYER_LEFT when their last socket disconnects', async () => {
+    createRoom('SOCKET-ROOM-A')
+    const player = { id: 'player-a', name: 'Sam' }
+    const observer = { id: 'player-b', name: 'Riley' }
+    addPlayer('SOCKET-ROOM-A', player)
+    addPlayer('SOCKET-ROOM-A', observer)
+    const url = await openSocketServer()
+    const playerSocket = await joinRoom(url, 'SOCKET-ROOM-A', player.id)
+    const observerSocket = await joinRoom(url, 'SOCKET-ROOM-A', observer.id)
+    const playerLeft = waitForMessage(observerSocket)
+
+    playerSocket.close()
+
+    expect(await playerLeft).toEqual({ type: 'PLAYER_LEFT', playerId: player.id })
+    expect(getRoom('SOCKET-ROOM-A').players).toEqual([observer])
+  })
+
+  it('keeps the player in the room while another socket for them is connected', async () => {
+    createRoom('SOCKET-ROOM-A')
+    const player = { id: 'player-a', name: 'Sam' }
+    addPlayer('SOCKET-ROOM-A', player)
+    const url = await openSocketServer()
+    const firstSocket = await joinRoom(url, 'SOCKET-ROOM-A', player.id)
+    const secondSocket = await joinRoom(url, 'SOCKET-ROOM-A', player.id)
+    const firstSocketClosed = new Promise((resolve) => firstSocket.once('close', resolve))
+
+    firstSocket.close()
+    await firstSocketClosed
+
+    expect(getRoom('SOCKET-ROOM-A').players).toEqual([player])
+    expect(secondSocket.readyState).toBe(WebSocket.OPEN)
   })
 })

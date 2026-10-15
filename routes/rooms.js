@@ -1,7 +1,7 @@
 import express, { Router } from 'express'
 import { randomUUID } from 'node:crypto'
 import {
-  createRoom, getRoom, roomExists, getAllRooms, addPlayer, removePlayer,
+  createRoom, getRoom, roomExists, getAllRooms, addPlayer,
   updateCurrentStory, goToPreviousStory, goToNextStory,
   setVote, setVotesRevealed, setAnonymousReveal, resetVotes, getSessionTimer, updateSessionTimer, VALID_VOTES,
 } from '../roomStore.js'
@@ -10,6 +10,7 @@ import {
   SESSION_NOT_FOUND_MESSAGE, validateUsername, validateStoryTitle, validateStoryDescription,
 } from '../src/validation.js'
 import { publishRoomEvent } from '../roomEvents.js'
+import { removePlayerFromRoom } from '../roomMembership.js'
 
 // Seed the demo rooms in the shared room store if they don't exist yet.
 if (!roomExists('JACOBS-26')) {
@@ -88,15 +89,11 @@ roomsRouter.post('/:roomCode/players', (request, response) => {
 
 roomsRouter.delete('/:roomCode/players/:playerId', (request, response) => {
   const { roomCode, playerId } = request.params
-  const room = removePlayer(roomCode, playerId)
+  const room = removePlayerFromRoom(roomCode, playerId)
   if (!room) {
     return response.status(404).json({ error: SESSION_NOT_FOUND_MESSAGE })
   }
 
-  publishRoomEvent(roomCode, {
-    type: 'PLAYER_LEFT',
-    playerId,
-  })
   return response.json(toRoomResponse(room))
 })
 
