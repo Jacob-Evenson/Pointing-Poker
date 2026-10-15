@@ -203,6 +203,42 @@ describe('GamePage', () => {
     })
   })
 
+  it('celebrates unanimous votes only when they are revealed', async () => {
+    const { fakeFetch } = await renderGamePage()
+    await vote(5)
+
+    const room = await (await fakeFetch(`/api/rooms/${roomCode}`)).json()
+    const riley = room.players.find((player) => player.name === 'Riley')
+    await fakeFetch(`/api/rooms/${roomCode}/votes`, {
+      method: 'POST',
+      body: JSON.stringify({ playerId: riley.id, value: 5 }),
+    })
+
+    expect(screen.queryByTestId('confetti-overlay')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('switch', { name: 'Show votes and statistics' }))
+
+    const confetti = await screen.findByTestId('confetti-overlay')
+    expect(confetti.children).toHaveLength(100)
+  })
+
+  it('does not celebrate votes that do not agree', async () => {
+    const { fakeFetch } = await renderGamePage()
+    await vote(5)
+
+    const room = await (await fakeFetch(`/api/rooms/${roomCode}`)).json()
+    const riley = room.players.find((player) => player.name === 'Riley')
+    await fakeFetch(`/api/rooms/${roomCode}/votes`, {
+      method: 'POST',
+      body: JSON.stringify({ playerId: riley.id, value: 8 }),
+    })
+
+    fireEvent.click(screen.getByRole('switch', { name: 'Show votes and statistics' }))
+
+    await waitFor(() => expect(screen.getByRole('switch', { name: 'Hide votes and statistics' })).toBeChecked())
+    expect(screen.queryByTestId('confetti-overlay')).not.toBeInTheDocument()
+  })
+
   it('leaves the room through the API and navigates home only on success', async () => {
     const { fakeFetch } = await renderGamePage()
     await waitFor(() => expect(MockWebSocket.instances).toHaveLength(1))
