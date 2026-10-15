@@ -1,24 +1,28 @@
 import { WebSocket, WebSocketServer } from 'ws'
 import { getRoom } from './roomStore.js'
 import { subscribeToRoomEvents } from './roomEvents.js'
+import { removePlayerFromRoom } from './roomMembership.js'
 
 const removeSocketFromRoom = (socket, rooms) => {
   if (!socket.roomCode) {
-    return
+    return null
   }
 
   const roomCode = socket.roomCode
+  const playerId = socket.playerId
   const roomSockets = rooms.get(roomCode)
   socket.roomCode = undefined
+  socket.playerId = undefined
 
   if (!roomSockets) {
-    return
+    return { roomCode, playerId }
   }
 
   roomSockets.delete(socket)
   if (roomSockets.size === 0) {
     rooms.delete(roomCode)
   }
+  return { roomCode, playerId }
 }
 
 export const createSocketServer = (server) => {
@@ -76,8 +80,19 @@ export const createSocketServer = (server) => {
           return
         }
 
+        if (
+          message.playerId !== undefined
+          && (
+            typeof message.playerId !== 'string'
+            || !room.players.some((player) => player.id === message.playerId)
+          )
+        ) {
+          return
+        }
+
         removeSocketFromRoom(socket, rooms)
         socket.roomCode = message.roomCode
+        socket.playerId = message.playerId
 
         if (!rooms.has(message.roomCode)) {
           rooms.set(message.roomCode, new Set())
@@ -108,7 +123,17 @@ export const createSocketServer = (server) => {
 
     socket.on('close', () => {
       console.log('WebSocket client disconnected')
-      removeSocketFromRoom(socket, rooms)
+      const disconnectedPlayer = removeSocketFromRoom(socket, rooms)
+      if (!disconnectedPlayer?.playerId) {
+        return
+      }
+
+      const remainingSockets = rooms.get(disconnectedPlayer.roomCode)
+      const playerStillConnected = remainingSockets
+        && [...remainingSockets].some((client) => client.playerId === disconnectedPlayer.playerId)
+      if (!playerStillConnected) {
+        removePlayerFromRoom(disconnectedPlayer.roomCode, disconnectedPlayer.playerId)
+      }
     })
   })
   // Release the event-bus subscription when this server instance shuts down.

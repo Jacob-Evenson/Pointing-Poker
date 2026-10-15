@@ -1,36 +1,44 @@
-# React + Vite
+# Pointing Poker
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Pointing Poker is a real-time collaborative estimation web application for software development teams. Players create or join rooms, edit user stories, submit Planning Poker estimates, and review team results without refreshing the page.
 
-Currently, two official plugins are available:
+Built by the **Jacobs Minions IT Project Management Team** as an educational class project.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+* Create and join rooms using unique session codes.
+* Enter a display name and view connected players.
+* Edit story titles and descriptions, with automatic saving while navigating between stories.
+* Navigate between previous and next stories, creating new stories as needed.
+* Submit private Planning Poker votes: `0`, `1`, `2`, `3`, `5`, `8`, `13`, or `?`.
+* Reveal, hide, and reset votes, with an anonymous reveal option.
+* View voting status and estimate statistics, including low, average, and high values.
+* Control a shared session timer.
+* Synchronize player, story, vote, and timer updates in real time.
+* Use a responsive, consistent interface.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## Technology Stack
 
-Note: This will impact Vite dev & build performances.
-You can also try [the experimental native React Compiler support in plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#rust-react-compiler) by using `compiler: true` in the plugin options instead of using the Babel plugin.
+* **Frontend:** React, JavaScript, HTML, CSS, Vite
+* **Backend:** Node.js, Express
+* **Real-time communication:** WebSockets (`ws`)
+* **Storage:** Server-side in-memory JavaScript `Map`
 
-## Expanding the Oxlint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+### Requirements
 
-## Pointing Poker application
+Install [Node.js](https://nodejs.org/) and npm.
 
-Pointing Poker is a React application for estimating work together. Players join
-a room using its session code, vote on the current story, and see room changes
-without refreshing the page.
+### Installation
 
-### Run locally
-
-Install dependencies:
+Clone the repository, navigate to the project directory, and install dependencies:
 
 ```sh
 npm install
 ```
+
+### Run the Application
 
 Start the API and WebSocket server in one terminal:
 
@@ -38,66 +46,109 @@ Start the API and WebSocket server in one terminal:
 npm run api
 ```
 
-Start the Vite development server in another terminal:
+Start the Vite development server in a second terminal:
 
 ```sh
 npm run dev
 ```
 
-Open the local URL printed by Vite. Its `/api` requests are proxied to the
-Express server at `http://127.0.0.1:3001`, which also hosts the WebSocket server.
+Open the local URL printed by Vite. API requests under `/api` are proxied to the Express server at `http://127.0.0.1:3001`, which also hosts the WebSocket server.
 
-### Room and synchronization model
+### Run Project Checks
 
-The Express API is authoritative for room state. The in-memory room store holds
-players, stories, votes, reveal state, host identity, and timer state. Rooms are
-not persisted: restarting the API clears rooms created since startup. The
-`JACOBS-26` and `TEAM-42` demo rooms are initialized when the API starts.
-
-Clients fetch room state through the REST API. After a successful mutation, the
-API publishes a room-scoped event. The WebSocket server forwards that event only
-to clients that joined the matching room code. Events notify clients that state
-changed; clients fetch the latest room from REST rather than applying a second,
-potentially stale copy of game state.
-
-Current event types:
-
-- `PLAYER_JOINED` includes the newly joined player.
-- `PLAYER_LEFT` includes the ID of the player who left.
-- `ROOM_UPDATED` indicates a vote, vote visibility/reset, story, navigation, or
-  timer change. Its `reason` identifies the kind of update, such as
-  `VOTE_CAST`, `VOTES_REVEALED`, `STORY_UPDATED`, or `TIMER_UPDATED`.
-
-Room-specific mutations include:
-
-- `POST /api/rooms/:roomCode/players` to join.
-- `DELETE /api/rooms/:roomCode/players/:playerId` to leave.
-- `POST /api/rooms/:roomCode/votes` to submit a vote.
-- `POST /api/rooms/:roomCode/votes/reveal`, `/hide`, and `/reset` to manage
-  voting visibility and reset votes.
-- `PATCH /api/rooms/:roomCode/stories/current` to edit the current story.
-- `POST /api/rooms/:roomCode/stories/previous` and `/next` to navigate stories.
-- `POST /api/rooms/:roomCode/timer` to control the shared session timer.
-
-### Session host and timer
-
-The first player added to a room becomes its host. This is normally the person
-who created the room and then joined it, but the application does not separately
-record or verify who created the room. Only the current host can start, pause,
-or reset the shared timer; timer changes are checked by the API. If the host
-leaves, the next player in the room becomes the host. If no players remain, the
-timer pauses and a future first player becomes the new host.
-
-Timer elapsed time is tracked by the server and returned as room state. Browser
-clients display a local ticking view based on the latest server response.
-
-### Project checks
+Run the automated tests once:
 
 ```sh
 npm run test:run
+```
+
+Run the linter:
+
+```sh
 npm run lint
+```
+
+Build the production frontend:
+
+```sh
 npm run build
 ```
 
-`npm run test` starts Vitest in watch mode; `npm run test:run` runs the tests
-once.
+Use `npm run test` to run Vitest in watch mode.
+
+## How It Works
+
+### Room and Session Flow
+
+1. A user creates a session or enters an existing room code.
+2. The API creates a unique room or validates the requested code.
+3. The user enters a display name and joins the room.
+4. Players collaborate on stories, vote, reveal results, and manage the session timer.
+
+The demo rooms `JACOBS-26` and `TEAM-42` are initialized when the API starts.
+
+### Room State and Synchronization
+
+The Express API is authoritative for room state, including players, stories, votes, vote visibility, host identity, and timer state.
+
+Clients retrieve the latest room state through the REST API. After a successful mutation, the server publishes a room-scoped WebSocket event. Only clients connected to the matching room receive the event. Clients then fetch the latest room state through REST, avoiding a separate, potentially stale copy of game state.
+
+Key event types include:
+
+* `PLAYER_JOINED` — a player joins the room.
+* `PLAYER_LEFT` — a player leaves the room.
+* `ROOM_UPDATED` — a story, vote, reveal state, navigation, or timer changes. The event's `reason` identifies the update type.
+
+Closing a player's browser or losing its WebSocket connection removes that player from the room just like using the **Leave Room** button. If the player has another active connection to the same room, they remain in the room until their last connection closes.
+
+### API Endpoints
+
+All endpoints are prefixed with `/api/rooms/:roomCode`.
+
+| Method   | Endpoint                                 | Purpose                        |
+| -------- | ---------------------------------------- | ------------------------------ |
+| `GET`    | `/api/rooms/:roomCode`                   | Retrieve room state            |
+| `POST`   | `/api/rooms/:roomCode/players`           | Add a player                   |
+| `DELETE` | `/api/rooms/:roomCode/players/:playerId` | Remove a player                |
+| `POST`   | `/api/rooms/:roomCode/votes`             | Submit a vote                  |
+| `POST`   | `/api/rooms/:roomCode/votes/reveal`      | Reveal votes                   |
+| `POST`   | `/api/rooms/:roomCode/votes/hide`        | Hide votes                     |
+| `POST`   | `/api/rooms/:roomCode/votes/reset`       | Reset votes                    |
+| `PATCH`  | `/api/rooms/:roomCode/stories/current`   | Update the current story       |
+| `POST`   | `/api/rooms/:roomCode/stories/previous`  | Navigate to the previous story |
+| `POST`   | `/api/rooms/:roomCode/stories/next`      | Navigate to the next story     |
+| `POST`   | `/api/rooms/:roomCode/timer`             | Control the shared timer       |
+
+Invalid room codes return a `404 Not Found` response.
+
+### Host and Timer Behavior
+
+The first player to join a room becomes its host. Only the current host can start, pause, or reset the shared timer, and the API validates these actions.
+
+If the host leaves, the next player becomes the host. If no players remain, the timer pauses, and the next player to join becomes the host.
+
+The server tracks elapsed time. Clients display a locally ticking timer based on the latest server response.
+
+## Storage and Limitations
+
+Room data is stored in memory and is not persisted to a database. Restarting the API clears rooms created since startup; the two demo rooms are initialized again.
+
+The application does not yet include persistent session history or a separate record verifying who originally created a room.
+
+## Future Improvements
+
+Potential enhancements include:
+
+* Database-backed persistent storage and session history.
+* User accounts and authentication.
+* Importing stories from project-management tools.
+* Additional Planning Poker card sets.
+* Improved mobile support.
+* Expanded host permissions and room settings.
+* Exportable estimation results.
+
+## License
+
+Created for educational purposes.
+
+© 2026 Jacobs Minions. All rights reserved.
