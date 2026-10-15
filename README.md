@@ -38,8 +38,6 @@ Clone the repository, navigate to the project directory, and install dependencie
 npm install
 ```
 
-### Run the Application
-
 Start the API and WebSocket server in one terminal:
 
 ```sh
