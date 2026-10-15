@@ -275,7 +275,7 @@ input:focus-visible {
 .session-metrics {
   display: grid;
   margin-top: auto;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: .5rem;
 }
 
@@ -675,10 +675,6 @@ input:focus-visible {
   .results-grid,
   .results-grid.results-with-stats {
     grid-template-columns: 1fr;
-  }
-
-  .session-metrics {
-    grid-template-columns: minmax(100px, .7fr) minmax(0, 1.3fr);
   }
 
   .point-card-grid {
