@@ -11,7 +11,7 @@ const PointCard = ({ point, onSelect }) => {
     >
       <h3>{point.title}</h3>
       <p>{point.description}</p>
-      <span>{pointLabel}</span>
+      {/* <span>{pointLabel}</span> */}
     </button>
   );
 };
