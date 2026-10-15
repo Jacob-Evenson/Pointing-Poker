@@ -12,6 +12,7 @@ Built by the **Jacobs Minions IT Project Management Team** as an educational cla
 * Navigate between previous and next stories, creating new stories as needed.
 * Submit private Planning Poker votes: `0`, `1`, `2`, `3`, `5`, `8`, `13`, or `?`.
 * Reveal, hide, and reset votes, with an anonymous reveal option.
+* Celebrate unanimous estimates with a full-screen confetti effect when votes are revealed.
 * View voting status and estimate statistics, including low, average, and high values.
 * Control a shared session timer.
 * Synchronize player, story, vote, and timer updates in real time.

@@ -8,6 +8,7 @@ import ParticipantList from './components/ParticipantList.jsx'
 import PointingPokerRounds from './components/PointingPokerRounds.jsx'
 import SessionTimer from './components/SessionTimer.jsx'
 import VoteStats from './components/VoteStats.jsx'
+import Confetti from './components/Confetti.jsx'
 import { points } from './data/points.js'
 import { validateStoryTitle, validateStoryDescription } from './validation.js'
 
@@ -26,9 +27,43 @@ const GamePage = () => {
   const [storyErrors, setStoryErrors] = useState({ title: null, description: null })
   const [isLeavingRoom, setIsLeavingRoom] = useState(false)
   const [isTimerUpdating, setIsTimerUpdating] = useState(false)
+  const [confettiRun, setConfettiRun] = useState(0)
   const leavingRef = useRef(false)
   const roomRefreshId = useRef(0)
+  const consensusTracker = useRef({ storyIndex: null, triggered: false })
   const playerIsInRoom = Boolean(room?.players.some((player) => player.id === playerId))
+
+  useEffect(() => {
+    if (!room) {
+      return
+    }
+
+    const hasPlayers = room.players.length > 0
+    const allPlayersVoted = hasPlayers
+      && room.players.every((player) => Object.hasOwn(room.votes, player.id))
+    const firstVote = room.players.length > 0 ? room.votes[room.players[0].id] : undefined
+    const consensusReached = room.votesRevealed
+      && allPlayersVoted
+      && room.players.every((player) => room.votes[player.id] === firstVote)
+    const tracker = consensusTracker.current
+
+    if (tracker.storyIndex !== room.currentStoryIndex) {
+      tracker.storyIndex = room.currentStoryIndex
+      tracker.triggered = consensusReached
+      return
+    }
+
+    if (!allPlayersVoted) {
+      tracker.triggered = false
+    } else if (room.votesRevealed) {
+      if (consensusReached && !tracker.triggered) {
+        tracker.triggered = true
+        setConfettiRun((run) => run + 1)
+      } else if (!consensusReached) {
+        tracker.triggered = false
+      }
+    }
+  }, [room])
 
   const refreshRoom = useCallback(async () => {
     const refreshId = ++roomRefreshId.current
@@ -276,6 +311,7 @@ const GamePage = () => {
 
   return (
     <div className="game-page">
+      <Confetti run={confettiRun} onComplete={() => setConfettiRun(0)} />
       <a className="skip-link" href="#main-content">Skip to main content</a>
 
       <header className="game-header">
