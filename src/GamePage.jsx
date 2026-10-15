@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import './GamePage.css'
 import pointingPokerLogoCrop from './assets/pointing-poker-logo-crop.png'
@@ -9,6 +9,9 @@ import PointingPokerRounds from './components/PointingPokerRounds.jsx'
 import SessionTimer from './components/SessionTimer.jsx'
 import VoteStats from './components/VoteStats.jsx'
 import { points } from './data/points.js'
+import { validateStoryTitle, validateStoryDescription } from './validation.js'
+
+const SAFE_ERROR = 'Something went wrong. Please try again.'
 
 const GamePage = () => {
   const navigate = useNavigate()
@@ -20,7 +23,37 @@ const GamePage = () => {
   // The card this browser picked for each story, so it can be shown again when returning to that story.
   const [selectedPoints, setSelectedPoints] = useState({})
   const [sessionCodeCopied, setSessionCodeCopied] = useState(false)
-  const [anonymousReveal, setAnonymousReveal] = useState(false)
+  const [storyErrors, setStoryErrors] = useState({ title: null, description: null })
+  const [isLeavingRoom, setIsLeavingRoom] = useState(false)
+  const [isTimerUpdating, setIsTimerUpdating] = useState(false)
+  const leavingRef = useRef(false)
+  const roomRefreshId = useRef(0)
+  const playerIsInRoom = Boolean(room?.players.some((player) => player.id === playerId))
+
+  const refreshRoom = useCallback(async () => {
+    const refreshId = ++roomRefreshId.current
+    try {
+      const response = await fetch(roomUrl)
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || SAFE_ERROR)
+      }
+      if (refreshId !== roomRefreshId.current) {
+        return
+      }
+
+      setRoom(data)
+      setLoadError(null)
+      if (!data.players.some((player) => player.id === playerId) && !leavingRef.current) {
+        navigate(`/room/${encodeURIComponent(sessionCode)}/join`, { replace: true })
+      }
+    } catch (err) {
+      console.error('Failed to refresh room:', err)
+      if (refreshId === roomRefreshId.current) {
+        setLoadError(err instanceof SyntaxError || err instanceof TypeError ? SAFE_ERROR : err.message)
+      }
+    }
+  }, [navigate, playerId, roomUrl, sessionCode])
 
   // Sends a request to the server and shows the updated room it sends back.
   const sendToServer = async (path, method = 'POST', body) => {
@@ -32,34 +65,111 @@ const GamePage = () => {
       })
       const data = await response.json()
       if (!response.ok) {
-        throw new Error(data.error || 'Request failed')
+        throw new Error(data.error || SAFE_ERROR)
       }
       setRoom(data)
+      setLoadError(null)
     } catch (err) {
-      setLoadError(err.message)
+      console.error(`Failed to send ${method} request for ${path}:`, err)
+      setLoadError(err instanceof SyntaxError || err instanceof TypeError ? SAFE_ERROR : err.message)
     }
   }
 
   useEffect(() => {
+    let active = true
     const loadRoom = async () => {
       try {
         const response = await fetch(roomUrl)
         const data = await response.json()
         if (!response.ok) {
-          throw new Error(data.error || 'Failed to load room')
+          throw new Error(data.error || SAFE_ERROR)
         }
-        if (!data.players.some((player) => player.id === playerId)) {
-          navigate(`/room/${encodeURIComponent(sessionCode)}/join`, { replace: true })
+        if (!active) {
           return
         }
+
         setRoom(data)
-      } catch (err) {
-        setLoadError(err.message)
+        setLoadError(null)
+        if (!data.players.some((player) => player.id === playerId)) {
+          navigate(`/room/${encodeURIComponent(sessionCode)}/join`, { replace: true })
+        }
+      } catch (error) {
+        console.error('Failed to load room:', error)
+        if (active) {
+          setLoadError(error instanceof SyntaxError || error instanceof TypeError ? SAFE_ERROR : error.message)
+        }
       }
     }
 
     loadRoom()
-  }, [roomUrl, playerId, sessionCode, navigate])
+    return () => {
+      active = false
+    }
+  }, [navigate, playerId, roomUrl, sessionCode])
+
+  useEffect(() => {
+    // Wait for the initial REST response to confirm this browser joined the room.
+    if (!playerIsInRoom) {
+      return undefined
+    }
+
+    let socket
+    try {
+      socket = new WebSocket('ws://127.0.0.1:3001')
+    } catch (error) {
+      console.error('Failed to connect to room WebSocket:', error)
+      return undefined
+    }
+
+    const handleOpen = () => {
+      socket.send(JSON.stringify({
+        type: 'JOIN_ROOM',
+        roomCode: sessionCode,
+        playerId,
+      }))
+      console.log(`Connected to WebSocket room ${sessionCode}`)
+    }
+    const handleMessage = (event) => {
+      let message
+      try {
+        message = JSON.parse(event.data)
+      } catch (error) {
+        console.error('Ignoring malformed room WebSocket message:', error)
+        return
+      }
+      if (!message || typeof message !== 'object') {
+        return
+      }
+
+      if (
+        message.type === 'PLAYER_JOINED'
+        || message.type === 'PLAYER_LEFT'
+        || message.type === 'ROOM_UPDATED'
+      ) {
+        if (message.type === 'PLAYER_LEFT' && message.playerId === playerId && leavingRef.current) {
+          return
+        }
+        // Read the latest authoritative state, including concurrent room changes.
+        refreshRoom()
+      }
+    }
+    const handleError = (error) => {
+      console.error('WebSocket error:', error)
+    }
+
+    socket.addEventListener('open', handleOpen)
+    socket.addEventListener('message', handleMessage)
+    socket.addEventListener('error', handleError)
+
+    return () => {
+      roomRefreshId.current += 1
+      socket.removeEventListener('open', handleOpen)
+      socket.removeEventListener('message', handleMessage)
+      socket.removeEventListener('error', handleError)
+      // Close this room connection on unmount or when room membership changes.
+      socket.close()
+    }
+  }, [playerId, playerIsInRoom, refreshRoom, sessionCode])
 
   useEffect(() => {
     document.title = 'Pointing Poker, Team Collaboration simplified'
@@ -82,6 +192,8 @@ const GamePage = () => {
     bid: room.votes[player.id],
   }))
   const revealed = room.votesRevealed
+  const anonymousReveal = Boolean(room.anonymousReveal)
+  const setAnonymousReveal = (enabled) => sendToServer('/anonymous', 'POST', { enabled })
   const allVoted = participants.length > 0 && participants.every((participant) => participant.voted)
   const currentParticipant = participants.find((participant) => participant.id === playerId)
   const numericVotes = participants.map((participant) => participant.bid)
@@ -93,26 +205,72 @@ const GamePage = () => {
   }
 
   const handleStoryEdit = (field, value) => {
-    // Update the screen right away so typing feels smooth, then tell the server.
+    const error = field === 'title' ? validateStoryTitle(value) : validateStoryDescription(value)
+    setStoryErrors((current) => ({ ...current, [field]: error }))
+
+    // Update the screen right away so typing feels smooth.
     setRoom((currentRoom) => ({
       ...currentRoom,
       stories: currentRoom.stories.map((story, index) => (
         index === currentRoom.currentStoryIndex ? { ...story, [field]: value } : story
       )),
     }))
-    fetch(`${roomUrl}/stories/current`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ [field]: value }),
-    }).catch((err) => setLoadError(err.message))
+
+    // Text that is too long is not saved until the user shortens it.
+    if (!error) {
+      fetch(`${roomUrl}/stories/current`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [field]: value }),
+      }).catch(() => setLoadError(SAFE_ERROR))
+    }
   }
 
+  // Stay on the current story until its title and description are within the limits.
+  const handleStoryNavigation = (path) => {
+    if (storyErrors.title || storyErrors.description) {
+      return
+    }
+    sendToServer(path)
+  }
+  const handleTimerAction = async (action) => {
+    setIsTimerUpdating(true)
+    await sendToServer('/timer', 'POST', { playerId, action })
+    setIsTimerUpdating(false)
+  }
   const handleCopySessionCode = async () => {
     try {
       await navigator.clipboard.writeText(sessionCode)
       setSessionCodeCopied(true)
     } catch {
       setSessionCodeCopied(false)
+    }
+  }
+  const handleLeaveRoom = async () => {
+    if (!playerId || leavingRef.current) {
+      return
+    }
+
+    leavingRef.current = true
+    setIsLeavingRoom(true)
+    setLoadError(null)
+    try {
+      const response = await fetch(`${roomUrl}/players/${encodeURIComponent(playerId)}`, {
+        method: 'DELETE',
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || SAFE_ERROR)
+      }
+
+      sessionStorage.removeItem(`playerId:${sessionCode}`)
+      navigate('/')
+    } catch (error) {
+      console.error('Failed to leave room:', error)
+      leavingRef.current = false
+      setIsLeavingRoom(false)
+      setLoadError(error instanceof SyntaxError || error instanceof TypeError ? SAFE_ERROR : error.message)
+      refreshRoom()
     }
   }
 
@@ -131,6 +289,7 @@ const GamePage = () => {
       </header>
 
       <main id="main-content" className="game-shell game-main">
+        {loadError && <p className="game-error" role="alert">{loadError}</p>}
         <section className="game-section top-third" aria-label="Top third: story and session">
           <div className="story-panel">
             <p className="section-kicker">Current game</p>
@@ -140,8 +299,10 @@ const GamePage = () => {
               currentStoryIndex={room.currentStoryIndex}
               onTitleChange={(value) => handleStoryEdit('title', value)}
               onDescriptionChange={(value) => handleStoryEdit('description', value)}
-              onPreviousStory={() => sendToServer('/stories/previous')}
-              onNextStory={() => sendToServer('/stories/next')}
+              titleError={storyErrors.title}
+              descriptionError={storyErrors.description}
+              onPreviousStory={() => handleStoryNavigation('/stories/previous')}
+              onNextStory={() => handleStoryNavigation('/stories/next')}
             />
           </div>
           <aside className="session-panel" aria-labelledby="session-info-heading">
@@ -172,10 +333,25 @@ const GamePage = () => {
                 <span className="timer-icon" aria-hidden="true">◷</span>
                 <div className="timer-card-content">
                   <span className="timer-label">Session timer</span>
-                  <SessionTimer />
+                  <SessionTimer
+                    key={room.sessionTimer.syncedAt}
+                    timer={room.sessionTimer}
+                    isHost={room.hostPlayerId === playerId}
+                    onAction={handleTimerAction}
+                    isUpdating={isTimerUpdating}
+                  />
                 </div>
               </div>
             </div>
+            {room.hostPlayerId === playerId && <span className="host-status">You are the session host</span>}
+            <button
+              className="leave-room-button"
+              type="button"
+              onClick={handleLeaveRoom}
+              disabled={isLeavingRoom}
+            >
+              {isLeavingRoom ? 'Leaving...' : 'Leave Room'}
+            </button>
           </aside>
         </section>
 

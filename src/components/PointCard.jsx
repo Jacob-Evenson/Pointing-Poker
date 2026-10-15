@@ -1,7 +1,7 @@
 import React from 'react';
 
 const PointCard = ({ point, onSelect }) => {
-  const pointLabel = point.value === '?' ? 'Needs more information' : `${point.value} points`;
+  const pointLabel = point.value === '?' ? '' : `${point.value} points`;
 
   return (
     <button
@@ -11,7 +11,7 @@ const PointCard = ({ point, onSelect }) => {
     >
       <h3>{point.title}</h3>
       <p>{point.description}</p>
-      <span>{pointLabel}</span>
+      {/* <span>{pointLabel}</span> */}
     </button>
   );
 };

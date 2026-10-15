@@ -300,3 +300,10 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   white-space: nowrap;
   border: 0;
 }
+.field-error {
+  min-height: 1.25rem;
+  margin: 0.35rem 0 0;
+  color: var(--error);
+  font-size: 0.9rem;
+  font-weight: 600;
+}

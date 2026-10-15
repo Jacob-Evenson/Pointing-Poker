@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './PointingPokerHomePage.css'
+import { validateSessionCode, SESSION_NOT_FOUND_MESSAGE, SESSION_CODE_LENGTH } from './validation.js'
 import pointingPokerLogo from './assets/pointing-poker-logo.png'
 import pointingPokerLogoCrop from './assets/pointing-poker-logo-crop.png'
 
@@ -45,8 +46,9 @@ const PointingPokerHomePage = () => {
   const handleJoinSession = async (event) => {
     event.preventDefault()
     const roomCode = sessionCode.trim()
-    if (!roomCode) {
-      setJoinRoomError('Enter a session code')
+    const codeError = validateSessionCode(roomCode)
+    if (codeError) {
+      setJoinRoomError(codeError)
       return
     }
 
@@ -57,19 +59,18 @@ const PointingPokerHomePage = () => {
       const response = await fetch(`/api/rooms/${encodeURIComponent(roomCode)}`, {
         method: 'GET',
       })
+      if (response.status === 404) {
+        throw new Error(SESSION_NOT_FOUND_MESSAGE)
+      }
       const data = await response.json()
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to find session')
-      }
-
-      if (!data.roomCode) {
-        throw new Error('Session details did not include a room code')
+      if (!response.ok || !data.roomCode) {
+        throw new Error('Something went wrong. Please try again.')
       }
 
       navigate(`/room/${encodeURIComponent(roomCode)}/join`)
     } catch (err) {
-      setJoinRoomError(err.message)
+      setJoinRoomError(err.message === SESSION_NOT_FOUND_MESSAGE ? err.message : 'Something went wrong. Please try again.')
     } finally {
       setIsJoiningRoom(false)
     }
@@ -125,18 +126,20 @@ const PointingPokerHomePage = () => {
               id="session-code"
               type="text"
               placeholder="Enter session code"
+              maxLength={SESSION_CODE_LENGTH}
               value={sessionCode}
               onChange={(event) => {
                 setSessionCode(event.target.value)
                 setJoinRoomError(null)
               }}
-              required
+              aria-invalid={Boolean(joinRoomError)}
+              aria-describedby={joinRoomError ? 'session-code-error' : undefined}
               disabled={isJoiningRoom}
             />
             <button className="btn btn-join" type="submit" disabled={isJoiningRoom}>
               {isJoiningRoom ? 'Checking...' : 'Join Session'} <span aria-hidden="true">→</span>
             </button>
-            {joinRoomError && <p role="alert">{joinRoomError}</p>}
+            {joinRoomError && <p id="session-code-error" className="field-error" role="alert">{joinRoomError}</p>}
           </form>
         </section>
 

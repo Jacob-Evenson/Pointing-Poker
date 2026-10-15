@@ -102,3 +102,13 @@
   font-size: 1.35rem;
   line-height: 1.15;
 }
+.story-card .field-error {
+  margin: -.4rem 0 .6rem;
+  color: #b3261e;
+  font-size: .8rem;
+  font-weight: 600;
+}
+
+.story-card [aria-invalid='true'] {
+  border-color: #b3261e;
+}

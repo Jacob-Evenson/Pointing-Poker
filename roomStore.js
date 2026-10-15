@@ -2,21 +2,35 @@
 // This Map is the single source of truth for room data while the server is running.
 // If the server restarts, this Map is cleared and all rooms disappear.
 const rooms = new Map()
+//sets the timeout value to 15 seconds for testing. Before going live this needs to be set to 45+ seconds
+const timeoutValue = 86400001 //<--- Ensure this is 45+ seconds before going live or for live
+
+//protecting demo rooms for testing
+const protectedRoomsId = new Set(['JACOBS-26', 'TEAM-42'])
+
 
 // Creates a new room, stores it in the Map, and returns it.
 export const createRoom = (roomId) => {
   const room = {
     id: roomId,
     players: [],
+    hostPlayerId: null,
+    sessionTimer: {
+      elapsedSeconds: 0,
+      runningSince: null,
+    },
     stories: [{ title: '', description: '' }],
     votes: {},
     currentStoryIndex: 0,
     votesRevealed: false,
+    anonymousReveal: false,
     savedVotes: {},
     createdAt: new Date()
   }
 
   rooms.set(roomId, room)
+  startEmptyRoomTimer(roomId)
+
   return room
 }
 
@@ -26,6 +40,33 @@ export const roomExists = (roomId) => rooms.has(roomId)
 // Returns the room object, or undefined if it does not exist.
 export const getRoom = (roomId) => rooms.get(roomId)
 
+const emptyRoomTimers = new Map()
+
+const startEmptyRoomTimer = (roomId) => {
+  if (protectedRoomsId.has(roomId)) {
+    return
+  }
+  const handle = setTimeout(() => {
+    const room = getRoom(roomId)
+    if (!room) {
+      return
+    }
+    if (room.players.length === 0) {
+      deleteRoom(roomId)
+    }
+  }, timeoutValue)
+
+  emptyRoomTimers.set(roomId, handle)
+}
+
+const cancelEmptyRoomTimer = (roomId) => {
+  const handle = emptyRoomTimers.get(roomId)
+  if (handle) {
+    clearTimeout(handle)
+    emptyRoomTimers.delete(roomId)
+  }
+}
+
 // Adds a player to the room's players array.
 export const addPlayer = (roomId, player) => {
   const room = rooms.get(roomId)
@@ -33,20 +74,41 @@ export const addPlayer = (roomId, player) => {
     return null
   }
 
+  cancelEmptyRoomTimer(roomId)
   room.players.push(player)
+  if (!room.hostPlayerId) {
+    // The first player to join owns timer controls until they leave.
+    room.hostPlayerId = player.id
+    room.sessionTimer.runningSince = Date.now()
+  }
   return room
 }
 
-// Removes a player from the room by name.
-export const removePlayer = (roomId, playerName) => {
+// Removes a player from the room by id.
+export const removePlayer = (roomId, playerId) => {
   const room = rooms.get(roomId)
-  if (!room) {
+  if (!room || !room.players.some((player) => player.id === playerId)) {
     return null
   }
 
-  const removed = room.players.filter((player) => player.name === playerName)
-  room.players = room.players.filter((player) => player.name !== playerName)
-  removed.forEach((player) => delete room.votes[player.id])
+  room.players = room.players.filter((player) => player.id !== playerId)
+  if (room.hostPlayerId === playerId) {
+    // Hand off the host role without resetting the shared timer.
+    room.hostPlayerId = room.players[0]?.id ?? null
+    if (!room.hostPlayerId && room.sessionTimer.runningSince !== null) {
+      room.sessionTimer.elapsedSeconds += Math.floor(
+        (Date.now() - room.sessionTimer.runningSince) / 1000
+      )
+      room.sessionTimer.runningSince = null
+    }
+  }
+  delete room.votes[playerId]
+  Object.values(room.savedVotes).forEach((saved) => {
+    delete saved.votes[playerId]
+  })
+  if (room.players.length === 0) {
+    startEmptyRoomTimer(roomId)
+  }
   return room
 }
 
@@ -149,5 +211,59 @@ export const setVotesRevealed = (roomId, revealed) => {
   }
 
   room.votesRevealed = revealed
+  return room
+}
+
+export const setAnonymousReveal = (roomId, enabled) => {
+  const room = rooms.get(roomId)
+  if (!room) {
+    return null
+  }
+
+  room.anonymousReveal = enabled
+  return room
+}
+
+export const getSessionTimer = (roomId, now = Date.now()) => {
+  const room = rooms.get(roomId)
+  if (!room) {
+    return null
+  }
+
+  const { elapsedSeconds, runningSince } = room.sessionTimer
+  // Store a start timestamp rather than ticking server state every second.
+  return {
+    elapsedSeconds: elapsedSeconds + (
+      runningSince === null ? 0 : Math.floor((now - runningSince) / 1000)
+    ),
+    running: runningSince !== null,
+    syncedAt: now,
+  }
+}
+
+export const updateSessionTimer = (roomId, action, now = Date.now()) => {
+  const room = rooms.get(roomId)
+  if (!room || !room.hostPlayerId) {
+    return null
+  }
+
+  if (action === 'start') {
+    if (room.sessionTimer.runningSince === null) {
+      room.sessionTimer.runningSince = now
+    }
+  } else if (action === 'pause') {
+    if (room.sessionTimer.runningSince !== null) {
+      room.sessionTimer.elapsedSeconds += Math.floor(
+        (now - room.sessionTimer.runningSince) / 1000
+      )
+      room.sessionTimer.runningSince = null
+    }
+  } else if (action === 'reset') {
+    room.sessionTimer.elapsedSeconds = 0
+    room.sessionTimer.runningSince = null
+  } else {
+    return null
+  }
+
   return room
 }

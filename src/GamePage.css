@@ -113,6 +113,37 @@ input:focus-visible {
   font-size: .95rem;
 }
 
+.leave-room-button {
+  padding: .55rem .8rem;
+  color: var(--clay-800);
+  background: var(--sage-050);
+  border: 1px solid var(--border);
+  border-radius: var(--btn-radius);
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.leave-room-button:hover {
+  background: var(--sage-200);
+  border-color: var(--clay-700);
+}
+
+.leave-room-button:disabled {
+  cursor: wait;
+  opacity: .7;
+}
+
+.game-error {
+  margin: 0;
+  padding: .65rem .8rem;
+  color: #7b2525;
+  background: #fff0f0;
+  border: 1px solid #dca5a5;
+  border-radius: 6px;
+}
+
 .game-main {
   display: grid;
   flex: 1 0 auto;
@@ -244,7 +275,7 @@ input:focus-visible {
 .session-metrics {
   display: grid;
   margin-top: auto;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: .5rem;
 }
 
@@ -293,6 +324,16 @@ input:focus-visible {
   margin-bottom: .2rem;
   color: var(--sage-700);
   font-size: .9rem;
+  font-weight: 600;
+}
+
+.timer-host-note,
+.host-status {
+  color: var(--sage-700);
+  font-size: .75rem;
+}
+
+.host-status {
   font-weight: 600;
 }
 
@@ -634,10 +675,6 @@ input:focus-visible {
   .results-grid,
   .results-grid.results-with-stats {
     grid-template-columns: 1fr;
-  }
-
-  .session-metrics {
-    grid-template-columns: minmax(100px, .7fr) minmax(0, 1.3fr);
   }
 
   .point-card-grid {

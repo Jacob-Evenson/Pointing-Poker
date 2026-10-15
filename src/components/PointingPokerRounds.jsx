@@ -6,6 +6,8 @@ import "./PointingPokerRounds.css";
 const PointingPokerRounds = ({
   stories,
   currentStoryIndex,
+  titleError,
+  descriptionError,
   onTitleChange,
   onDescriptionChange,
   onPreviousStory,
@@ -25,6 +27,8 @@ const PointingPokerRounds = ({
 
       <StoryCard
         story={currentStory}
+        titleError={titleError}
+        descriptionError={descriptionError}
         onTitleChange={onTitleChange}
         onDescriptionChange={onDescriptionChange}
       />
