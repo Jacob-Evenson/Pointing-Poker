@@ -125,6 +125,7 @@ const GamePage = () => {
       socket.send(JSON.stringify({
         type: 'JOIN_ROOM',
         roomCode: sessionCode,
+        playerId,
       }))
       console.log(`Connected to WebSocket room ${sessionCode}`)
     }
